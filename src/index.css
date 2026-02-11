@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-white font-sans;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-oswald uppercase;
+  }
+}
