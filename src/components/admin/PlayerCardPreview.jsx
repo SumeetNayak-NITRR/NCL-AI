@@ -1,7 +1,7 @@
 import React, { useRef } from 'react'
 import { X, Download } from 'lucide-react'
 import html2canvas from 'html2canvas'
-import PlayerStage from '../auction/PlayerStage'
+import PlayerCard from '../common/PlayerCard'
 
 const PlayerCardPreview = ({ player, onClose }) => {
     const cardRef = useRef(null)
@@ -40,7 +40,7 @@ const PlayerCardPreview = ({ player, onClose }) => {
             <div className="relative">
                 {/* Header Controls */}
                 <div className="absolute -top-16 left-0 right-0 flex justify-between items-center px-4">
-                    <h2 className="text-2xl font-oswald text-gold">Player Card Preview</h2>
+                    <h2 className="text-2xl font-oswald text-white">Card Preview</h2>
                     <div className="flex gap-3">
                         <button
                             onClick={handleDownload}
@@ -58,9 +58,9 @@ const PlayerCardPreview = ({ player, onClose }) => {
                     </div>
                 </div>
 
-                {/* Card Container - Matches PlayerStage aspect ratio (3:4.2) */}
+                {/* Card Container - Matches PlayerCard aspect ratio (3:4.2) */}
                 <div ref={cardRef} className="bg-black rounded-xl overflow-hidden w-[450px] h-[630px] flex">
-                    <PlayerStage player={player} isSold={false} />
+                    <PlayerCard player={player} size="large" showSoldBadge={player.status === 'Sold'} />
                 </div>
 
                 {/* Footer Info */}

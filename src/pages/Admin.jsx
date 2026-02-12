@@ -2,24 +2,38 @@ import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import EditPlayerModal from '../components/admin/EditPlayerModal'
 import PlayerCardPreview from '../components/admin/PlayerCardPreview'
-import { Lock, Search, Filter, RefreshCw, Eye } from 'lucide-react'
+import LoadingSpinner from '../components/common/LoadingSpinner'
+import { Lock, Search, Filter, RefreshCw, Eye, LogOut } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const Admin = () => {
-    const [pin, setPin] = useState('')
-    const [isAuthenticated, setIsAuthenticated] = useState(false)
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [session, setSession] = useState(null)
     const [players, setPlayers] = useState([])
     const [loading, setLoading] = useState(false)
     const [filter, setFilter] = useState('All')
     const [search, setSearch] = useState('')
     const [selectedPlayer, setSelectedPlayer] = useState(null)
     const [selectedCardPlayer, setSelectedCardPlayer] = useState(null)
-
-    const ADMIN_PIN = import.meta.env.VITE_ADMIN_PIN || '1234'
+    const [authError, setAuthError] = useState(null)
 
     useEffect(() => {
-        if (isAuthenticated) fetchPlayers()
-    }, [isAuthenticated])
+        // Check active session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSession(session)
+            if (session) fetchPlayers()
+        })
+
+        const {
+            data: { subscription },
+        } = supabase.auth.onAuthStateChange((_event, session) => {
+            setSession(session)
+            if (session) fetchPlayers()
+        })
+
+        return () => subscription.unsubscribe()
+    }, [])
 
     const fetchPlayers = async () => {
         setLoading(true)
@@ -33,10 +47,24 @@ const Admin = () => {
         setLoading(false)
     }
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault()
-        if (pin === ADMIN_PIN) setIsAuthenticated(true)
-        else alert('Invalid PIN')
+        setLoading(true)
+        setAuthError(null)
+
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        })
+
+        if (error) {
+            setAuthError(error.message)
+        }
+        setLoading(false)
+    }
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut()
     }
 
     const filteredPlayers = players.filter(p => {
@@ -54,24 +82,62 @@ const Admin = () => {
         }
     }
 
-    if (!isAuthenticated) {
+    if (!session) {
         return (
-            <div className="h-screen bg-background flex flex-col items-center justify-center p-4">
-                <div className="bg-white/5 p-8 rounded-xl border border-white/10 w-full max-w-md text-center">
-                    <Lock className="w-12 h-12 text-gold mx-auto mb-4" />
-                    <h1 className="text-3xl font-oswald text-white mb-6">Admin Access</h1>
+            <div className="h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
+                {/* Background Effect */}
+                <div className="absolute inset-0 bg-gradient-radial from-dark-blue/20 via-transparent to-transparent opacity-50 pointer-events-none" />
+
+                <div className="bg-white/5 p-8 rounded-xl border border-white/10 w-full max-w-md text-center backdrop-blur-md relative z-10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+                    <div className="w-16 h-16 bg-black/50 rounded-full flex items-center justify-center mx-auto mb-6 border border-gold/30 shadow-[0_0_20px_rgba(255,215,0,0.2)]">
+                        <Lock className="w-8 h-8 text-gold" />
+                    </div>
+
+                    <h1 className="text-3xl font-oswald text-white mb-2">Admin Portal</h1>
+                    <p className="text-white/40 text-sm font-rajdhani mb-8 tracking-wider uppercase">Authorized Personnel Only</p>
+
+                    {authError && (
+                        <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded mb-4 text-sm font-rajdhani">
+                            {authError}
+                        </div>
+                    )}
+
                     <form onSubmit={handleLogin} className="space-y-4">
-                        <input
-                            type="password"
-                            value={pin}
-                            onChange={e => setPin(e.target.value)}
-                            placeholder="Enter PIN"
-                            className="w-full bg-black/50 border border-white/20 p-3 rounded text-center text-white text-xl tracking-widest focus:border-gold outline-none"
-                        />
-                        <button type="submit" className="w-full bg-gold text-black font-oswald uppercase py-3 rounded hover:bg-gold/80">
-                            Unlock
+                        <div className="space-y-1 text-left">
+                            <label className="text-xs text-white/40 font-rajdhani uppercase tracking-wider ml-1">Email</label>
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
+                                placeholder="admin@nitrrfc.com"
+                                className="w-full bg-black/50 border border-white/10 p-3 rounded text-white focus:border-gold outline-none transition-colors font-rajdhani"
+                                required
+                            />
+                        </div>
+
+                        <div className="space-y-1 text-left">
+                            <label className="text-xs text-white/40 font-rajdhani uppercase tracking-wider ml-1">Password</label>
+                            <input
+                                type="password"
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                placeholder="••••••••"
+                                className="w-full bg-black/50 border border-white/10 p-3 rounded text-white focus:border-gold outline-none transition-colors font-rajdhani"
+                                required
+                            />
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full bg-gold text-black font-oswald font-bold uppercase py-3 rounded hover:bg-gold/80 shadow-[0_0_20px_rgba(255,215,0,0.4)] hover:shadow-[0_0_30px_rgba(255,215,0,0.6)] transition-all border border-gold/50 disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                        >
+                            {loading ? <LoadingSpinner size="sm" color="black" /> : 'Access Database'}
                         </button>
-                        <Link to="/" className="block text-white/50 text-sm hover:text-white mt-4">Return Home</Link>
+
+                        <Link to="/" className="block text-white/40 text-xs hover:text-white mt-6 transition-colors font-rajdhani tracking-widest uppercase">
+                            ← Return to Public Site
+                        </Link>
                     </form>
                 </div>
             </div>
@@ -79,34 +145,64 @@ const Admin = () => {
     }
 
     return (
-        <div className="min-h-screen bg-background text-white p-6">
-            <div className="max-w-7xl mx-auto">
-                <header className="flex justify-between items-center mb-8 border-b border-white/10 pb-6">
-                    <h1 className="text-4xl font-oswald text-gold">Admin Dashboard</h1>
+        <div className="min-h-screen bg-background text-white p-6 relative">
+            {/* Persistent background pattern */}
+            <div className="fixed inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+
+            <div className="max-w-7xl mx-auto relative z-10">
+                <header className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-white/10 pb-6 gap-4">
+                    <div>
+                        <h1 className="text-4xl font-oswald text-gold">Admin Dashboard</h1>
+                        <p className="text-white/40 text-sm font-rajdhani tracking-wider uppercase mt-1">
+                            Session Active • {session.user.email}
+                        </p>
+                    </div>
+
                     <div className="flex gap-4">
-                        <button onClick={fetchPlayers} className="p-2 bg-white/5 rounded hover:bg-white/10 text-white"><RefreshCw size={20} /></button>
-                        <Link to="/" className="px-4 py-2 border border-white/20 rounded hover:bg-white/10 text-white font-oswald uppercase">Logout</Link>
+                        <button
+                            onClick={() => setSelectedPlayer({
+                                name: '',
+                                year: '1st',
+                                position: 'ST',
+                                pace: 50, shooting: 50, passing: 50, dribbling: 50, defending: 50, physical: 50,
+                                status: 'Alumni',
+                                is_main_team: false,
+                                photo_url: ''
+                            })}
+                            className="px-6 py-2 bg-gold text-black font-oswald uppercase rounded hover:bg-gold/80 transition-all shadow-[0_0_15px_rgba(255,215,0,0.3)] hover:shadow-[0_0_25px_rgba(255,215,0,0.5)] font-bold tracking-wide"
+                        >
+                            + New Player
+                        </button>
+                        <button onClick={fetchPlayers} className="p-2 bg-white/5 rounded hover:bg-white/10 text-white border border-white/10 transition-colors" title="Refresh Data">
+                            <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
+                        </button>
+                        <button
+                            onClick={handleLogout}
+                            className="px-4 py-2 border border-red-500/30 text-red-500/80 hover:text-red-500 hover:bg-red-500/10 rounded font-oswald uppercase transition-all flex items-center gap-2"
+                        >
+                            <LogOut size={16} /> Logout
+                        </button>
                     </div>
                 </header>
 
                 {/* Controls */}
                 <div className="flex flex-col md:flex-row gap-4 mb-8">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                    <div className="relative flex-1 group">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-neon transition-colors" size={20} />
                         <input
                             type="text"
-                            placeholder="Search players..."
+                            placeholder="Search database..."
                             value={search}
                             onChange={e => setSearch(e.target.value)}
-                            className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-3 focus:border-neon outline-none text-white"
+                            className="w-full bg-black/40 border border-white/10 rounded-lg pl-10 pr-4 py-3 focus:border-neon outline-none text-white font-rajdhani tracking-wide transition-all focus:bg-black/60"
                         />
                     </div>
-                    <div className="flex gap-2 bg-white/5 p-1 rounded-lg border border-white/10">
-                        {['All', 'Pending', 'Ready', 'Sold'].map(s => (
+                    <div className="flex gap-2 bg-black/40 p-1 rounded-lg border border-white/10 overflow-x-auto">
+                        {['All', 'Pending', 'Ready', 'Sold', 'Alumni'].map(s => (
                             <button
                                 key={s}
                                 onClick={() => setFilter(s)}
-                                className={`px-4 py-2 rounded font-oswald uppercase transition-colors ${filter === s ? 'bg-gold text-black' : 'text-white/60 hover:text-white'}`}
+                                className={`px-4 py-2 rounded font-oswald uppercase transition-all whitespace-nowrap ${filter === s ? 'bg-white/10 text-white border border-white/20 shadow-[0_0_10px_rgba(255,255,255,0.1)]' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
                             >
                                 {s}
                             </button>
@@ -115,65 +211,88 @@ const Admin = () => {
                 </div>
 
                 {/* Table */}
-                <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
-                    <table className="w-full text-left">
-                        <thead className="bg-black/30 text-white/50 font-oswald uppercase text-sm">
-                            <tr>
-                                <th className="p-4">Player</th>
-                                <th className="p-4">Year</th>
-                                <th className="p-4">Position</th>
-                                <th className="p-4">Stats (Avg)</th>
-                                <th className="p-4">Status</th>
-                                <th className="p-4">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5">
-                            {loading ? (
-                                <tr><td colSpan="6" className="p-8 text-center text-white/50">Loading matches...</td></tr>
-                            ) : filteredPlayers.length === 0 ? (
-                                <tr><td colSpan="6" className="p-8 text-center text-white/50">No players found.</td></tr>
-                            ) : (
-                                filteredPlayers.map(player => (
-                                    <tr key={player.id} className="hover:bg-white/5 transition-colors">
-                                        <td className="p-4 flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-gray-700 rounded-full overflow-hidden">
-                                                {player.photo_url && <img src={player.photo_url} alt={player.name} className="w-full h-full object-cover" />}
-                                            </div>
-                                            <span className="font-bold">{player.name}</span>
-                                        </td>
-                                        <td className="p-4 text-white/70">{player.year}</td>
-                                        <td className="p-4 text-white/70">{player.position}</td>
-                                        <td className="p-4 font-mono text-neon">
-                                            {Math.round((player.pace + player.shooting + player.passing + player.dribbling + player.defending + player.physical) / 6)}
-                                        </td>
-                                        <td className="p-4">
-                                            <span className={`px-2 py-1 rounded text-xs font-oswald uppercase border ${getStatusColor(player.status)}`}>
-                                                {player.status}
-                                            </span>
-                                        </td>
-                                        <td className="p-4">
-                                            <div className="flex gap-3">
-                                                <button
-                                                    onClick={() => setSelectedCardPlayer(player)}
-                                                    className="flex items-center gap-1 text-neon hover:text-white font-oswald uppercase text-sm transition-colors"
-                                                    title="View Player Card"
-                                                >
-                                                    <Eye size={16} />
-                                                    View Card
-                                                </button>
-                                                <button
-                                                    onClick={() => setSelectedPlayer(player)}
-                                                    className="text-gold hover:text-white font-oswald uppercase text-sm underline"
-                                                >
-                                                    Edit
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
+                <div className="bg-black/40 border border-white/10 rounded-xl overflow-hidden backdrop-blur-sm shadow-xl">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-white/5 text-white/40 font-oswald uppercase text-xs tracking-widest border-b border-white/5">
+                                <tr>
+                                    <th className="p-4 pl-6">Player Profile</th>
+                                    <th className="p-4">Year / Season</th>
+                                    <th className="p-4">Position</th>
+                                    <th className="p-4">OVR</th>
+                                    <th className="p-4">Status</th>
+                                    <th className="p-4 pr-6 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                                {loading ? (
+                                    <tr><td colSpan="6" className="p-12">
+                                        <div className="flex flex-col items-center gap-4">
+                                            <LoadingSpinner size="lg" color="laser-blue" />
+                                            <span className="text-white/30 text-xs font-rajdhani uppercase tracking-widest animate-pulse">Syncing Database...</span>
+                                        </div>
+                                    </td></tr>
+                                ) : filteredPlayers.length === 0 ? (
+                                    <tr><td colSpan="6" className="p-12 text-center text-white/30 font-rajdhani">No players matching your criteria.</td></tr>
+                                ) : (
+                                    filteredPlayers.map(player => (
+                                        <tr key={player.id} className="hover:bg-white/5 transition-colors group">
+                                            <td className="p-4 pl-6 flex items-center gap-4">
+                                                <div className="w-12 h-12 bg-black rounded-lg overflow-hidden border border-white/10 relative group-hover:border-white/30 transition-colors shadow-inner">
+                                                    {player.photo_url ? (
+                                                        <img src={player.photo_url} alt={player.name} className="w-full h-full object-cover" />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-white/10 text-xl font-bebas">?</div>
+                                                    )}
+
+                                                    {/* Status indicator dot */}
+                                                    <div className={`absolute top-1 right-1 w-2 h-2 rounded-full ${player.status === 'Ready' ? 'bg-neon shadow-[0_0_5px_#39ff14]' :
+                                                            player.status === 'Sold' ? 'bg-red-500' :
+                                                                'bg-white/20'
+                                                        }`}></div>
+                                                </div>
+                                                <div>
+                                                    <div className="font-bold text-white group-hover:text-gold transition-colors font-oswald tracking-wide text-lg">{player.name}</div>
+                                                    <div className="text-white/30 text-xs font-mono">{player.id.slice(0, 8)}...</div>
+                                                </div>
+                                            </td>
+                                            <td className="p-4 text-white/60 font-rajdhani">{player.year}</td>
+                                            <td className="p-4">
+                                                <span className="bg-white/5 px-2 py-1 rounded text-xs font-mono text-white/80 border border-white/5">{player.position}</span>
+                                            </td>
+                                            <td className="p-4">
+                                                <span className="font-bebas text-xl text-neon drop-shadow-[0_0_5px_rgba(57,255,20,0.5)]">
+                                                    {Math.round((player.pace + player.shooting + player.passing + player.dribbling + player.defending + player.physical) / 6)}
+                                                </span>
+                                            </td>
+                                            <td className="p-4">
+                                                <span className={`px-2 py-1 rounded text-[10px] font-oswald uppercase tracking-wider border ${getStatusColor(player.status)}`}>
+                                                    {player.status}
+                                                </span>
+                                            </td>
+                                            <td className="p-4 pr-6 text-right">
+                                                <div className="flex items-center justify-end gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                                                    <button
+                                                        onClick={() => setSelectedCardPlayer(player)}
+                                                        className="p-2 text-neon hover:bg-neon/10 rounded transition-colors"
+                                                        title="Preview Card"
+                                                    >
+                                                        <Eye size={18} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setSelectedPlayer(player)}
+                                                        className="px-3 py-1 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-gold/30 hover:text-gold rounded text-xs font-oswald uppercase tracking-wider transition-all"
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 

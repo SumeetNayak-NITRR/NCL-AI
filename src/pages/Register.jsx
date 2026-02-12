@@ -7,8 +7,8 @@ import ImageUpload from '../components/register/ImageUpload'
 import { Info, ArrowLeft } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
-const positions = ['ST', 'CB', 'CM', 'GK']
-const years = ['1st', '2nd', '3rd', '4th']
+const positions = ['ST', 'CB', 'CM', 'GK', 'CDM', 'Winger', 'Fullback']
+const years = ['1st', '2nd', '3rd', '4th', '5th']
 const statsLabels = ['Pace', 'Shooting', 'Passing', 'Dribbling', 'Defending', 'Physical']
 
 const Register = () => {
@@ -116,7 +116,12 @@ const Register = () => {
                     <ArrowLeft className="mr-2" /> Back to Home
                 </Link>
 
-                <h1 className="text-4xl md:text-5xl font-oswald text-gold mb-2">Player Registration</h1>
+                <h1 className="text-4xl md:text-5xl font-oswald text-white mb-2 flex items-center gap-4">
+                    <div className="w-12 h-12 relative rounded-full border border-white/20 bg-black/40 overflow-hidden flex-shrink-0">
+                        <img src="/logo.png" alt="Logo" className="w-full h-full object-contain p-1" />
+                    </div>
+                    Player Registration
+                </h1>
                 <p className="text-white/60 mb-8 font-light">Join the draft. Prove your worth.</p>
 
                 {error && (
@@ -131,7 +136,7 @@ const Register = () => {
                         <h2 className="text-2xl font-oswald text-neon mb-6">Details</h2>
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-oswald uppercase text-white/70 mb-1">Full Name</label>
+                                <label className="block text-sm font-oswald uppercase text-white/70 mb-1">Name</label>
                                 <input
                                     type="text"
                                     name="name"
@@ -175,8 +180,8 @@ const Register = () => {
 
                     <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                         <h2 className="text-2xl font-oswald text-neon mb-6">Player Card Photo</h2>
-                        <p className="text-sm text-white/50 mb-4 flex items-center gap-2">
-                            <Info size={16} />
+                        <p className="text-sm text-white/90 mb-4 flex items-center gap-2">
+                            <Info size={26} />
                             Upload a PNG image with transparent background removed (use remove.bg or similar tools). This creates the FIFA-style card effect.
                         </p>
                         <ImageUpload onImageSelected={setImageFile} />
@@ -192,7 +197,7 @@ const Register = () => {
                                 <div key={stat}>
                                     <div className="flex justify-between mb-1">
                                         <label className="text-sm font-oswald uppercase text-white/70">{stat}</label>
-                                        <span className="text-gold font-bold">{formData.stats[stat.toLowerCase()]}</span>
+                                        <span className="text-white/80 font-bold">{formData.stats[stat.toLowerCase()]}</span>
                                     </div>
                                     <input
                                         type="range"
@@ -212,7 +217,7 @@ const Register = () => {
                         whileTap={{ scale: 0.98 }}
                         type="submit"
                         disabled={loading}
-                        className="w-full bg-gold text-black font-oswald uppercase text-xl py-4 rounded-lg shadow-lg hover:shadow-gold/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                        className="w-full bg-white text-black font-oswald font-bold uppercase text-xl py-4 rounded-lg shadow-[0_0_30px_rgba(255,215,0,0.5)] hover:shadow-[0_0_50px_rgba(255,215,0,0.7)] disabled:opacity-50 disabled:cursor-not-allowed transition-all border-2 border-gold/50"
                     >
                         {loading ? (processingStatus || 'Submitting...') : 'Submit Registration'}
                     </motion.button>

@@ -1,3 +1,8 @@
+-- ================================================================
+-- NITRR FC - Official Website Database Schema
+-- Updated: Removed auction logic, added manual team assignment
+-- ================================================================
+
 -- Create Players Table
 create table players (
   id uuid default uuid_generate_v4() primary key,
@@ -12,18 +17,22 @@ create table players (
   physical int not null,
   photo_url text,
   status text default 'Pending', -- Pending, Ready, Sold
-  assigned_team_id uuid,
+  team_name text, -- Manual team assignment (replaces assigned_team_id)
+  jersey_number int,
+  season text default '2026',
   created_at timestamp with time zone default timezone('utc'::text, now())
 );
 
--- Create Teams Table
+-- Create Teams Table (Simplified - no auction fields)
 create table teams (
   id uuid default uuid_generate_v4() primary key,
   name text not null,
-  budget int default 10000,
-  player_count int default 0,
-  auction_state jsonb,
-  current_player_id uuid
+  season text default '2026',
+  captain_name text,
+  wins int default 0,
+  losses int default 0,
+  player_count int default 0, -- Keep for reference
+  created_at timestamp default now()
 );
 
 -- Initial Teams Data (Example)
