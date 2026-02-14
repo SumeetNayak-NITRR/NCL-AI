@@ -46,16 +46,16 @@ const Footer = () => {
                     <div>
                         <h3 className="text-white font-bebas uppercase text-lg mb-4">Connect</h3>
                         <div className="flex gap-4 mb-4">
-                            <a href="#" className="text-white/60 hover:text-electric-blue transition-colors">
+                            <a href="javascript:void(0)" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Instagram">
                                 <Instagram size={20} />
                             </a>
-                            <a href="#" className="text-white/60 hover:text-electric-blue transition-colors">
+                            <a href="javascript:void(0)" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Twitter">
                                 <Twitter size={20} />
                             </a>
-                            <a href="#" className="text-white/60 hover:text-electric-blue transition-colors">
+                            <a href="javascript:void(0)" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Facebook">
                                 <Facebook size={20} />
                             </a>
-                            <a href="mailto:contact@nitrrfc.com" className="text-white/60 hover:text-electric-blue transition-colors">
+                            <a href="mailto:contact@nitrrfc.com" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Email">
                                 <Mail size={20} />
                             </a>
                         </div>
