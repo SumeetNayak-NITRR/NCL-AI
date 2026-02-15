@@ -48,7 +48,29 @@ const Register = () => {
         setError(null)
 
         if (!imageFile) {
-            setError("Please upload a photo.")
+            const msg = "Please upload a photo."
+            setError(msg)
+            alert(msg)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+            setLoading(false)
+            return
+        }
+
+        // VALIDATION: Check file size (2MB) and type (PNG)
+        if (imageFile.size > 2 * 1024 * 1024) {
+            const msg = "File too large. Maximum size is 2MB."
+            setError(msg)
+            alert(msg)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+            setLoading(false)
+            return
+        }
+
+        if (imageFile.type !== 'image/png') {
+            const msg = "Invalid format. Please upload a PNG file."
+            setError(msg)
+            alert(msg)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
             setLoading(false)
             return
         }
@@ -103,7 +125,10 @@ const Register = () => {
 
         } catch (err) {
             console.error('Error submitting form:', err)
-            setError(err.message || "An error occurred during registration.")
+            const msg = err.message || "An error occurred during registration."
+            setError(msg)
+            alert(msg)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
         } finally {
             setLoading(false)
         }
@@ -116,7 +141,7 @@ const Register = () => {
                     <ArrowLeft className="mr-2" /> Back to Home
                 </Link>
 
-                <h1 className="text-4xl md:text-5xl font-oswald text-white mb-2 flex items-center gap-4">
+                <h1 className="text-3xl md:text-5xl font-oswald text-white mb-2 flex items-center gap-4">
                     <div className="w-12 h-12 relative rounded-full border border-white/20 bg-black/40 overflow-hidden flex-shrink-0">
                         <img src="/logo.png" alt="Logo" className="w-full h-full object-contain p-1" />
                     </div>
@@ -125,7 +150,8 @@ const Register = () => {
                 <p className="text-white/60 mb-8 font-light">Join the draft. Prove your worth.</p>
 
                 {error && (
-                    <div className="bg-red-500/10 border border-red-500 text-red-500 p-4 rounded-lg mb-6">
+                    <div className="bg-red-500/10 border border-red-500 text-red-500 p-4 rounded-lg mb-6 flex items-center gap-2">
+                        <Info size={20} />
                         {error}
                     </div>
                 )}
@@ -180,10 +206,16 @@ const Register = () => {
 
                     <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                         <h2 className="text-2xl font-oswald text-neon mb-6">Player Card Photo</h2>
-                        <p className="text-sm text-white/90 mb-4 flex items-center gap-2">
-                            <Info size={26} />
-                            Upload a PNG image with transparent background removed (use remove.bg or similar tools). This creates the FIFA-style card effect.
-                        </p>
+                        <div className="bg-laser-blue/10 border border-laser-blue/20 p-4 rounded-lg mb-6">
+                            <h3 className="text-laser-blue font-oswald uppercase mb-2 flex items-center gap-2">
+                                <Info size={16} /> Strict Upload Guidelines
+                            </h3>
+                            <ul className="text-sm text-white/80 space-y-1 list-disc list-inside font-rajdhani">
+                                <li><strong>Format:</strong> PNG Only (Transparent Background)</li>
+                                <li><strong>Max Size:</strong> 2MB</li>
+                                <li>Use <a href="https://www.remove.bg" target="_blank" rel="noreferrer" className="text-laser-blue hover:underline">remove.bg</a> or similar tools before uploading.</li>
+                            </ul>
+                        </div>
                         <ImageUpload onImageSelected={setImageFile} />
                     </div>
 

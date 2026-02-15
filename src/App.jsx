@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Suspense, lazy } from 'react'
 import AdminShortcut from './components/common/AdminShortcut'
 import AbstractBackground from './components/common/AbstractBackground'
+import ScrollToTop from './components/common/ScrollToTop'
 
 // Lazy load pages for better performance
 const Landing = lazy(() => import('./pages/Landing'))
@@ -24,6 +25,7 @@ const LoadingSpinner = () => (
 function App() {
   return (
     <Router>
+      <ScrollToTop />
       <AbstractBackground />
       <AdminShortcut />
       <Suspense fallback={<LoadingSpinner />}>

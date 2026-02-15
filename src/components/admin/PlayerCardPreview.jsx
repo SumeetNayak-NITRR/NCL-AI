@@ -1,34 +1,22 @@
 import React, { useRef } from 'react'
 import { X, Download } from 'lucide-react'
-import html2canvas from 'html2canvas'
+import { renderPlayerCardToCanvas } from '../../utils/playerCardRenderer'
 import PlayerCard from '../common/PlayerCard'
+
+
 
 const PlayerCardPreview = ({ player, onClose }) => {
     const cardRef = useRef(null)
 
     const handleDownload = async () => {
-        if (!cardRef.current) return
 
         try {
-            // Capture the card element as a canvas
-            const canvas = await html2canvas(cardRef.current, {
-                backgroundColor: '#000000',
-                scale: 2, // Higher resolution
-                logging: false,
-                useCORS: true // Enable CORS for images
-            })
+            const dataUrl = await renderPlayerCardToCanvas(player);
 
-            // Convert canvas to blob and download
-            canvas.toBlob((blob) => {
-                const url = URL.createObjectURL(blob)
-                const link = document.createElement('a')
-                link.href = url
-                link.download = `${player.name.replace(/\s+/g, '_')}_card.png`
-                document.body.appendChild(link)
-                link.click()
-                document.body.removeChild(link)
-                URL.revokeObjectURL(url)
-            }, 'image/png')
+            const link = document.createElement('a')
+            link.download = `${player.name.replace(/\s+/g, '_')}_card.png`
+            link.href = dataUrl
+            link.click()
         } catch (error) {
             console.error('Error downloading card:', error)
             alert('Failed to download card. Please try again.')

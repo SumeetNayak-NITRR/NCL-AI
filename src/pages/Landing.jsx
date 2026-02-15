@@ -49,7 +49,7 @@ const Landing = () => {
                             <h2 className="text-sm md:text-base font-rajdhani tracking-[0.5em] text-laser-blue uppercase mb-4">
                                 The Official League
                             </h2>
-                            <h1 className="text-6xl md:text-9xl font-bebas text-white leading-[0.85] tracking-tighter mb-8 mix-blend-difference">
+                            <h1 className="text-5xl md:text-9xl font-bebas text-white leading-[0.85] tracking-tighter mb-8 mix-blend-difference">
                                 BEYOND <br />
                                 THE <span className="text-outline-active">LIMITS</span>
                             </h1>
@@ -69,10 +69,29 @@ const Landing = () => {
                 </div>
             </section>
 
-            {/* Scroll Indicator */}
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/50 animate-bounce hidden md:block">
-                <ChevronDown size={24} />
-            </div>
+            {/* Mouse Scroll Indicator */}
+            <motion.div
+                className="absolute bottom-10 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 z-20"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1, duration: 1 }}
+            >
+                <div className="w-[30px] h-[50px] rounded-full border-2 border-white/30 flex justify-center p-2 box-border">
+                    <motion.div
+                        className="w-1 h-2 bg-white rounded-full mb-1"
+                        animate={{
+                            y: [0, 15, 0],
+                            opacity: [1, 0, 0]
+                        }}
+                        transition={{
+                            duration: 1.5,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                    />
+                </div>
+                <span className="text-[10px] font-rajdhani uppercase tracking-[0.2em] text-white/50">Scroll</span>
+            </motion.div>
 
             {/* Stadium Aerial Scroll Animation - Cinematic Showcase */}
             <StadiumAerial />

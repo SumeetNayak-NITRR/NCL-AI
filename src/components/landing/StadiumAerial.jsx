@@ -17,7 +17,7 @@ const StadiumAerial = () => {
     const stadiumScale = useTransform(
         scrollYProgress,
         [0, 0.35, 0.7],
-        [1, 2.5, 3.2] // Dramatic zoom progression
+        [1, 1.5, 1.8] // Reduced zoom to prevent pixelation
     )
 
     const stadiumY = useTransform(
@@ -48,7 +48,7 @@ const StadiumAerial = () => {
     // Dramatic darkness before floodlights
     const overlayOpacity = useTransform(
         scrollYProgress,
-        [0, 0.2, 0.5, 0.65],
+        [0, 0.2, 0.35, 0.6], // Peak darkness earlier at 35%
         [0.4, 0.7, 0.85, 0.6] // Peak darkness then reduce
     )
 
@@ -58,20 +58,20 @@ const StadiumAerial = () => {
     // Floodlights burst on with intensity
     const floodlightOpacity = useTransform(
         scrollYProgress,
-        [0.5, 0.58, 0.75],
-        [0, 1, 0.9] // Quick burst then stabilize
+        [0.35, 0.6, 0.8], // Smoother transition over longer scroll
+        [0, 0.8, 0.6] // Reduced peak intensity to avoid "flash"
     )
 
     const floodlightScale = useTransform(
         scrollYProgress,
-        [0.5, 0.58, 0.75],
-        [0.5, 1.5, 1.2] // Explosive expansion
+        [0.35, 0.6, 0.8],
+        [0.8, 1.2, 1] // Gentle expansion instead of explosive
     )
 
     const floodlightBlur = useTransform(
         scrollYProgress,
-        [0.5, 0.58, 0.75],
-        [200, 100, 140] // Sharp then soften
+        [0.35, 0.6, 0.8],
+        [150, 100, 120] // Less drastic blur change
     )
 
     // ========================================
@@ -140,8 +140,8 @@ const StadiumAerial = () => {
                     <div
                         className="absolute inset-0 bg-cover bg-center"
                         style={{
-                            backgroundImage: 'url(/showcase/stadium-aerial.jpg)',
-                            filter: 'brightness(0.85) contrast(1.1)',
+                            backgroundImage: 'url(/showcase/stadium-aerialct.png)',
+                            filter: 'brightness(0.80) contrast(1.1)',
                         }}
                     />
                 </motion.div>
@@ -362,7 +362,7 @@ const StadiumAerial = () => {
                         ].map((stat, index) => (
                             <motion.div
                                 key={stat.label}
-                                className="relative p-8 bg-white/5 backdrop-blur-md border border-white/20 rounded-xl overflow-hidden group"
+                                className="relative p-4 md:p-8 bg-white/5 backdrop-blur-md border border-white/20 rounded-xl overflow-hidden group"
                                 initial={{ opacity: 0, y: 30 }}
                                 style={{
                                     opacity: useTransform(
@@ -385,7 +385,7 @@ const StadiumAerial = () => {
 
                                 <div className="relative z-10">
                                     <motion.div
-                                        className="text-5xl md:text-6xl font-bebas text-[#fadd78] mb-3"
+                                        className="text-3xl md:text-6xl font-bebas text-[#fadd78] mb-3"
                                         animate={{ scale: [1, 1.05, 1] }}
                                         transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
                                     >

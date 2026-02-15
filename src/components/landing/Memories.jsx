@@ -233,11 +233,25 @@ const Memories = () => {
                 </motion.div>
 
                 <div className="relative">
-                    {/* Center Line with Scroll Progress */}
-                    <motion.div
-                        className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-white/20 to-transparent hidden md:block origin-top"
-                        style={{ scaleY: lineScale }}
-                    ></motion.div>
+                    {/* Center Line with Scroll Progress - LASER BEAM EFFECT */}
+                    <div className="absolute left-1/2 top-0 bottom-0 w-px hidden md:block">
+                        {/* Base Track (Faint) */}
+                        <div className="absolute inset-0 bg-white/10"></div>
+
+                        {/* Laser Beam (Glowing Blue) */}
+                        <motion.div
+                            className="absolute top-0 left-0 right-0 bg-gradient-to-b from-transparent via-laser-blue to-laser-blue shadow-[0_0_15px_rgba(0,34,255,0.8)] origin-top"
+                            style={{
+                                height: "100%",
+                                scaleY: lineScale,
+                                opacity: useTransform(scrollYProgress, [0, 0.1], [0, 1])
+                            }}
+                        >
+                            {/* Leading Spark (At the tip) */}
+                            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-white rounded-full shadow-[0_0_20px_4px_rgba(0,34,255,1)] z-20"></div>
+                            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-8 bg-laser-blue/30 rounded-full blur-md z-10"></div>
+                        </motion.div>
+                    </div>
 
                     {memories.map((memory, index) => (
                         <MemoryCard
@@ -248,19 +262,52 @@ const Memories = () => {
                     ))}
 
                     {/* "To Be Continued" Section - Adds vertical space */}
-                    <motion.div
-                        className="py-32 flex flex-col items-center justify-center text-center opacity-50 hover:opacity-100 transition-opacity duration-500"
-                        initial={{ opacity: 0 }}
-                        whileInView={{ opacity: 0.5 }}
-                        viewport={{ once: true }}
-                    >
-                        <div className="h-24 w-px bg-gradient-to-b from-white/50 to-transparent mb-8"></div>
-                        <span className="font-rajdhani uppercase tracking-[0.5em] text-laser-blue text-sm mb-2">The Legacy Continues</span>
-                        <h3 className="text-4xl md:text-6xl font-bebas text-white uppercase tracking-widest">TO BE CONTINUED...</h3>
-                    </motion.div>
+                    <ToBeContinued />
                 </div>
             </div>
         </section>
+    )
+}
+
+const ToBeContinued = () => {
+    const ref = useRef(null)
+    const { scrollYProgress } = useScroll({
+        target: ref,
+        offset: ["start end", "center center"]
+    })
+
+    const opacity = useTransform(scrollYProgress, [0, 1], [0.3, 1])
+    const glow = useTransform(scrollYProgress, [0, 1], ["0px 0px 0px rgba(255,255,255,0)", "0px 0px 30px rgba(255,255,255,0.8)"])
+    const color = useTransform(scrollYProgress, [0, 1], ["rgba(255,255,255,0.1)", "rgba(255,255,255,1)"])
+
+    return (
+        <motion.div
+            ref={ref}
+            className="py-32 flex flex-col items-center justify-center text-center"
+            style={{ opacity }}
+        >
+            {/* Connection Point from Laser */}
+            <div className="relative h-24 w-px mb-8 overflow-hidden">
+                <div className="absolute inset-0 bg-white/10"></div>
+                <motion.div
+                    className="absolute inset-0 bg-gradient-to-b from-laser-blue via-laser-blue to-transparent shadow-[0_0_15px_rgba(0,34,255,0.5)]"
+                    style={{
+                        y: useTransform(scrollYProgress, [0, 1], ["-100%", "0%"])
+                    }}
+                ></motion.div>
+            </div>
+
+            <span className="font-rajdhani uppercase tracking-[0.5em] text-laser-blue text-sm mb-2">The Legacy Continues</span>
+            <motion.h3
+                className="text-4xl md:text-6xl font-bebas uppercase tracking-widest transition-all duration-300"
+                style={{
+                    color: color,
+                    textShadow: glow
+                }}
+            >
+                TO BE CONTINUED...
+            </motion.h3>
+        </motion.div>
     )
 }
 

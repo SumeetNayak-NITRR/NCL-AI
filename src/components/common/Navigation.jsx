@@ -51,10 +51,10 @@ const Navigation = () => {
                     </div>
 
                     <div className="flex flex-col leading-none">
-                        <span className="font-bebas text-3xl md:text-4xl text-white tracking-tighter group-hover:text-transparent group-hover:text-outline-active transition-all duration-300">
+                        <span className="font-bebas text-2xl md:text-4xl text-white tracking-tighter group-hover:text-transparent group-hover:text-outline-active transition-all duration-300">
                             NITRR FC
                         </span>
-                        <span className="font-rajdhani text-[0.6rem] tracking-[0.4em] text-white/60 uppercase group-hover:text-laser-blue transition-colors">
+                        <span className="hidden md:block font-rajdhani text-[0.6rem] tracking-[0.4em] text-white/60 uppercase group-hover:text-laser-blue transition-colors">
                             Official League
                         </span>
                     </div>
