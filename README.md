@@ -42,7 +42,26 @@ npm install
 ```
 
 
+3. Create a `.env` file
+   Copy `.env.example` to `.env` and fill in your values:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Then add your project credentials:
+
+   ```env
+   VITE_SUPABASE_URL=your_project_url
+   VITE_SUPABASE_ANON_KEY=your_anon_key
+   ```
+
+
+
+
+
 ### Development
+
 
 ```bash
 npm run dev
