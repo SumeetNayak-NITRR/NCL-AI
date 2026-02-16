@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ncl-manager.vercel.app/sitemap.xml

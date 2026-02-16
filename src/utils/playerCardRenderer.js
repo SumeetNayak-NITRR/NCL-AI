@@ -1,3 +1,5 @@
+import { CARD_LAYOUT_DEFAULTS } from '../config/cardLayout';
+
 /**
  * Renders a player card to a canvas and returns a data URL.
  * @param {Object} player - The player data object.
@@ -206,6 +208,31 @@ export const renderPlayerCardToCanvas = async (player) => {
             // Calculate Average
             const average = Math.round((parseInt(player.pace) + parseInt(player.shooting) + parseInt(player.passing) + parseInt(player.dribbling) + parseInt(player.defending) + parseInt(player.physical)) / 6);
 
+            // Parse Layout Params
+            let layout = {
+                name_x: parseInt(player.name_x) || CARD_LAYOUT_DEFAULTS.NAME_X,
+                name_y: parseInt(player.name_y) || CARD_LAYOUT_DEFAULTS.NAME_Y,
+                name_size: parseInt(player.name_size) || CARD_LAYOUT_DEFAULTS.NAME_SIZE,
+                stats_x: parseInt(player.stats_x) || CARD_LAYOUT_DEFAULTS.STATS_X,
+                stats_y: parseInt(player.stats_y) || CARD_LAYOUT_DEFAULTS.STATS_Y,
+                rating_x: parseInt(player.rating_x) || CARD_LAYOUT_DEFAULTS.RATING_X,
+                rating_y: parseInt(player.rating_y) || CARD_LAYOUT_DEFAULTS.RATING_Y
+            };
+
+            // Fallback to URL params if not provided in player object
+            if (player.photo_url && player.photo_url.includes('?')) {
+                try {
+                    const p = new URLSearchParams(player.photo_url.split('?')[1]);
+                    if (player.name_x === undefined && p.get('name_x')) layout.name_x = parseInt(p.get('name_x'));
+                    if (player.name_y === undefined && p.get('name_y')) layout.name_y = parseInt(p.get('name_y'));
+                    if (player.name_size === undefined && p.get('name_size')) layout.name_size = parseInt(p.get('name_size'));
+                    if (player.stats_x === undefined && p.get('stats_x')) layout.stats_x = parseInt(p.get('stats_x'));
+                    if (player.stats_y === undefined && p.get('stats_y')) layout.stats_y = parseInt(p.get('stats_y'));
+                    if (player.rating_x === undefined && p.get('rating_x')) layout.rating_x = parseInt(p.get('rating_x'));
+                    if (player.rating_y === undefined && p.get('rating_y')) layout.rating_y = parseInt(p.get('rating_y'));
+                } catch (e) { }
+            }
+
             // A. Rating (Top Left)
             // Position: absolute, top 50, left 40, width 100.
             // Text: 68px Bebas, line height 0.9.
@@ -215,8 +242,8 @@ export const renderPlayerCardToCanvas = async (player) => {
             // Rating
             drawTextWithShadow(
                 average.toString(),
-                90,
-                105, // Approximation for baseline
+                90 + layout.rating_x,
+                105 + layout.rating_y, // Approximation for baseline
                 'bold 68px "Bebas Neue"',
                 '#ffffff',
                 'center',
@@ -228,15 +255,30 @@ export const renderPlayerCardToCanvas = async (player) => {
             // Position
             drawTextWithShadow(
                 player.position,
-                90,
-                135,
-                '600 24px "Bebas Neue"',
+                90 + layout.rating_x,
+                135 + layout.rating_y,
+                `600 ${CARD_LAYOUT_DEFAULTS.POSITION_SIZE}px "Bebas Neue"`,
                 '#ffffff',
                 'center',
                 15,
                 'rgba(0, 0, 0, 0.8)', // Dark shadow
                 null, 0 // No Hard Border
             );
+
+            // Branch (New Addition)
+            if (player.branch) {
+                drawTextWithShadow(
+                    player.branch,
+                    90 + layout.rating_x,
+                    155 + layout.rating_y, // Below position
+                    `${CARD_LAYOUT_DEFAULTS.BRANCH_SIZE}px "Rajdhani"`,
+                    '#ffffff',
+                    'center',
+                    10,
+                    'rgba(0, 0, 0, 0.8)',
+                    null, 0
+                );
+            }
 
             // B. Name Section (Bottom)
             // Gradient Background
@@ -246,7 +288,7 @@ export const renderPlayerCardToCanvas = async (player) => {
             nameGradient.addColorStop(0.5, style.nameGradient[1]);
             nameGradient.addColorStop(1, style.nameGradient[2]);
             ctx.fillStyle = nameGradient;
-            ctx.fillRect(0, 460, 400, 140); // Fill bottom area
+            ctx.fillRect(0, 460 + layout.name_y, 400, 140); // Fill bottom area
 
             // Name Text
             // Top: 438px generally. Font 52px.
@@ -257,9 +299,9 @@ export const renderPlayerCardToCanvas = async (player) => {
             ctx.shadowBlur = 8;
             drawTextWithShadow(
                 player.name.toUpperCase(),
-                200,
-                485, // Approx baseline
-                'bold 52px "Bebas Neue"',
+                200 + layout.name_x,
+                485 + layout.name_y, // Approx baseline
+                `bold ${layout.name_size}px "Bebas Neue"`,
                 '#ffffff'
             );
             ctx.restore();
@@ -286,13 +328,13 @@ export const renderPlayerCardToCanvas = async (player) => {
             let currentX = 40;
 
             stats.forEach(stat => {
-                const centerX = currentX + itemWidth / 2;
+                const centerX = currentX + itemWidth / 2 + layout.stats_x;
 
                 // Label
                 drawTextWithShadow(
                     stat.l,
                     centerX,
-                    525,
+                    525 + layout.stats_y,
                     '15px "Rajdhani"',
                     '#ffffff' // Force white
                 );
@@ -304,7 +346,7 @@ export const renderPlayerCardToCanvas = async (player) => {
                 drawTextWithShadow(
                     stat.v.toString(),
                     centerX,
-                    555,
+                    555 + layout.stats_y,
                     'bold 32px "Bebas Neue"',
                     '#ffffff' // Force white
                 );

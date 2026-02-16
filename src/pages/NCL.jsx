@@ -2,13 +2,18 @@ import Navigation from '../components/common/Navigation'
 import Footer from '../components/common/Footer'
 import CaptainsShowcase from '../components/ncl/CaptainsShowcase'
 import Features from '../components/landing/Features'
-import LiveStats from '../components/landing/LiveStats'
 import Highlights from '../components/landing/Highlights'
 import ParticleBackground from '../components/landing/ParticleBackground'
+import TournamentLeaderboard from '../components/ncl/TournamentLeaderboard'
+import SEO from '../components/common/SEO'
 
 const NCL = () => {
     return (
         <div className="min-h-screen">
+            <SEO
+                title="The League"
+                description="NCL Season 2k26 - Explore teams, match highlights, and the official tournament leaderboard."
+            />
             <Navigation />
 
             {/* Minimal Hero for NCL Page */}
@@ -26,8 +31,8 @@ const NCL = () => {
 
             <CaptainsShowcase />
             <Features />
-            <LiveStats />
             <Highlights />
+            <TournamentLeaderboard />
 
             <Footer />
         </div>

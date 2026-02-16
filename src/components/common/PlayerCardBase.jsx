@@ -1,5 +1,6 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { CARD_LAYOUT_DEFAULTS } from '../../config/cardLayout'
 
 /**
  * PlayerCardBase - The single source of truth for Player Card layout.
@@ -109,6 +110,46 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
         }
     }
 
+    // Layout positioning logic
+    const getLayout = () => {
+        let layout = {
+            name_x: CARD_LAYOUT_DEFAULTS.NAME_X,
+            name_y: CARD_LAYOUT_DEFAULTS.NAME_Y,
+            name_size: CARD_LAYOUT_DEFAULTS.NAME_SIZE,
+            stats_x: CARD_LAYOUT_DEFAULTS.STATS_X,
+            stats_y: CARD_LAYOUT_DEFAULTS.STATS_Y,
+            rating_x: CARD_LAYOUT_DEFAULTS.RATING_X,
+            rating_y: CARD_LAYOUT_DEFAULTS.RATING_Y
+        };
+
+        // 1. Parse from URL (Persistence source)
+        if (player.photo_url && player.photo_url.includes('?')) {
+            try {
+                const p = new URLSearchParams(player.photo_url.split('?')[1]);
+                if (p.get('name_x')) layout.name_x = parseInt(p.get('name_x'));
+                if (p.get('name_y')) layout.name_y = parseInt(p.get('name_y'));
+                if (p.get('name_size')) layout.name_size = parseInt(p.get('name_size'));
+                if (p.get('stats_x')) layout.stats_x = parseInt(p.get('stats_x'));
+                if (p.get('stats_y')) layout.stats_y = parseInt(p.get('stats_y'));
+                if (p.get('rating_x')) layout.rating_x = parseInt(p.get('rating_x'));
+                if (p.get('rating_y')) layout.rating_y = parseInt(p.get('rating_y'));
+            } catch (e) { }
+        }
+
+        // 2. Override with direct props (Edit Mode source)
+        if (player.name_x !== undefined) layout.name_x = player.name_x;
+        if (player.name_y !== undefined) layout.name_y = player.name_y;
+        if (player.name_size !== undefined) layout.name_size = player.name_size;
+        if (player.stats_x !== undefined) layout.stats_x = player.stats_x;
+        if (player.stats_y !== undefined) layout.stats_y = player.stats_y;
+        if (player.rating_x !== undefined) layout.rating_x = player.rating_x;
+        if (player.rating_y !== undefined) layout.rating_y = player.rating_y;
+
+        return layout;
+    }
+
+    const layout = getLayout();
+
     return (
         <div
             style={{
@@ -148,7 +189,8 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                     left: '40px',
                     width: '100px',
                     textAlign: 'center',
-                    zIndex: 20
+                    zIndex: 20,
+                    transform: `translate(${layout.rating_x}px, ${layout.rating_y}px)`
                 }}
                 initial={animated ? { opacity: 0, x: -20 } : { opacity: 1, x: 0 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -162,10 +204,18 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                 </div>
                 <div
                     className={`font-bebas font-semibold ${variantStyle.accent}`}
-                    style={{ fontSize: '24px', marginTop: '4px', color: '#ffffff' }}
+                    style={{ fontSize: `${CARD_LAYOUT_DEFAULTS.POSITION_SIZE}px`, marginTop: '4px', color: '#ffffff' }}
                 >
                     {player.position}
                 </div>
+                {player.branch && (
+                    <div
+                        className="font-rajdhani font-medium tracking-wider"
+                        style={{ fontSize: `${CARD_LAYOUT_DEFAULTS.BRANCH_SIZE}px`, marginTop: '2px', color: '#ffffff', textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}
+                    >
+                        {player.branch}
+                    </div>
+                )}
             </Item>
 
             {/* 2. PLAYER PHOTO */}
@@ -189,6 +239,7 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                     src={player.photo_url}
                     alt={player.name}
                     crossOrigin="anonymous"
+                    loading="lazy"
                     className="max-w-none max-h-none object-contain drop-shadow-[0_0_30px_rgba(0,212,255,0.3)]"
                     style={{
                         height: '100%',
@@ -206,7 +257,8 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                     left: 0,
                     width: '400px',
                     zIndex: 20,
-                    textAlign: 'center'
+                    textAlign: 'center',
+                    transform: `translate(${layout.name_x}px, ${layout.name_y}px)`
                 }}
                 initial={animated ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -221,7 +273,7 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                 <h2
                     className="font-bebas font-bold uppercase tracking-wide text-glow"
                     style={{
-                        fontSize: '52px',
+                        fontSize: `${layout.name_size}px`,
                         lineHeight: '1',
                         margin: 0,
                         padding: '0 10px',
@@ -243,7 +295,8 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                     zIndex: 20,
                     display: 'flex',
                     justifyContent: 'center',
-                    gap: '10px'
+                    gap: '10px',
+                    transform: `translate(${layout.stats_x}px, ${layout.stats_y}px)`
                 }}
                 initial={animated ? { opacity: 0 } : { opacity: 1 }}
                 animate={{ opacity: 1 }}

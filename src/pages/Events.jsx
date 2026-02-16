@@ -1,154 +1,272 @@
-import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import Navigation from '../components/common/Navigation'
 import Footer from '../components/common/Footer'
-import { Calendar, MapPin, ArrowUpRight } from 'lucide-react'
+import GlowCard from '../components/common/GlowCard'
+import { Calendar, MapPin, ArrowUpRight, Clock, Trophy, Shield } from 'lucide-react'
+import { fetchWithCache } from '../lib/cache'
+import { supabase } from '../lib/supabase'
+import SEO from '../components/common/SEO'
 
 const Events = () => {
-    const events = [
+    const [completedMatches, setCompletedMatches] = useState([])
+    const [nextMatch, setNextMatch] = useState(null)
+    const [timeLeft, setTimeLeft] = useState('')
+    const [loading, setLoading] = useState(true)
 
+    useEffect(() => {
+        let timer
+
+        const loadData = async () => {
+            setLoading(true)
+
+            try {
+                // 1. Fetch Next Match (Cached for 1 min as it's time sensitive)
+                const nextMatchData = await fetchWithCache('next_match', async () => {
+                    const { data } = await supabase
+                        .from('matches')
+                        .select('*')
+                        .eq('status', 'Scheduled')
+                        .order('date', { ascending: true })
+                        .limit(1)
+                        .maybeSingle()
+                    return data
+                }, 1) // 1 minute cache
+
+                if (nextMatchData) {
+                    setNextMatch(nextMatchData)
+                    calculateTimeLeft(nextMatchData.date)
+                    timer = setInterval(() => calculateTimeLeft(nextMatchData.date), 1000 * 60)
+                }
+
+                // 2. Fetch Recent Results (Cached for 5 mins)
+                const recentMatchesData = await fetchWithCache('recent_matches', async () => {
+                    const { data } = await supabase
+                        .from('matches')
+                        .select('*')
+                        .neq('status', 'Scheduled') // Get Live and Completed
+                        .order('date', { ascending: false })
+                        .limit(10)
+                    return data
+                }, 5) // 5 minutes cache
+
+                if (recentMatchesData) {
+                    setCompletedMatches(recentMatchesData)
+                }
+            } catch (error) {
+                console.error("Error loading events:", error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        loadData()
+
+        return () => {
+            if (timer) clearInterval(timer)
+        }
+    }, [])
+
+    const calculateTimeLeft = (dateString) => {
+        const diff = new Date(dateString) - new Date()
+        if (diff <= 0) {
+            setTimeLeft('Match Starting Soon')
+            return
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+
+        setTimeLeft(`${days}d : ${hours}h : ${minutes}m`)
+    }
+
+    // Static Annual Events
+    const annualTournaments = [
         {
             id: 1,
             title: "Inter-NIT Tournament",
-            description: "Representing NITRR across India, competing with the best teams.",
-            date: "2025-08-20",
-            location: "NIT JAMSHEDPUR",
+            description: "The flagship tournament where NITRR competes against other NITs across India.",
+            period: "August - September",
+            location: "Various NITs",
             image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&q=80&w=800"
         },
-
         {
             id: 2,
-            title: "GENERAL CHAMPIONSHIP",
-            description: "Intensive training sessions to prepare for the upcoming season.",
-            date: "2025-07-01",
-            location: "NITRR Sports Complex",
+            title: "Samar",
+            description: "Annual sports fest of NIT Raipur. A showcase of talent and intensity.",
+            period: "January",
+            location: "NITRR Football Ground",
             image: "https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?auto=format&fit=crop&q=80&w=800"
         },
-
         {
             id: 3,
-            title: "SAMAR",
-            description: "Intensive training sessions to prepare for the upcoming season.",
-            date: "2025-07-01",
-            location: "NITRR Sports Complex",
-            image: "https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?auto=format&fit=crop&q=80&w=800"
+            title: "GENERAL CHAMPIONSHIP",
+            description: "Departmental rivalries ignite in this high-stakes internal league.",
+            period: "October",
+            location: "NITRR Football Ground",
+            image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=800"
         },
-
         {
             id: 4,
             title: "NCL",
-            description: "The ultimate showdown. NITRR FC claimed victory in a thrilling final match.",
-            date: "2025-12-15",
-            location: "NITRR Main Ground",
-            image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=800"
-        },
-
-        {
-            id: 5,
-            title: "INTERCOLLEGES",
-            description: "Current squad vs Alumni - a celebration of NITRR FC legacy.",
-            date: "2024-11-10",
-            location: "NITRR Main Ground",
+            description: "A Auction based tournament for the football lovers of NIT Raipur.",
+            period: "February-March",
+            location: "NITRR Football Ground",
             image: "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?auto=format&fit=crop&q=80&w=800"
-        },
-        {
-            id: 6,
-            title: "Freshers Welcome",
-            description: "Introducing new talent to the NITRR FC family.",
-            date: "2024-08-01",
-            location: "NITRR Main Ground",
-            image: "https://images.unsplash.com/photo-1543351611-58f69d7c1781?auto=format&fit=crop&q=80&w=800"
-        },
+        }
     ]
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen bg-background text-white">
+            <SEO
+                title="Matches & Events"
+                description="Stay updated with the latest NCL match schedule, tournament events, and community gatherings."
+            />
             <Navigation />
 
             {/* Hero Section */}
-            <section className="pt-32 pb-20 px-6">
-                <div className="max-w-7xl mx-auto border-b border-white/10 pb-12">
+            <section className="pt-32 pb-16 px-6 bg-gradient-to-b from-background via-black/50 to-background border-b border-white/5">
+                <div className="max-w-7xl mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
                         <div>
                             <h2 className="text-sm font-rajdhani tracking-[0.5em] text-laser-blue uppercase mb-4">
-                                Gallery & Updates
+                                Season 2025-26
                             </h2>
-                            <h1 className="text-6xl md:text-8xl font-bebas text-white uppercase tracking-tighter leading-[0.9] mix-blend-difference">
-                                CAPTURED <br />
-                                <span className="text-outline-active">MOMENTS</span>
+                            <h1 className="text-6xl md:text-8xl font-bebas text-white uppercase tracking-tighter leading-[0.9]">
+                                MATCH <br />
+                                <span className="text-outline-active">CENTER</span>
                             </h1>
                         </div>
                         <div className="md:text-right">
-                            <p className="text-white/60 font-inter text-sm md:text-base leading-relaxed max-w-md ml-auto">
-                                Witness the journey. From intense training sessions to championship victories, every moment defines our legacy.
-                            </p>
+                            {/* Next Event Countdown */}
+                            <div className="inline-block text-left bg-white/5 border border-white/10 p-6 rounded-xl backdrop-blur-sm min-w-[300px] relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-laser-blue/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="flex items-center gap-2 mb-2 text-laser-blue relative z-10">
+                                    <Clock size={16} />
+                                    <span className="text-xs font-rajdhani uppercase tracking-widest">Next Encounter</span>
+                                </div>
+                                {nextMatch ? (
+                                    <div className="relative z-10">
+                                        <h3 className="text-2xl font-bebas uppercase text-white mb-1">
+                                            {nextMatch.team1} <span className="text-white/40">vs</span> {nextMatch.team2}
+                                        </h3>
+                                        <div className="text-white/60 text-lg font-mono mb-2 tracking-widest">{timeLeft}</div>
+                                        <div className="text-xs text-white/40 uppercase tracking-wider font-rajdhani flex items-center gap-2">
+                                            <MapPin size={12} /> {nextMatch.venue}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="relative z-10">
+                                        <h3 className="text-xl font-bebas uppercase text-white/50 mb-1">No Upcoming Matches</h3>
+                                        <div className="text-white/30 text-xs font-mono">Check back later</div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Masonry Grid */}
-            <section className="pb-20 px-6">
-                <div className="max-w-7xl mx-auto">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {events.map((event, index) => (
-                            <motion.div
-                                key={event.id}
-                                initial={{ opacity: 0, y: 50 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: index * 0.1, duration: 0.8 }}
-                                className="group relative aspect-[4/5] overflow-hidden bg-white/5 border border-white/5"
-                            >
-                                {/* Image Background */}
-                                <div className="absolute inset-0">
-                                    <img
-                                        src={event.image}
-                                        alt={event.title}
-                                        className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-out group-hover:scale-110"
-                                    />
-                                    <div className="absolute inset-0 bg-background/80 group-hover:bg-background/40 transition-colors duration-500"></div>
-                                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transpose to-transparent"></div>
-                                </div>
+            <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
 
-                                {/* Content */}
-                                <div className="absolute inset-0 p-8 flex flex-col justify-between">
-                                    <div className="flex justify-between items-start">
-                                        <div className="bg-white/10 backdrop-blur-md px-3 py-1 border border-white/10">
-                                            <span className="text-xs font-rajdhani text-white uppercase tracking-widest">
-                                                {new Date(event.date).getFullYear()}
-                                            </span>
-                                        </div>
-                                        <div className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-500 transform translate-y-4 group-hover:translate-y-0">
-                                            <ArrowUpRight size={20} />
-                                        </div>
-                                    </div>
+                {/* Section 1: Annual Tournaments (Left Column - Larger) */}
+                <div className="lg:col-span-2 space-y-8">
+                    <div className="flex items-center gap-3 mb-6">
+                        <Trophy className="text-gold" size={24} />
+                        <h2 className="text-3xl font-oswald text-white uppercase">Annual Tournaments</h2>
+                    </div>
 
-                                    <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                        <h3 className="text-3xl font-bebas text-white uppercase leading-none mb-4 group-hover:text-laser-blue transition-colors">
-                                            {event.title}
-                                        </h3>
-                                        <div className="h-0 group-hover:h-auto overflow-hidden transition-all duration-500">
-                                            <p className="text-white/70 text-sm font-inter leading-relaxed mb-4 opacity-0 group-hover:opacity-100 transition-opacity delay-100">
-                                                {event.description}
-                                            </p>
-                                            <div className="flex items-center gap-4 text-xs font-rajdhani text-white/60 uppercase tracking-widest border-t border-white/10 pt-4 opacity-0 group-hover:opacity-100 transition-opacity delay-200">
-                                                <div className="flex items-center gap-2">
-                                                    <Calendar size={12} />
-                                                    <span>{new Date(event.date).toLocaleDateString()}</span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <MapPin size={12} />
-                                                    <span>{event.location}</span>
-                                                </div>
-                                            </div>
-                                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {annualTournaments.map((event) => (
+                            <GlowCard key={event.id} className="group relative aspect-[16/9] overflow-hidden rounded-xl border border-white/10">
+                                <img
+                                    src={event.image}
+                                    alt={event.title}
+                                    loading="lazy"
+                                    className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-out group-hover:scale-110"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+                                <div className="absolute bottom-0 left-0 p-6 w-full">
+                                    <div className="bg-laser-blue/20 backdrop-blur-md px-2 py-0.5 rounded inline-block mb-2 border border-laser-blue/30">
+                                        <span className="text-[10px] font-rajdhani text-laser-blue uppercase tracking-widest">
+                                            {event.period}
+                                        </span>
                                     </div>
+                                    <h3 className="text-2xl font-bebas text-white uppercase leading-none mb-2 text-shadow-sm">
+                                        {event.title}
+                                    </h3>
+                                    <p className="text-white/70 text-xs font-inter leading-relaxed line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity delay-100 transform translate-y-2 group-hover:translate-y-0 duration-300">
+                                        {event.description}
+                                    </p>
                                 </div>
-                            </motion.div>
+                            </GlowCard>
                         ))}
                     </div>
                 </div>
-            </section>
+
+                {/* Section 2: Match Results Sidebar (Right Column - Compact) */}
+                <div className="lg:col-span-1">
+                    <div className="sticky top-24">
+                        <div className="flex items-center gap-3 mb-6">
+                            <Shield className="text-laser-blue" size={24} />
+                            <h2 className="text-3xl font-oswald text-white uppercase">Recent Results</h2>
+                        </div>
+
+                        <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden backdrop-blur-md">
+                            <div className="divide-y divide-white/5">
+                                {loading ? (
+                                    <div className="p-8 text-center text-white/30 font-rajdhani animate-pulse">Loading results...</div>
+                                ) : completedMatches.length === 0 ? (
+                                    <div className="p-8 text-center text-white/30 font-rajdhani">No matches played yet.</div>
+                                ) : (
+                                    completedMatches.map(match => (
+                                        <div key={match.id} className="p-4 hover:bg-white/5 transition-colors group">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="text-[10px] font-rajdhani text-white/40 uppercase tracking-wider border border-white/10 px-1.5 rounded">
+                                                    {match.category}
+                                                </span>
+                                                <span className="text-[10px] font-mono text-white/30">
+                                                    {new Date(match.date).toLocaleDateString()}
+                                                </span>
+                                            </div>
+
+                                            <div className="flex justify-between items-center gap-4">
+                                                <div className={`flex-1 text-right font-oswald uppercase ${match.home_score > match.away_score && match.status === 'Completed' ? 'text-gold' : 'text-white'}`}>
+                                                    {match.team1}
+                                                </div>
+                                                <div className="bg-black/50 px-3 py-1 rounded border border-white/10 font-bebas text-xl text-white whitespace-nowrap">
+                                                    {match.home_score} - {match.away_score}
+                                                </div>
+                                                <div className={`flex-1 text-left font-oswald uppercase ${match.away_score > match.home_score && match.status === 'Completed' ? 'text-gold' : 'text-white'}`}>
+                                                    {match.team2}
+                                                </div>
+                                            </div>
+
+                                            {match.status !== 'Completed' && (
+                                                <div className="text-center mt-2">
+                                                    <span className="text-[10px] bg-red-500/20 text-red-500 px-2 py-0.5 rounded animate-pulse uppercase font-bold tracking-wider">
+                                                        LIVE
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+
+                            {completedMatches.length > 0 && (
+                                <div className="p-3 bg-black/20 text-center border-t border-white/5">
+                                    <button className="text-xs text-laser-blue font-rajdhani uppercase tracking-widest hover:text-white transition-colors">
+                                        View Full Schedule →
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
 
             <Footer />
         </div>

@@ -73,6 +73,7 @@ const MemoryCard = ({ title, year, description, align, imagePlaceholder, index }
                         <img
                             src={imagePlaceholder}
                             alt={title}
+                            loading="lazy"
                             className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 contrast-110 group-hover:scale-105 ${index === 2
                                 ? 'brightness-130 saturate-110 group-hover:brightness-140 group-hover:saturate-125' // New Beginnings: Balanced
                                 : 'brightness-110 saturate-110 group-hover:brightness-125 group-hover:saturate-125' // Others: Standard vibrant
@@ -174,7 +175,7 @@ const Memories = () => {
             year: "2026",
             description: "Undefeated tournament run, securing the championship trophy in home ground",
             align: "right",
-            imagePlaceholder: "/memories/samar-2026.jpg"
+            imagePlaceholder: "/memories/samar-2026.jpeg"
         }
     ]
 

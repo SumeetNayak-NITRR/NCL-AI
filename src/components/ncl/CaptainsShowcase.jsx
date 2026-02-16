@@ -29,6 +29,7 @@ const CaptainCard = ({ team, index, isActive, onActivate }) => {
                 <motion.img
                     src={team.image}
                     alt={team.captain}
+                    loading="lazy"
                     className={`h-full w-auto object-cover object-bottom filter drop-shadow-[0_0_20px_rgba(0,0,0,0.5)] transition-all duration-700 ${isActive ? 'scale-105 saturate-100' : 'scale-100 saturate-0 opacity-80'}`}
                     initial={{ y: 50, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}

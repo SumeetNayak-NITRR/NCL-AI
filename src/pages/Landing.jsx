@@ -7,10 +7,15 @@ import Footer from '../components/common/Footer'
 import Memories from '../components/landing/Memories'
 import ParticleBackground from '../components/landing/ParticleBackground'
 import StadiumAerial from '../components/landing/StadiumAerial'
+import SEO from '../components/common/SEO'
 
 const Landing = () => {
     return (
         <div className="min-h-screen">
+            <SEO
+                title="Home"
+                description="Welcome to NCL Tournament Manager. The official league platform for NIT Raipur."
+            />
             <Navigation />
 
             {/* Hero Section: Editorial / Kinetic */}
@@ -34,7 +39,7 @@ const Landing = () => {
                         <div className="text-vertical text-xs font-rajdhani tracking-[0.3em] text-white/60 uppercase">
                             NATIONAL INSTITUTE OF TECHNOLOGY RAIPUR  • Est. 2023
                         </div>
-                        <div className="text-vertical text-xs font-rajdhani tracking-[0.3em] text-dark-blue uppercase animate-pulse">
+                        <div className="text-vertical text-xs font-rajdhani tracking-[0.3em] text-laser-blue uppercase animate-pulse">
                             Scroll to Explore
                         </div>
                     </div>

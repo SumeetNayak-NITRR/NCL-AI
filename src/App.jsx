@@ -1,8 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { HelmetProvider } from 'react-helmet-async'
 import { Suspense, lazy } from 'react'
 import AdminShortcut from './components/common/AdminShortcut'
 import AbstractBackground from './components/common/AbstractBackground'
 import ScrollToTop from './components/common/ScrollToTop'
+import ErrorBoundary from './components/common/ErrorBoundary' // Import ErrorBoundary
 
 // Lazy load pages for better performance
 const Landing = lazy(() => import('./pages/Landing'))
@@ -24,24 +26,28 @@ const LoadingSpinner = () => (
 
 function App() {
   return (
-    <Router>
-      <ScrollToTop />
-      <AbstractBackground />
-      <AdminShortcut />
-      <Suspense fallback={<LoadingSpinner />}>
-        <Routes>
-          <Route path="/" element={<Landing />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/ncl" element={<NCL />} />
-          <Route path="/team" element={<Team />} />
-          <Route path="/achievements" element={<Achievements />} />
-          <Route path="/events" element={<Events />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
-    </Router>
+    <ErrorBoundary>
+      <HelmetProvider>
+        <Router>
+          <ScrollToTop />
+          <AbstractBackground />
+          <AdminShortcut />
+          <Suspense fallback={<LoadingSpinner />}>
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/ncl" element={<NCL />} />
+              <Route path="/team" element={<Team />} />
+              <Route path="/achievements" element={<Achievements />} />
+              <Route path="/events" element={<Events />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/admin" element={<Admin />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
+        </Router>
+      </HelmetProvider>
+    </ErrorBoundary>
   )
 }
 

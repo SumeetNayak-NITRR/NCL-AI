@@ -5,6 +5,7 @@ import Footer from '../components/common/Footer'
 import AbstractPlayerCard from '../components/common/AbstractPlayerCard'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import { supabase } from '../lib/supabase'
+import SEO from '../components/common/SEO'
 
 const Team = () => {
     const [players, setPlayers] = useState([])
@@ -48,6 +49,10 @@ const Team = () => {
 
     return (
         <div className="min-h-screen">
+            <SEO
+                title="Roster"
+                description="Meet the elite players of NITRR FC. View the main squad, alumni, and player stats."
+            />
             <Navigation />
 
             {/* Hero Section */}
@@ -110,7 +115,7 @@ const Team = () => {
                                     viewport={{ once: true }}
                                     transition={{ delay: index * 0.1, duration: 0.8 }}
                                 >
-                                    <AbstractPlayerCard player={player} />
+                                    <AbstractPlayerCard player={player} showStats={false} showRating={true} />
                                 </motion.div>
                             ))}
                         </div>

@@ -3,7 +3,7 @@ import Cropper from 'react-easy-crop'
 import getCroppedImg from '../../lib/utils'
 import { Upload, X, Check } from 'lucide-react'
 
-const ImageUpload = ({ onImageSelected }) => {
+const ImageUpload = ({ onImageSelected, onCropPending }) => {
     const [imageSrc, setImageSrc] = useState(null)
     const [crop, setCrop] = useState({ x: 0, y: 0 })
     const [zoom, setZoom] = useState(1)
@@ -16,6 +16,7 @@ const ImageUpload = ({ onImageSelected }) => {
             let imageDataUrl = await readFile(file)
             setImageSrc(imageDataUrl)
             setPreviewUrl(null)
+            if (onCropPending) onCropPending(true)
         }
     }
 
@@ -44,15 +45,17 @@ const ImageUpload = ({ onImageSelected }) => {
             setPreviewUrl(url)
 
             onImageSelected(croppedImage)
+            if (onCropPending) onCropPending(false)
         } catch (e) {
             console.error(e)
         }
-    }, [imageSrc, croppedAreaPixels, onImageSelected])
+    }, [imageSrc, croppedAreaPixels, onImageSelected, onCropPending])
 
     const cancelCrop = () => {
         setImageSrc(null)
         setPreviewUrl(null)
         onImageSelected(null)
+        if (onCropPending) onCropPending(false)
     }
 
     if (previewUrl) {
@@ -95,11 +98,12 @@ const ImageUpload = ({ onImageSelected }) => {
                     </button>
                     <button
                         onClick={showCroppedImage}
-                        className="px-4 py-2 bg-neon text-black rounded hover:bg-neon/80 font-oswald uppercase"
+                        className="px-4 py-2 bg-neon text-black rounded hover:bg-neon/80 font-oswald uppercase animate-pulse shadow-[0_0_15px_rgba(57,255,20,0.5)]"
                     >
                         Confirm Crop
                     </button>
                 </div>
+                <p className="text-white/50 text-xs mt-2 font-rajdhani uppercase tracking-wider">Please confirm modification</p>
             </div>
         )
     }

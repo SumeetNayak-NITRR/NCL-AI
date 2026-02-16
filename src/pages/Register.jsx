@@ -6,6 +6,7 @@ import { removeBackground } from '../lib/removeBackground'
 import ImageUpload from '../components/register/ImageUpload'
 import { Info, ArrowLeft } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import SEO from '../components/common/SEO'
 
 const positions = ['ST', 'CB', 'CM', 'GK', 'CDM', 'Winger', 'Fullback']
 const years = ['1st', '2nd', '3rd', '4th', '5th']
@@ -15,7 +16,9 @@ const Register = () => {
     const navigate = useNavigate()
     const [formData, setFormData] = useState({
         name: '',
+        roll_number: '',
         year: '',
+        branch: '',
         position: '',
         stats: {
             pace: 50,
@@ -27,6 +30,7 @@ const Register = () => {
         }
     })
     const [imageFile, setImageFile] = useState(null)
+    const [isCropping, setIsCropping] = useState(false)
     const [loading, setLoading] = useState(false)
     const [processingStatus, setProcessingStatus] = useState('') // For user feedback
     const [error, setError] = useState(null)
@@ -46,6 +50,23 @@ const Register = () => {
         e.preventDefault()
         setLoading(true)
         setError(null)
+
+        // Basic Validation
+        if (formData.roll_number.length !== 8 || isNaN(formData.roll_number)) {
+            const msg = "Roll Number must be exactly 8 digits."
+            setError(msg)
+            alert(msg)
+            setLoading(false)
+            return
+        }
+
+        if (isCropping) {
+            const msg = "Please click 'Confirm Crop' on your photo before submitting."
+            setError(msg)
+            alert(msg)
+            setLoading(false)
+            return
+        }
 
         if (!imageFile) {
             const msg = "Please upload a photo."
@@ -76,52 +97,47 @@ const Register = () => {
         }
 
         try {
-            // Background removal disabled - users should upload pre-processed PNG files
-            // If you want to enable automatic background removal, uncomment the lines below
-            // and make sure VITE_REMOVE_BG_API_KEY is set in .env
-
-            // setProcessingStatus('Removing background...')
-            // const processedImage = await removeBackground(imageFile)
-
-            // Upload Image (accepts PNG with transparency)
+            // Upload Image
             setProcessingStatus('Uploading image...')
-            const fileExt = 'png' // Supports transparency
-            const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`
+            const fileExt = 'png'
+            const fileName = `${formData.roll_number}_${Date.now()}.${fileExt}` // Use Roll No in filename for organization
             const filePath = `${fileName}`
 
             const { error: uploadError } = await supabase.storage
                 .from('player-photos')
-                .upload(filePath, imageFile) // Upload user's file directly
+                .upload(filePath, imageFile)
 
             if (uploadError) throw uploadError
 
-            // 3. Get Public URL
+            // Get Public URL
             setProcessingStatus('Saving player data...')
             const { data: { publicUrl } } = supabase.storage
                 .from('player-photos')
                 .getPublicUrl(filePath)
 
-            // 3. Insert Player Data
-            const { error: insertError } = await supabase
-                .from('players')
-                .insert([{
-                    name: formData.name,
-                    year: formData.year,
-                    position: formData.position,
-                    pace: formData.stats.pace,
-                    shooting: formData.stats.shooting,
-                    passing: formData.stats.passing,
-                    dribbling: formData.stats.dribbling,
-                    defending: formData.stats.defending,
-                    physical: formData.stats.physical,
-                    photo_url: publicUrl,
-                    status: 'Pending'
-                }])
+            // Calculate Overall Rating for visual feedback or just verification
+            // const overall = Math.round(Object.values(formData.stats).reduce((a, b) => a + b, 0) / 6)
 
-            if (insertError) throw insertError
+            // CALL SECURE RPC FUNCTION
+            const { data: rpcData, error: rpcError } = await supabase
+                .rpc('register_player', {
+                    p_name: formData.name,
+                    p_roll_number: formData.roll_number,
+                    p_year: formData.year,
+                    p_branch: formData.branch,
+                    p_position: formData.position,
+                    p_stats: formData.stats,
+                    p_photo_url: publicUrl
+                })
+
+            if (rpcError) throw rpcError
+
+            const successMsg = rpcData.status === 'updated'
+                ? 'Profile updated successfully! Pending admin re-approval.'
+                : 'Registration successful! Waiting for approval.'
 
             navigate('/')
-            alert('Registration successful! Waiting for approval.')
+            alert(successMsg)
 
         } catch (err) {
             console.error('Error submitting form:', err)
@@ -136,6 +152,10 @@ const Register = () => {
 
     return (
         <div className="min-h-screen bg-background text-white p-4 pb-20">
+            <SEO
+                title="Register"
+                description="Join the NITRR FC league. Create your player card and submit your profile for the draft."
+            />
             <div className="max-w-2xl mx-auto">
                 <Link to="/" className="inline-flex items-center text-white/50 hover:text-white mb-8 transition-colors">
                     <ArrowLeft className="mr-2" /> Back to Home
@@ -161,18 +181,36 @@ const Register = () => {
                     <div className="bg-white/5 p-6 rounded-xl border border-white/10">
                         <h2 className="text-2xl font-oswald text-neon mb-6">Details</h2>
                         <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-oswald uppercase text-white/70 mb-1">Name</label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    required
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                    className="w-full bg-black/50 border border-white/20 rounded-lg p-3 text-white focus:border-neon focus:outline-none transition-colors"
-                                    placeholder="Enter your name"
-                                />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-oswald uppercase text-white/70 mb-1">Full Name</label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        required
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        className="w-full bg-black/50 border border-white/20 rounded-lg p-3 text-white focus:border-neon focus:outline-none transition-colors"
+                                        placeholder="Enter your name"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-oswald uppercase text-white/70 mb-1">Roll Number (8 Digits)</label>
+                                    <input
+                                        type="text"
+                                        name="roll_number"
+                                        required
+                                        maxLength="8"
+                                        pattern="\d{8}"
+                                        value={formData.roll_number}
+                                        onChange={handleChange}
+                                        className="w-full bg-black/50 border border-white/20 rounded-lg p-3 text-white focus:border-neon focus:outline-none transition-colors tracking-widest font-mono"
+                                        placeholder="e.g. 22115045"
+                                        title="Please enter exactly 8 digits"
+                                    />
+                                </div>
                             </div>
+
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-oswald uppercase text-white/70 mb-1">Academic Year</label>
@@ -200,6 +238,19 @@ const Register = () => {
                                         {positions.map(p => <option key={p} value={p}>{p}</option>)}
                                     </select>
                                 </div>
+                                <div className="col-span-2">
+                                    <label className="block text-sm font-oswald uppercase text-white/70 mb-1">Branch</label>
+                                    <select
+                                        name="branch"
+                                        required
+                                        value={formData.branch}
+                                        onChange={handleChange}
+                                        className="w-full bg-black/50 border border-white/20 rounded-lg p-3 text-white focus:border-neon focus:outline-none transition-colors appearance-none"
+                                    >
+                                        <option value="" disabled>Select Branch</option>
+                                        {['CSE', 'IT', 'ECE', 'EE', 'MECH', 'CIVIL', 'META', 'MINING', 'BIOTECH', 'ARCH', 'MCA', 'BIOMED', 'MSC'].map(b => <option key={b} value={b}>{b}</option>)}
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -216,7 +267,7 @@ const Register = () => {
                                 <li>Use <a href="https://www.remove.bg" target="_blank" rel="noreferrer" className="text-laser-blue hover:underline">remove.bg</a> or similar tools before uploading.</li>
                             </ul>
                         </div>
-                        <ImageUpload onImageSelected={setImageFile} />
+                        <ImageUpload onImageSelected={setImageFile} onCropPending={setIsCropping} />
                     </div>
 
                     {/* Stats */}
@@ -253,9 +304,9 @@ const Register = () => {
                     >
                         {loading ? (processingStatus || 'Submitting...') : 'Submit Registration'}
                     </motion.button>
-                </form>
-            </div>
-        </div>
+                </form >
+            </div >
+        </div >
     )
 }
 
