@@ -92,8 +92,8 @@ const CaptainsShowcase = () => {
     const teams = [
         {
             id: 1,
-            name: "Inferno Strikers",
-            captain: "Sanjeev Bhoi",
+            name: "ODIA PEOPLES",
+            captain: "SANJIV BHOI",
             role: "Captain",
             color: "#4a0404",
             accentColor: "#f87171",
@@ -102,7 +102,7 @@ const CaptainsShowcase = () => {
         },
         {
             id: 2,
-            name: "Aqua Marines",
+            name: "DHOLU GANG",
             captain: "AYUSH SINGH",
             role: "Captain",
             color: "#0c4a6e",
@@ -112,7 +112,7 @@ const CaptainsShowcase = () => {
         },
         {
             id: 3,
-            name: "Thunder Bolts",
+            name: "TEAM TRACTOR",
             captain: "PIYUSH GUPTA",
             role: "Captain",
             color: "#422006",
@@ -122,18 +122,18 @@ const CaptainsShowcase = () => {
         },
         {
             id: 4,
-            name: "Terra Titans",
+            name: "...",
             captain: "ABHYUDAYA",
             role: "Captain",
             color: "#052e16",
             accentColor: "#4ade80",
             bgPattern: "radial-gradient(circle at 50% 50%, #15803d, #052e16)",
-            image: "https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&q=80&w=600"
+            image: "https://images.unsplash.com/photo-1592194996308-7b43878e84a6?auto=format&fit=crop&q=80&w=600"
         },
         {
             id: 5,
-            name: "Void Walkers",
-            captain: "COMING SOON",
+            name: "PECHKASH GANG",
+            captain: "Siddharth JHA",
             role: "Captain",
             color: "#2e1065",
             accentColor: "#a78bfa",
@@ -142,13 +142,13 @@ const CaptainsShowcase = () => {
         },
         {
             id: 6,
-            name: "Sky Gliders",
-            captain: "COMING SOON",
+            name: "KHAU GANG",
+            captain: "JUGAL MEHTA",
             role: "Captain",
             color: "#164e63",
             accentColor: "#22d3ee",
             bgPattern: "radial-gradient(circle at 50% 50%, #0891b2, #164e63)",
-            image: "https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&q=80&w=600"
+            image: "https://images.unsplash.com/photo-1592194996308-7b43878e84a6?auto=format&fit=crop&q=80&w=600"
         }
     ]
 

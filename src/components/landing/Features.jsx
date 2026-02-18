@@ -59,7 +59,7 @@ const Features = () => {
         {
             icon: Trophy,
             title: "Elite Competition",
-            description: "Compete against the best teams in high-stakes tournaments with professional-grade organization and officiating."
+            description: "Compete against the best teams formed by the best players."
         },
         {
             icon: Users,
@@ -74,17 +74,17 @@ const Features = () => {
         {
             icon: Target,
             title: "Skill Development",
-            description: "Access training programs, tactical workshops, and performance analytics to elevate your game."
+            description: "Play against the best players and improve your skills."
         },
         {
             icon: Award,
             title: "Recognition",
-            description: "Earn accolades, showcase your achievements, and build your legacy in the NCL hall of fame."
+            description: "Showcase your skills, earn recognition and build your legacy in the NCL."
         },
         {
             icon: TrendingUp,
             title: "Growth Platform",
-            description: "Connect with scouts, coaches, and opportunities to take your football career to the next level."
+            description: "Connect with senior players, branchmates and opportunities to take your football career to the next level."
         }
     ]
 

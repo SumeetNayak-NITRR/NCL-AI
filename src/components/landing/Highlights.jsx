@@ -25,7 +25,7 @@ const Highlights = () => {
             year: "Top Scorer 2024"
         },
         {
-            quote: "I am Iron Man love u > 3000 ",
+            quote: "Show your ground marking skills and take the NCL treat and become part of Khau Gang🤤",
             author: "Sumeet",
             role: "Fullback, Super_Subs",
             year: "Eternity"
