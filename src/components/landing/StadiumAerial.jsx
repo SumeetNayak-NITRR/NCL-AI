@@ -10,6 +10,8 @@ const StadiumAerial = () => {
         offset: ["start start", "end start"]
     })
 
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+
     // ========================================
     // PHASE 1: DRAMATIC ZOOM IN (0% - 35%)
     // ========================================
@@ -17,7 +19,7 @@ const StadiumAerial = () => {
     const stadiumScale = useTransform(
         scrollYProgress,
         [0, 0.35, 0.7],
-        [1, 1.5, 1.8] // Reduced zoom to prevent pixelation
+        isMobile ? [1, 1.2, 1.3] : [1, 1.5, 1.8] // Reduced zoom on mobile
     )
 
     const stadiumY = useTransform(
@@ -33,13 +35,13 @@ const StadiumAerial = () => {
     const stadiumRotateX = useTransform(
         scrollYProgress,
         [0.35, 0.55],
-        [0, 8] // More dramatic tilt
+        isMobile ? [0, 0] : [0, 8] // Disable 3D tilt on mobile
     )
 
     const stadiumRotateZ = useTransform(
         scrollYProgress,
         [0.35, 0.55],
-        [0, -3] // Slight barrel roll effect
+        isMobile ? [0, 0] : [0, -3] // Disable rotation on mobile
     )
 
     // ========================================
@@ -71,7 +73,7 @@ const StadiumAerial = () => {
     const floodlightBlur = useTransform(
         scrollYProgress,
         [0.35, 0.6, 0.8],
-        [150, 100, 120] // Less drastic blur change
+        isMobile ? [50, 30, 40] : [150, 100, 120] // significantly reduced blur on mobile
     )
 
     // ========================================
@@ -116,7 +118,7 @@ const StadiumAerial = () => {
             className="relative h-[400vh] bg-void-black"
         >
             {/* Sticky viewport container */}
-            <div className="sticky top-0 h-screen overflow-hidden">
+            <div className="sticky top-0 h-[100dvh] overflow-hidden">
 
                 {/* ========================================
                     LAYER 1: Stadium Background with 3D Transform

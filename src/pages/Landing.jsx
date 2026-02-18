@@ -45,7 +45,7 @@ const Landing = () => {
                     </div>
 
                     {/* Main Content */}
-                    <div className="col-span-12 md:col-span-10 text-center md:text-left">
+                    <div className="col-span-12 md:col-span-10 text-left">
                         <motion.div
                             initial={{ opacity: 0, y: 100 }}
                             animate={{ opacity: 1, y: 0 }}

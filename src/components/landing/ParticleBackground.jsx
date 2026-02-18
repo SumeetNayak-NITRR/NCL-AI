@@ -69,7 +69,7 @@ const ParticleBackground = () => {
 
             {/* Large Geometric Shapes with Parallax */}
             <motion.div
-                className="absolute top-[20%] right-[-10%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] rounded-full border border-laser-blue/10 blur-3xl"
+                className="absolute top-[20%] right-[-10%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] rounded-full border border-laser-blue/10 blur-xl md:blur-3xl"
                 style={{ y: y1, opacity, willChange: 'transform' }}
                 animate={{
                     scale: [1, 1.2, 1],
@@ -83,7 +83,7 @@ const ParticleBackground = () => {
             />
 
             <motion.div
-                className="absolute bottom-[10%] left-[-10%] w-[250px] md:w-[400px] h-[250px] md:h-[400px] rounded-full border border-white/5 blur-2xl"
+                className="absolute bottom-[10%] left-[-10%] w-[250px] md:w-[400px] h-[250px] md:h-[400px] rounded-full border border-white/5 blur-lg md:blur-2xl"
                 style={{ y: y2, opacity, willChange: 'transform' }}
                 animate={{
                     scale: [1, 1.1, 1],

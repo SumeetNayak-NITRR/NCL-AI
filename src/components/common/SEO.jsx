@@ -4,7 +4,7 @@ const SEO = ({ title, description, name, type }) => {
     return (
         <Helmet>
             {/* Standard metadata tags */}
-            <title>{title ? `${title} | NITRR FC` : 'NITRR FC | NCL Tournament Manager'}</title>
+            <title>{title ? `${title} | NITRR FC` : 'NITRR FC | Webpage'}</title>
             <meta name='description' content={description} />
 
             {/* Facebook tags */}

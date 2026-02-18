@@ -4,7 +4,7 @@ import { Trophy, Users, Zap, Target, Award, TrendingUp } from 'lucide-react'
 const FeatureCard = ({ icon: Icon, title, description, index }) => {
     return (
         <motion.div
-            className="relative group"
+            className="relative group h-full"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -13,7 +13,7 @@ const FeatureCard = ({ icon: Icon, title, description, index }) => {
             {/* Glowing background effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-laser-blue/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"></div>
 
-            <div className="relative p-8 bg-white/5 backdrop-blur-sm border border-white/10 group-hover:border-laser-blue/50 transition-all duration-500 overflow-hidden">
+            <div className="relative p-8 bg-white/5 backdrop-blur-sm border border-white/10 group-hover:border-laser-blue/50 transition-all duration-500 overflow-hidden h-full flex flex-col">
                 {/* Animated corner accent */}
                 <motion.div
                     className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-laser-blue/30 to-transparent"
@@ -38,7 +38,7 @@ const FeatureCard = ({ icon: Icon, title, description, index }) => {
                 <h3 className="text-2xl font-bebas text-white uppercase tracking-wider mb-3 relative z-10">
                     {title}
                 </h3>
-                <p className="text-white/70 font-inter leading-relaxed relative z-10">
+                <p className="text-white/70 font-inter leading-relaxed relative z-10 flex-grow">
                     {description}
                 </p>
 
@@ -64,12 +64,12 @@ const Features = () => {
         {
             icon: Users,
             title: "Team Building",
-            description: "Draft, manage, and develop your squad. Build chemistry and tactics that lead to championship glory."
+            description: "Draft,manage,and develop your squad.Build chemistry and tactics that lead to championship glory."
         },
         {
             icon: Zap,
             title: "Live Auctions",
-            description: "Experience the thrill of real-time player auctions. Strategic bidding meets competitive team building."
+            description: "Experience the thrill of real-time player auctions.Strategic bidding meets competitive team building."
         },
         {
             icon: Target,
@@ -79,12 +79,12 @@ const Features = () => {
         {
             icon: Award,
             title: "Recognition",
-            description: "Showcase your skills, earn recognition and build your legacy in the NCL."
+            description: "Showcase your skills,earn recognition and build your legacy in the NCL."
         },
         {
             icon: TrendingUp,
             title: "Growth Platform",
-            description: "Connect with senior players, branchmates and opportunities to take your football career to the next level."
+            description: "Connect with seniors and batchmates and opportunities to take your football career to the next level."
         }
     ]
 
