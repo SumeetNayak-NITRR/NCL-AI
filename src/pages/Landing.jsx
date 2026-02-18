@@ -52,7 +52,7 @@ const Landing = () => {
                             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                         >
                             <h2 className="text-sm md:text-base font-rajdhani tracking-[0.5em] text-laser-blue uppercase mb-4">
-                                The Official League
+                                The League
                             </h2>
                             <h1 className="text-5xl md:text-9xl font-bebas text-white leading-[0.85] tracking-tighter mb-8 mix-blend-difference">
                                 BEYOND <br />

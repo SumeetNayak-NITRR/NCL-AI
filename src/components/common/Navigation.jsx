@@ -55,7 +55,7 @@ const Navigation = () => {
                             NITRR FC
                         </span>
                         <span className="hidden md:block font-rajdhani text-[0.6rem] tracking-[0.4em] text-white/60 uppercase group-hover:text-laser-blue transition-colors">
-                            Official League
+                            NIT Raipur Football Club
                         </span>
                     </div>
                 </Link>
