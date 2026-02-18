@@ -43,18 +43,32 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
             case 'gold': return {
                 border: 'border-gold/60',
                 shadow: 'shadow-[0_0_40px_rgba(255,215,0,0.2)]',
-                accent: 'text-gold',
-                statsLabel: 'text-gold/80',
-                bgGradient: 'bg-gradient-to-b from-black via-black to-gold/20',
-                nameGradient: 'from-black via-gold/10 to-transparent'
+                accent: 'text-[#3E2723]', // Darker Bronze/Brown for better contrast and tone
+                statsLabel: 'text-[#5D4037]', // Slightly lighter brown for labels
+                bgGradient: 'bg-gradient-to-b from-white via-[#FDF5E6] to-[#FFD700]/20', // Cleaner marble-esque gold
+                nameGradient: 'from-transparent via-transparent to-transparent',
+                textColor: '#3E2723',
+                textGlow: 'none'
             }
             case 'silver': return {
                 border: 'border-gray-300/60',
                 shadow: 'shadow-[0_0_40px_rgba(192,192,192,0.2)]',
-                accent: 'text-gray-300',
+                accent: 'text-gray-100',
                 statsLabel: 'text-gray-300/80',
                 bgGradient: 'bg-gradient-to-b from-black via-black to-gray-300/20',
-                nameGradient: 'from-black via-gray-300/10 to-transparent'
+                nameGradient: 'from-transparent via-transparent to-transparent',
+                textColor: '#ffffff',
+                textGlow: 'text-glow'
+            }
+            case 'brown': return {
+                border: 'border-[#54462B]/60',
+                shadow: 'shadow-[0_0_40px_rgba(84,70,43,0.2)]',
+                accent: 'text-[#54462B]',
+                statsLabel: 'text-[#54462B]/80',
+                bgGradient: 'bg-gradient-to-b from-white via-[#FDF5E6] to-[#54462B]/10',
+                nameGradient: 'from-transparent via-transparent to-transparent',
+                textColor: '#54462B', // The requested color
+                textGlow: 'none'
             }
             case 'neon': return {
                 border: 'border-neon/60',
@@ -62,15 +76,19 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                 accent: 'text-neon',
                 statsLabel: 'text-neon/80',
                 bgGradient: 'bg-gradient-to-b from-black via-black to-neon/20',
-                nameGradient: 'from-black via-neon/10 to-transparent'
+                nameGradient: 'from-transparent via-transparent to-transparent',
+                textColor: '#ffffff',
+                textGlow: 'text-glow'
             }
-            default: return {
+            default: return { // Standard
                 border: 'border-electric-blue/30',
                 shadow: 'shadow-[0_0_40px_rgba(0,212,255,0.2)]',
-                accent: 'text-electric-blue',
+                accent: 'text-white', // Consistent white
                 statsLabel: 'text-electric-blue/80',
                 bgGradient: 'bg-gradient-to-b from-dark-navy via-dark-blue to-black',
-                nameGradient: 'from-black via-dark-blue/40 to-transparent'
+                nameGradient: 'from-transparent via-transparent to-transparent',
+                textColor: '#ffffff',
+                textGlow: 'text-glow'
             }
         }
     }
@@ -79,9 +97,17 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
 
     // Helper to get card background based on year
     const getCardStyle = (year) => {
-        const y = String(year).toLowerCase()
+        const y = String(year) // Case sensitive matching for 'Alumni', 'M.Tech'
+
         if (y.includes('1')) return { bg: '/cards/year1.png', isCustom: true }
         if (y.includes('2')) return { bg: '/cards/year2.png', isCustom: true }
+        if (y.includes('3')) return { bg: '/cards/year3.png', isCustom: true }
+        if (y.includes('4')) return { bg: '/cards/year4.png', isCustom: true }
+        if (y.includes('5')) return { bg: '/cards/year5.png', isCustom: true }
+        if (y.includes('Alumni')) return { bg: '/cards/Alumni.png', isCustom: true }
+        if (y.includes('M.Tech') || y.includes('Masters')) return { bg: '/cards/year5.png', isCustom: true }
+        if (y.includes('PhD')) return { bg: '/cards/year5.png', isCustom: true }
+
         return { isCustom: false }
     }
 
@@ -119,7 +145,13 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
             stats_x: CARD_LAYOUT_DEFAULTS.STATS_X,
             stats_y: CARD_LAYOUT_DEFAULTS.STATS_Y,
             rating_x: CARD_LAYOUT_DEFAULTS.RATING_X,
-            rating_y: CARD_LAYOUT_DEFAULTS.RATING_Y
+            rating_y: CARD_LAYOUT_DEFAULTS.RATING_Y,
+            position_x: CARD_LAYOUT_DEFAULTS.POSITION_X,
+            position_y: CARD_LAYOUT_DEFAULTS.POSITION_Y,
+            position_size: CARD_LAYOUT_DEFAULTS.POSITION_SIZE,
+            branch_x: CARD_LAYOUT_DEFAULTS.BRANCH_X,
+            branch_y: CARD_LAYOUT_DEFAULTS.BRANCH_Y,
+            branch_size: CARD_LAYOUT_DEFAULTS.BRANCH_SIZE,
         };
 
         // 1. Parse from URL (Persistence source)
@@ -133,6 +165,12 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                 if (p.get('stats_y')) layout.stats_y = parseInt(p.get('stats_y'));
                 if (p.get('rating_x')) layout.rating_x = parseInt(p.get('rating_x'));
                 if (p.get('rating_y')) layout.rating_y = parseInt(p.get('rating_y'));
+                if (p.get('position_x')) layout.position_x = parseInt(p.get('position_x'));
+                if (p.get('position_y')) layout.position_y = parseInt(p.get('position_y'));
+                if (p.get('position_size')) layout.position_size = parseInt(p.get('position_size'));
+                if (p.get('branch_x')) layout.branch_x = parseInt(p.get('branch_x'));
+                if (p.get('branch_y')) layout.branch_y = parseInt(p.get('branch_y'));
+                if (p.get('branch_size')) layout.branch_size = parseInt(p.get('branch_size'));
             } catch (e) { }
         }
 
@@ -144,6 +182,12 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
         if (player.stats_y !== undefined) layout.stats_y = player.stats_y;
         if (player.rating_x !== undefined) layout.rating_x = player.rating_x;
         if (player.rating_y !== undefined) layout.rating_y = player.rating_y;
+        if (player.position_x !== undefined) layout.position_x = player.position_x;
+        if (player.position_y !== undefined) layout.position_y = player.position_y;
+        if (player.position_size !== undefined) layout.position_size = player.position_size;
+        if (player.branch_x !== undefined) layout.branch_x = player.branch_x;
+        if (player.branch_y !== undefined) layout.branch_y = player.branch_y;
+        if (player.branch_size !== undefined) layout.branch_size = player.branch_size;
 
         return layout;
     }
@@ -181,7 +225,7 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
 
             {/* --- LAYOUT CONTENT --- */}
 
-            {/* 1. RATING & POSITION (Top Left) */}
+            {/* 1. RATING (Top Left) */}
             <Item
                 style={{
                     position: 'absolute',
@@ -197,26 +241,63 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                 transition={animated ? { delay: 0.2 } : { duration: 0 }}
             >
                 <div
-                    className={`font-bebas font-bold leading-none text-glow ${variantStyle.accent}`}
-                    style={{ fontSize: '68px', lineHeight: '0.9', color: '#ffffff' }}
+                    className={`font-bebas font-bold leading-none ${variantStyle.textGlow} ${variantStyle.accent}`}
+                    style={{ fontSize: '68px', lineHeight: '0.9', color: variantStyle.textColor }}
                 >
                     {average}
                 </div>
+            </Item>
+
+            {/* 2. POSITION (Below Rating) */}
+            <Item
+                style={{
+                    position: 'absolute',
+                    top: '115px', // Approx below rating
+                    left: '40px',
+                    width: '100px',
+                    textAlign: 'center',
+                    zIndex: 20,
+                    transform: `translate(${layout.position_x}px, ${layout.position_y}px)`
+                }}
+                initial={animated ? { opacity: 0, x: -20 } : { opacity: 1, x: 0 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={animated ? { delay: 0.25 } : { duration: 0 }}
+            >
                 <div
                     className={`font-bebas font-semibold ${variantStyle.accent}`}
-                    style={{ fontSize: `${CARD_LAYOUT_DEFAULTS.POSITION_SIZE}px`, marginTop: '4px', color: '#ffffff' }}
+                    style={{ fontSize: `${layout.position_size}px`, color: variantStyle.textColor, lineHeight: 1 }}
                 >
                     {player.position}
                 </div>
-                {player.branch && (
+            </Item>
+
+            {/* 3. BRANCH (Below Position) */}
+            {player.branch && (
+                <Item
+                    style={{
+                        position: 'absolute',
+                        top: '145px', // Approx below position
+                        left: '40px',
+                        width: '100px',
+                        textAlign: 'center',
+                        zIndex: 20,
+                        transform: `translate(${layout.branch_x}px, ${layout.branch_y}px)`
+                    }}
+                    initial={animated ? { opacity: 0, x: -20 } : { opacity: 1, x: 0 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={animated ? { delay: 0.3 } : { duration: 0 }}
+                >
                     <div
-                        className="font-rajdhani font-medium tracking-wider"
-                        style={{ fontSize: `${CARD_LAYOUT_DEFAULTS.BRANCH_SIZE}px`, marginTop: '2px', color: '#ffffff', textShadow: '0 2px 4px rgba(0,0,0,0.8)' }}
+                        className={`font-bebas font-medium ${variantStyle.accent}`}
+                        style={{
+                            fontSize: `${layout.branch_size}px`, color: variantStyle.textColor,
+                            textShadow: (variant === 'gold' || variant === 'brown') ? 'none' : '0 2px 4px rgba(0,0,0,0.5)',
+                        }}
                     >
                         {player.branch}
                     </div>
-                )}
-            </Item>
+                </Item>
+            )}
 
             {/* 2. PLAYER PHOTO */}
             <Item
@@ -240,7 +321,7 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                     alt={player.name}
                     crossOrigin="anonymous"
                     loading="lazy"
-                    className="max-w-none max-h-none object-contain drop-shadow-[0_0_30px_rgba(0,212,255,0.3)]"
+                    className={`max-w-none max-h-none object-contain drop-shadow-[0_0_30px_rgba(0,212,255,0.3)] transition-all duration-700 ${animated ? 'scale-105' : ''}`}
                     style={{
                         height: '100%',
                         width: 'auto',
@@ -271,14 +352,14 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                 ></div>
 
                 <h2
-                    className="font-bebas font-bold uppercase tracking-wide text-glow"
+                    className={`font-bebas font-bold uppercase tracking-wide ${variantStyle.textGlow}`}
                     style={{
                         fontSize: `${layout.name_size}px`,
                         lineHeight: '1',
                         margin: 0,
                         padding: '0 10px',
-                        textShadow: '0 4px 8px rgba(0,0,0,0.5)',
-                        color: '#ffffff'
+                        textShadow: (variant === 'gold' || variant === 'brown') ? 'none' : '0 2px 4px rgba(0,0,0,0.5)',
+                        color: variantStyle.textColor
                     }}
                 >
                     {player.name}
@@ -313,13 +394,13 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                     <div key={i} className="flex flex-col items-center" style={{ width: '45px' }}>
                         <div
                             className={`font-rajdhani uppercase tracking-wider ${variantStyle.statsLabel}`}
-                            style={{ fontSize: '15px', lineHeight: '1', marginBottom: '4px', color: '#ffffff' }}
+                            style={{ fontSize: '15px', lineHeight: '1', marginBottom: '4px', color: variantStyle.textColor }}
                         >
                             {stat.l}
                         </div>
                         <div
-                            className="font-bold font-bebas drop-shadow-lg"
-                            style={{ fontSize: '32px', lineHeight: '1', color: '#ffffff' }}
+                            className="font-bold font-bebas"
+                            style={{ fontSize: '32px', lineHeight: '1', color: variantStyle.textColor }}
                         >
                             {stat.v}
                         </div>

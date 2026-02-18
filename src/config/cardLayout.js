@@ -10,7 +10,7 @@
 export const CARD_LAYOUT_DEFAULTS = {
     // Name Section (Bottom)
     NAME_X: 0,
-    NAME_Y: 0,
+    NAME_Y: 10,
     NAME_SIZE: 52, // Font size in px
 
     // Stats Row (Bottom)
@@ -18,8 +18,19 @@ export const CARD_LAYOUT_DEFAULTS = {
     STATS_Y: 0,
 
     // Rating & Info (Top Left)
-    RATING_X: 0,
-    RATING_Y: 0,
-    POSITION_SIZE: 28, // Increased from 24px
-    BRANCH_SIZE: 18    // Increased from 14/16px
+    RATING_X: -8,
+    RATING_Y: 20,
+
+    // Position (Below Rating)
+    POSITION_X: -10,
+    POSITION_Y: 25,
+    POSITION_SIZE: 42,
+
+    // Branch (Below Position)
+    BRANCH_X: -10,
+    BRANCH_Y: 55, // Consistent gap ~30px visual
+    BRANCH_SIZE: 28,
+
+    // Gap between elements in vertical stack
+    GAP: 5
 };

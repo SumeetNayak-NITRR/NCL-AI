@@ -46,7 +46,7 @@ const Footer = () => {
                     <div>
                         <h3 className="text-white font-bebas uppercase text-lg mb-4">Connect</h3>
                         <div className="flex gap-4 mb-4">
-                            <a href="javascript:void(0)" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Instagram">
+                            <a href="https://www.instagram.com/nitraipur_fc?igsh=MTluZTJiaGg1cXNlNQ==" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Instagram">
                                 <Instagram size={20} />
                             </a>
                             <a href="javascript:void(0)" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Twitter">
@@ -81,7 +81,7 @@ const Footer = () => {
                             {/* <span>&</span>
                             <span className="text-gold animate-bounce text-sm">⚡</span> */}
                             <span>by</span>
-                            <span className="text-white font-bold tracking-wider group-hover:text-neon transition-colors">SUMEET</span>
+                            <a href="https://www.instagram.com/_sumeetnayak28?igsh=MTV1Y2JobWJxbzE2YQ==" target="_blank" rel="noopener noreferrer" className="text-white font-bold tracking-wider group-hover:text-neon transition-colors hover:underline">SUMEET</a>
                         </div>
 
                         <div className="flex items-center gap-4">

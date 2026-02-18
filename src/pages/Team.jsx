@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import { X } from 'lucide-react'
 import Navigation from '../components/common/Navigation'
 import Footer from '../components/common/Footer'
 import AbstractPlayerCard from '../components/common/AbstractPlayerCard'
+import PlayerCardBase from '../components/common/PlayerCardBase'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import { supabase } from '../lib/supabase'
 import SEO from '../components/common/SEO'
@@ -11,6 +13,7 @@ const Team = () => {
     const [players, setPlayers] = useState([])
     const [loading, setLoading] = useState(true)
     const [filter, setFilter] = useState('Main Squad')
+    const [selectedPlayer, setSelectedPlayer] = useState(null)
 
     const positions = ['Alumni', 'Main Squad', 'All', 'ST', 'CM', 'CDM', 'Winger', 'Fullback', 'CB', 'GK']
 
@@ -47,8 +50,29 @@ const Team = () => {
         return p.position === filter
     })
 
+    // Helper to get glow color based on variant
+    const getGlowColor = (player) => {
+        let variant = 'standard'
+        if (player.card_variant) variant = player.card_variant
+        else if (player.status === 'Alumni') variant = 'gold'
+        else if (player.photo_url && player.photo_url.includes('?')) {
+            try {
+                const params = new URLSearchParams(player.photo_url.split('?')[1])
+                variant = params.get('variant') || 'standard'
+            } catch (e) { }
+        }
+
+        switch (variant) {
+            case 'gold': return 'rgba(255, 215, 0, 0.6)'
+            case 'silver': return 'rgba(192, 192, 192, 0.6)'
+            case 'neon': return 'rgba(57, 255, 20, 0.6)'
+            case 'brown': return 'rgba(84, 70, 43, 0.6)'
+            default: return 'rgba(0, 212, 255, 0.6)'
+        }
+    }
+
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen relative">
             <SEO
                 title="Roster"
                 description="Meet the elite players of NITRR FC. View the main squad, alumni, and player stats."
@@ -114,6 +138,9 @@ const Team = () => {
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ delay: index * 0.1, duration: 0.8 }}
+                                    onClick={() => setSelectedPlayer(player)}
+                                    className="cursor-pointer hover:scale-105 transition-transform duration-300"
+                                    layoutId={`card-${player.id}`}
                                 >
                                     <AbstractPlayerCard player={player} showStats={false} showRating={true} />
                                 </motion.div>
@@ -122,6 +149,50 @@ const Team = () => {
                     )}
                 </div>
             </section>
+
+            {/* Modal Overlay */}
+            <AnimatePresence>
+                {selectedPlayer && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setSelectedPlayer(null)}
+                            className="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] flex items-center justify-center p-4"
+                        >
+                            <motion.div
+                                layoutId={`card-${selectedPlayer.id}`}
+                                className="relative"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                {/* Glow Effect */}
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1.2 }}
+                                    exit={{ opacity: 0, scale: 0.8 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="absolute inset-0 blur-[60px] opacity-70 w-full h-full rounded-full"
+                                    style={{ background: getGlowColor(selectedPlayer) }}
+                                ></motion.div>
+
+                                {/* Close Button */}
+                                <button
+                                    onClick={() => setSelectedPlayer(null)}
+                                    className="absolute -top-12 right-0 md:-right-12 text-white/50 hover:text-white transition-colors p-2 z-[70]"
+                                >
+                                    <X size={32} />
+                                </button>
+
+                                {/* High-Fidelity Card */}
+                                <div className="relative z-[65] scale-90 md:scale-100 origin-center">
+                                    <PlayerCardBase player={selectedPlayer} animated={true} />
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
 
             <Footer />
         </div>

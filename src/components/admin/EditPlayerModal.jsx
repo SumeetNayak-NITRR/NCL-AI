@@ -36,6 +36,15 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                 state.stats_y = parseInt(params.get('stats_y')) || CARD_LAYOUT_DEFAULTS.STATS_Y
                 state.rating_x = parseInt(params.get('rating_x')) || CARD_LAYOUT_DEFAULTS.RATING_X
                 state.rating_y = parseInt(params.get('rating_y')) || CARD_LAYOUT_DEFAULTS.RATING_Y
+                state.position_x = parseInt(params.get('position_x')) || CARD_LAYOUT_DEFAULTS.POSITION_X
+                state.position_y = parseInt(params.get('position_y')) || CARD_LAYOUT_DEFAULTS.POSITION_Y
+                state.position_size = parseInt(params.get('position_size')) || CARD_LAYOUT_DEFAULTS.POSITION_SIZE
+                state.branch_x = parseInt(params.get('branch_x')) || CARD_LAYOUT_DEFAULTS.BRANCH_X
+                state.branch_y = parseInt(params.get('branch_y')) || CARD_LAYOUT_DEFAULTS.BRANCH_Y
+                state.branch_size = parseInt(params.get('branch_size')) || CARD_LAYOUT_DEFAULTS.BRANCH_SIZE
+                state.year_x = parseInt(params.get('year_x')) || CARD_LAYOUT_DEFAULTS.YEAR_X
+                state.year_y = parseInt(params.get('year_y')) || CARD_LAYOUT_DEFAULTS.YEAR_Y
+                state.year_size = parseInt(params.get('year_size')) || CARD_LAYOUT_DEFAULTS.YEAR_SIZE
             } catch (e) {
                 console.error("Error parsing URL params", e)
             }
@@ -64,6 +73,15 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
         if (state.stats_y === undefined) state.stats_y = CARD_LAYOUT_DEFAULTS.STATS_Y
         if (state.rating_x === undefined) state.rating_x = CARD_LAYOUT_DEFAULTS.RATING_X
         if (state.rating_y === undefined) state.rating_y = CARD_LAYOUT_DEFAULTS.RATING_Y
+        if (state.position_x === undefined) state.position_x = CARD_LAYOUT_DEFAULTS.POSITION_X
+        if (state.position_y === undefined) state.position_y = CARD_LAYOUT_DEFAULTS.POSITION_Y
+        if (state.position_size === undefined) state.position_size = CARD_LAYOUT_DEFAULTS.POSITION_SIZE
+        if (state.branch_x === undefined) state.branch_x = CARD_LAYOUT_DEFAULTS.BRANCH_X
+        if (state.branch_y === undefined) state.branch_y = CARD_LAYOUT_DEFAULTS.BRANCH_Y
+        if (state.branch_size === undefined) state.branch_size = CARD_LAYOUT_DEFAULTS.BRANCH_SIZE
+        if (state.year_x === undefined) state.year_x = CARD_LAYOUT_DEFAULTS.YEAR_X
+        if (state.year_y === undefined) state.year_y = CARD_LAYOUT_DEFAULTS.YEAR_Y
+        if (state.year_size === undefined) state.year_size = CARD_LAYOUT_DEFAULTS.YEAR_SIZE
 
         return state
     }
@@ -104,6 +122,15 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                 stats_y: parseInt(formData.stats_y),
                 rating_x: parseInt(formData.rating_x),
                 rating_y: parseInt(formData.rating_y),
+                position_x: parseInt(formData.position_x),
+                position_y: parseInt(formData.position_y),
+                position_size: parseInt(formData.position_size),
+                branch_x: parseInt(formData.branch_x),
+                branch_y: parseInt(formData.branch_y),
+                branch_size: parseInt(formData.branch_size),
+                year_x: parseInt(formData.year_x),
+                year_y: parseInt(formData.year_y),
+                year_size: parseInt(formData.year_size),
                 // Ensure photo_url is available
                 branch: formData.branch,
                 photo_url: formData.photo_url
@@ -135,6 +162,9 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                 saveUrl += `&name_x=${formData.name_x}&name_y=${formData.name_y}&name_size=${formData.name_size}`
                 saveUrl += `&stats_x=${formData.stats_x}&stats_y=${formData.stats_y}`
                 saveUrl += `&rating_x=${formData.rating_x}&rating_y=${formData.rating_y}`
+                saveUrl += `&position_x=${formData.position_x}&position_y=${formData.position_y}&position_size=${formData.position_size}`
+                saveUrl += `&branch_x=${formData.branch_x}&branch_y=${formData.branch_y}&branch_size=${formData.branch_size}`
+                saveUrl += `&year_x=${formData.year_x}&year_y=${formData.year_y}&year_size=${formData.year_size}`
             }
 
             const payload = {
@@ -285,7 +315,13 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                                                         stats_x: parseInt(formData.stats_x),
                                                         stats_y: parseInt(formData.stats_y),
                                                         rating_x: parseInt(formData.rating_x),
-                                                        rating_y: parseInt(formData.rating_y)
+                                                        rating_y: parseInt(formData.rating_y),
+                                                        position_x: parseInt(formData.position_x),
+                                                        position_y: parseInt(formData.position_y),
+                                                        position_size: parseInt(formData.position_size),
+                                                        branch_x: parseInt(formData.branch_x),
+                                                        branch_y: parseInt(formData.branch_y),
+                                                        branch_size: parseInt(formData.branch_size)
                                                     }}
                                                     size="modal"
                                                     animated={false}
@@ -309,7 +345,13 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                                                         stats_x: parseInt(formData.stats_x),
                                                         stats_y: parseInt(formData.stats_y),
                                                         rating_x: parseInt(formData.rating_x),
-                                                        rating_y: parseInt(formData.rating_y)
+                                                        rating_y: parseInt(formData.rating_y),
+                                                        position_x: parseInt(formData.position_x),
+                                                        position_y: parseInt(formData.position_y),
+                                                        position_size: parseInt(formData.position_size),
+                                                        branch_x: parseInt(formData.branch_x),
+                                                        branch_y: parseInt(formData.branch_y),
+                                                        branch_size: parseInt(formData.branch_size)
                                                     }}
                                                 />
                                             )}
@@ -453,6 +495,44 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                                             placeholder="https://..."
                                         />
                                         <div className="absolute right-2 top-[26px] pointer-events-none text-[10px] text-white/20">SUPABASE STORAGE</div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {/* Scale */}
+                                        <div className="space-y-1">
+                                            <div className="flex justify-between text-[10px] text-white/40 font-rajdhani uppercase">
+                                                <span>Scale</span>
+                                                <span className="text-white">{parseFloat(formData.image_scale).toFixed(2)}x</span>
+                                            </div>
+                                            <input
+                                                type="range"
+                                                min="0.5"
+                                                max="2"
+                                                step="0.01"
+                                                name="image_scale"
+                                                value={formData.image_scale}
+                                                onChange={handleChange}
+                                                className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white"
+                                            />
+                                        </div>
+
+                                        {/* Variant Selector */}
+                                        <div className="space-y-1">
+                                            <div className="flex justify-between text-[10px] text-white/40 font-rajdhani uppercase">
+                                                <span>Card Style</span>
+                                            </div>
+                                            <select
+                                                name="card_variant"
+                                                value={formData.card_variant || 'standard'}
+                                                onChange={handleChange}
+                                                className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-[10px] text-white focus:outline-none focus:border-white/30 font-rajdhani uppercase appearance-none"
+                                            >
+                                                <option value="standard">Standard (Blue)</option>
+                                                <option value="neon">Neon (Glitch)</option>
+                                                <option value="gold">Gold (Prestige)</option>
+                                                <option value="silver">Silver (Alumni)</option>
+                                                <option value="brown">Brown (Vintage)</option>
+                                            </select>
+                                        </div>
                                     </div>
 
                                     <div className="grid grid-cols-3 gap-6 pt-2">
@@ -631,25 +711,114 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                                         </div>
                                     </div>
 
-                                    {/* Rating Controls */}
-                                    <div className="space-y-2 pt-2 border-t border-white/5">
+                                    {/* Info Block Controls */}
+                                    <div className="space-y-4 pt-2 border-t border-white/5">
                                         <div className="flex justify-between items-center">
-                                            <h4 className="text-[10px] uppercase text-white/40 font-rajdhani tracking-wider">Rating Position</h4>
+                                            <h4 className="text-[10px] uppercase text-white/40 font-rajdhani tracking-wider">Info Block Position</h4>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-1">
-                                                <div className="flex justify-between text-[10px] text-white/40 font-rajdhani uppercase">
-                                                    <span>X-Pos</span>
-                                                    <span className="text-white">{formData.rating_x || 0}px</span>
+
+                                        {/* Rating */}
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] uppercase text-white/20 font-rajdhani">Rating (Main Anchor)</label>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-1">
+                                                    <div className="flex justify-between text-[10px] text-white/40 font-rajdhani uppercase">
+                                                        <span>X-Pos</span>
+                                                        <span className="text-white">{formData.rating_x || 0}px</span>
+                                                    </div>
+                                                    <input type="range" min="-100" max="100" step="1" name="rating_x" value={formData.rating_x || 0} onChange={handleChange} className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" />
                                                 </div>
-                                                <input type="range" min="-100" max="100" step="1" name="rating_x" value={formData.rating_x || 0} onChange={handleChange} className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" />
+                                                <div className="space-y-1">
+                                                    <div className="flex justify-between text-[10px] text-white/40 font-rajdhani uppercase">
+                                                        <span>Y-Pos</span>
+                                                        <span className="text-white">{formData.rating_y || 0}px</span>
+                                                    </div>
+                                                    <input type="range" min="-100" max="100" step="1" name="rating_y" value={formData.rating_y || 0} onChange={handleChange} className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" />
+                                                </div>
                                             </div>
-                                            <div className="space-y-1">
-                                                <div className="flex justify-between text-[10px] text-white/40 font-rajdhani uppercase">
-                                                    <span>Y-Pos</span>
-                                                    <span className="text-white">{formData.rating_y || 0}px</span>
+                                        </div>
+
+                                        {/* Position */}
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] uppercase text-white/20 font-rajdhani">Position Text</label>
+                                            <div className="grid grid-cols-3 gap-4">
+                                                <div className="space-y-1">
+                                                    <div className="flex justify-between text-[10px] text-white/40 font-rajdhani uppercase">
+                                                        <span>X-Pos</span>
+                                                        <span className="text-white">{formData.position_x || 0}px</span>
+                                                    </div>
+                                                    <input type="range" min="-100" max="100" step="1" name="position_x" value={formData.position_x || 0} onChange={handleChange} className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" />
                                                 </div>
-                                                <input type="range" min="-100" max="100" step="1" name="rating_y" value={formData.rating_y || 0} onChange={handleChange} className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" />
+                                                <div className="space-y-1">
+                                                    <div className="flex justify-between text-[10px] text-white/40 font-rajdhani uppercase">
+                                                        <span>Y-Pos</span>
+                                                        <span className="text-white">{formData.position_y || 0}px</span>
+                                                    </div>
+                                                    <input type="range" min="-100" max="100" step="1" name="position_y" value={formData.position_y || 0} onChange={handleChange} className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <div className="flex justify-between text-[10px] text-white/40 font-rajdhani uppercase">
+                                                        <span>Size</span>
+                                                        <span className="text-white">{formData.position_size || 28}px</span>
+                                                    </div>
+                                                    <input type="range" min="10" max="60" step="1" name="position_size" value={formData.position_size || 28} onChange={handleChange} className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Branch */}
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] uppercase text-white/20 font-rajdhani">Branch Text</label>
+                                            <div className="grid grid-cols-3 gap-4">
+                                                <div className="space-y-1">
+                                                    <div className="flex justify-between text-[10px] text-white/40 font-rajdhani uppercase">
+                                                        <span>X-Pos</span>
+                                                        <span className="text-white">{formData.branch_x || 0}px</span>
+                                                    </div>
+                                                    <input type="range" min="-100" max="600" step="1" name="branch_x" value={formData.branch_x || 0} onChange={handleChange} className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <div className="flex justify-between text-[10px] text-white/40 font-rajdhani uppercase">
+                                                        <span>Y-Pos</span>
+                                                        <span className="text-white">{formData.branch_y || 0}px</span>
+                                                    </div>
+                                                    <input type="range" min="-100" max="600" step="1" name="branch_y" value={formData.branch_y || 0} onChange={handleChange} className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <div className="flex justify-between text-[10px] text-white/40 font-rajdhani uppercase">
+                                                        <span>Size</span>
+                                                        <span className="text-white">{formData.branch_size || 18}px</span>
+                                                    </div>
+                                                    <input type="range" min="10" max="40" step="1" name="branch_size" value={formData.branch_size || 18} onChange={handleChange} className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Year */}
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] uppercase text-white/20 font-rajdhani">Year Text</label>
+                                            <div className="grid grid-cols-3 gap-4">
+                                                <div className="space-y-1">
+                                                    <div className="flex justify-between text-[10px] text-white/40 font-rajdhani uppercase">
+                                                        <span>X-Pos</span>
+                                                        <span className="text-white">{formData.year_x || 0}px</span>
+                                                    </div>
+                                                    <input type="range" min="-100" max="600" step="1" name="year_x" value={formData.year_x || 0} onChange={handleChange} className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <div className="flex justify-between text-[10px] text-white/40 font-rajdhani uppercase">
+                                                        <span>Y-Pos</span>
+                                                        <span className="text-white">{formData.year_y || 0}px</span>
+                                                    </div>
+                                                    <input type="range" min="-100" max="600" step="1" name="year_y" value={formData.year_y || 0} onChange={handleChange} className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <div className="flex justify-between text-[10px] text-white/40 font-rajdhani uppercase">
+                                                        <span>Size</span>
+                                                        <span className="text-white">{formData.year_size || 18}px</span>
+                                                    </div>
+                                                    <input type="range" min="10" max="60" step="1" name="year_size" value={formData.year_size || 18} onChange={handleChange} className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-white" />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -677,6 +846,12 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                             className="px-6 py-2 text-white/40 hover:text-white text-xs font-oswald uppercase tracking-wider transition-colors"
                         >
                             Cancel
+                        </button>
+                        <button
+                            onClick={handleDownload}
+                            className="px-6 py-2 text-white/60 hover:text-white text-xs font-oswald uppercase tracking-wider transition-colors flex items-center gap-2"
+                        >
+                            <Download size={16} /> Download
                         </button>
                         {player.status === 'Pending' && (
                             <button

@@ -58,7 +58,7 @@ export const renderPlayerCardToCanvas = async (player) => {
                     gradientStart: '#0a192f', // dark-navy
                     gradientEnd: '#000000',
                     accent: '#00d4ff', // electric-blue
-                    nameGradient: ['#000000', 'rgba(0, 30, 60, 0.4)', 'transparent'] // dark-blue/40 approx
+                    nameGradient: ['transparent', 'transparent', 'transparent'] // Match PlayerCardBase
                 }
             };
 
@@ -216,7 +216,13 @@ export const renderPlayerCardToCanvas = async (player) => {
                 stats_x: parseInt(player.stats_x) || CARD_LAYOUT_DEFAULTS.STATS_X,
                 stats_y: parseInt(player.stats_y) || CARD_LAYOUT_DEFAULTS.STATS_Y,
                 rating_x: parseInt(player.rating_x) || CARD_LAYOUT_DEFAULTS.RATING_X,
-                rating_y: parseInt(player.rating_y) || CARD_LAYOUT_DEFAULTS.RATING_Y
+                rating_y: parseInt(player.rating_y) || CARD_LAYOUT_DEFAULTS.RATING_Y,
+                position_x: parseInt(player.position_x) || CARD_LAYOUT_DEFAULTS.POSITION_X,
+                position_y: parseInt(player.position_y) || CARD_LAYOUT_DEFAULTS.POSITION_Y,
+                position_size: parseInt(player.position_size) || CARD_LAYOUT_DEFAULTS.POSITION_SIZE,
+                branch_x: parseInt(player.branch_x) || CARD_LAYOUT_DEFAULTS.BRANCH_X,
+                branch_y: parseInt(player.branch_y) || CARD_LAYOUT_DEFAULTS.BRANCH_Y,
+                branch_size: parseInt(player.branch_size) || CARD_LAYOUT_DEFAULTS.BRANCH_SIZE,
             };
 
             // Fallback to URL params if not provided in player object
@@ -230,14 +236,24 @@ export const renderPlayerCardToCanvas = async (player) => {
                     if (player.stats_y === undefined && p.get('stats_y')) layout.stats_y = parseInt(p.get('stats_y'));
                     if (player.rating_x === undefined && p.get('rating_x')) layout.rating_x = parseInt(p.get('rating_x'));
                     if (player.rating_y === undefined && p.get('rating_y')) layout.rating_y = parseInt(p.get('rating_y'));
+                    if (player.position_x === undefined && p.get('position_x')) layout.position_x = parseInt(p.get('position_x'));
+                    if (player.position_y === undefined && p.get('position_y')) layout.position_y = parseInt(p.get('position_y'));
+                    if (player.position_size === undefined && p.get('position_size')) layout.position_size = parseInt(p.get('position_size'));
+                    if (player.branch_x === undefined && p.get('branch_x')) layout.branch_x = parseInt(p.get('branch_x'));
+                    if (player.branch_y === undefined && p.get('branch_y')) layout.branch_y = parseInt(p.get('branch_y'));
+                    if (player.branch_size === undefined && p.get('branch_size')) layout.branch_size = parseInt(p.get('branch_size'));
                 } catch (e) { }
             }
 
+            // Colors
+            let textColor = (variant === 'gold' || variant === 'brown') ? (variant === 'gold' ? '#3E2723' : '#54462B') : '#ffffff';
+            let shadowColor = (variant === 'gold' || variant === 'brown') ? 'transparent' : 'rgba(0, 0, 0, 0.8)';
+
+            const statsShadowColor = (variant === 'gold' || variant === 'brown') ? 'transparent' : 'rgba(0,0,0,0.5)';
+
             // A. Rating (Top Left)
             // Position: absolute, top 50, left 40, width 100.
-            // Text: 68px Bebas, line height 0.9.
             // Center of width 100 starting at 40 is x=90.
-            // Y position needs to be baseline. 50 (top) + ~55 (approx cap height/ascent).
 
             // Rating
             drawTextWithShadow(
@@ -245,37 +261,37 @@ export const renderPlayerCardToCanvas = async (player) => {
                 90 + layout.rating_x,
                 105 + layout.rating_y, // Approximation for baseline
                 'bold 68px "Bebas Neue"',
-                '#ffffff',
+                textColor,
                 'center',
-                20, // Stronger blur
-                'rgba(0, 0, 0, 0.8)', // Dark shadow for visibility
+                variant === 'gold' ? 0 : 20, // Stronger blur
+                shadowColor, // Dark shadow for visibility
                 null, 0 // No Hard Border
             );
 
-            // Position
+            // Position (Independent)
             drawTextWithShadow(
                 player.position,
-                90 + layout.rating_x,
-                135 + layout.rating_y,
-                `600 ${CARD_LAYOUT_DEFAULTS.POSITION_SIZE}px "Bebas Neue"`,
-                '#ffffff',
+                90 + layout.position_x,
+                140 + layout.position_y,
+                `600 ${layout.position_size}px "Bebas Neue"`,
+                textColor,
                 'center',
-                15,
-                'rgba(0, 0, 0, 0.8)', // Dark shadow
+                variant === 'gold' ? 0 : 15,
+                shadowColor, // Dark shadow
                 null, 0 // No Hard Border
             );
 
-            // Branch (New Addition)
+            // Branch (Independent)
             if (player.branch) {
                 drawTextWithShadow(
                     player.branch,
-                    90 + layout.rating_x,
-                    155 + layout.rating_y, // Below position
-                    `${CARD_LAYOUT_DEFAULTS.BRANCH_SIZE}px "Rajdhani"`,
-                    '#ffffff',
+                    90 + layout.branch_x,
+                    160 + layout.branch_y,
+                    `${layout.branch_size}px "Bebas Neue"`,
+                    textColor,
                     'center',
-                    10,
-                    'rgba(0, 0, 0, 0.8)',
+                    variant === 'gold' ? 0 : 10,
+                    shadowColor,
                     null, 0
                 );
             }
@@ -283,26 +299,31 @@ export const renderPlayerCardToCanvas = async (player) => {
             // B. Name Section (Bottom)
             // Gradient Background
             // Top: 438px
-            const nameGradient = ctx.createLinearGradient(0, 570, 0, 430); // Approximate based on css
-            nameGradient.addColorStop(0, style.nameGradient[0]);
-            nameGradient.addColorStop(0.5, style.nameGradient[1]);
-            nameGradient.addColorStop(1, style.nameGradient[2]);
-            ctx.fillStyle = nameGradient;
-            ctx.fillRect(0, 460 + layout.name_y, 400, 140); // Fill bottom area
+            // Gradient Background - only if not Gold (Gold uses clean gradient defined in styles usually or just transparent)
+            if (variant !== 'gold') {
+                const nameGradient = ctx.createLinearGradient(0, 570, 0, 430); // Approximate based on css
+                nameGradient.addColorStop(0, style.nameGradient[0]);
+                nameGradient.addColorStop(0.5, style.nameGradient[1]);
+                nameGradient.addColorStop(1, style.nameGradient[2]);
+                ctx.fillStyle = nameGradient;
+                ctx.fillRect(0, 460 + layout.name_y, 400, 140); // Fill bottom area
+            }
 
             // Name Text
             // Top: 438px generally. Font 52px.
             // Text Shadow: 0 4px 8px rgba(0,0,0,0.5).
             ctx.save();
-            ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-            ctx.shadowOffsetY = 4;
-            ctx.shadowBlur = 8;
+            if (variant !== 'gold') {
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                ctx.shadowOffsetY = 4;
+                ctx.shadowBlur = 8;
+            }
             drawTextWithShadow(
                 player.name.toUpperCase(),
                 200 + layout.name_x,
                 485 + layout.name_y, // Approx baseline
                 `bold ${layout.name_size}px "Bebas Neue"`,
-                '#ffffff'
+                textColor
             );
             ctx.restore();
 
@@ -336,19 +357,21 @@ export const renderPlayerCardToCanvas = async (player) => {
                     centerX,
                     525 + layout.stats_y,
                     '15px "Rajdhani"',
-                    '#ffffff' // Force white
+                    textColor // Force white
                 );
 
                 // Value
                 ctx.save();
-                ctx.shadowColor = 'rgba(0,0,0,0.5)';
-                ctx.shadowBlur = 4;
+                if (variant !== 'gold') {
+                    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                    ctx.shadowBlur = 4;
+                }
                 drawTextWithShadow(
                     stat.v.toString(),
                     centerX,
                     555 + layout.stats_y,
                     'bold 32px "Bebas Neue"',
-                    '#ffffff' // Force white
+                    textColor // Force white
                 );
                 ctx.restore();
 

@@ -443,7 +443,7 @@ const Admin = () => {
                 <EditPlayerModal
                     player={selectedPlayer}
                     onClose={() => setSelectedPlayer(null)}
-                    onUpdate={fetchPlayers}
+                    onUpdate={() => fetchPlayers(true)}
                 />
             )}
 
@@ -458,7 +458,7 @@ const Admin = () => {
                 <EditMatchModal
                     match={selectedMatch}
                     onClose={() => setSelectedMatch(null)}
-                    onUpdate={fetchMatches}
+                    onUpdate={() => fetchMatches(true)}
                 />
             )}
 
@@ -467,7 +467,7 @@ const Admin = () => {
                     match={selectedMatch}
                     players={players}
                     onClose={() => setSelectedMatch(null)}
-                    onUpdate={fetchMatches}
+                    onUpdate={() => fetchMatches(true)}
                 />
             )}
         </div>

@@ -116,7 +116,7 @@ const Register = () => {
                 .getPublicUrl(filePath)
 
             // Calculate Overall Rating for visual feedback or just verification
-            // const overall = Math.round(Object.values(formData.stats).reduce((a, b) => a + b, 0) / 6)
+
 
             // CALL SECURE RPC FUNCTION
             const { data: rpcData, error: rpcError } = await supabase
