@@ -10,12 +10,12 @@
 export const CARD_LAYOUT_DEFAULTS = {
     // Name Section (Bottom)
     NAME_X: 0,
-    NAME_Y: 10,
+    NAME_Y: -16,
     NAME_SIZE: 52, // Font size in px
 
     // Stats Row (Bottom)
     STATS_X: 0,
-    STATS_Y: 0,
+    STATS_Y: -30,
 
     // Rating & Info (Top Left)
     RATING_X: -8,

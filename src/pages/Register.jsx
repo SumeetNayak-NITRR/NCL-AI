@@ -7,6 +7,8 @@ import ImageUpload from '../components/register/ImageUpload'
 import { Info, ArrowLeft } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SEO from '../components/common/SEO'
+import { toast } from 'sonner'
+import imageCompression from 'browser-image-compression'
 
 const positions = ['ST', 'CB', 'CM', 'GK', 'CDM', 'Winger', 'Fullback']
 const years = ['1st', '2nd', '3rd', '4th', '5th']
@@ -55,7 +57,7 @@ const Register = () => {
         if (formData.roll_number.length !== 8 || isNaN(formData.roll_number)) {
             const msg = "Roll Number must be exactly 8 digits."
             setError(msg)
-            alert(msg)
+            toast.error(msg)
             setLoading(false)
             return
         }
@@ -63,7 +65,7 @@ const Register = () => {
         if (isCropping) {
             const msg = "Please click 'Confirm Crop' on your photo before submitting."
             setError(msg)
-            alert(msg)
+            toast.warning(msg)
             setLoading(false)
             return
         }
@@ -71,17 +73,18 @@ const Register = () => {
         if (!imageFile) {
             const msg = "Please upload a photo."
             setError(msg)
-            alert(msg)
+            toast.error(msg)
             window.scrollTo({ top: 0, behavior: 'smooth' })
             setLoading(false)
             return
         }
 
         // VALIDATION: Check file size (2MB) and type (PNG)
-        if (imageFile.size > 2 * 1024 * 1024) {
-            const msg = "File too large. Maximum size is 2MB."
+        // Client-side compression will define the final size, but we check raw size too
+        if (imageFile.size > 10 * 1024 * 1024) { // Allow larger raw files since we compress
+            const msg = "File too large. Maximum raw size is 10MB."
             setError(msg)
-            alert(msg)
+            toast.error(msg)
             window.scrollTo({ top: 0, behavior: 'smooth' })
             setLoading(false)
             return
@@ -90,13 +93,23 @@ const Register = () => {
         if (imageFile.type !== 'image/png') {
             const msg = "Invalid format. Please upload a PNG file."
             setError(msg)
-            alert(msg)
+            toast.error(msg)
             window.scrollTo({ top: 0, behavior: 'smooth' })
             setLoading(false)
             return
         }
 
         try {
+            // Compress Image
+            setProcessingStatus('Compressing image...')
+            const options = {
+                maxSizeMB: 2,
+                maxWidthOrHeight: 1920,
+                useWebWorker: true,
+                fileType: 'image/png'
+            }
+            const compressedFile = await imageCompression(imageFile, options)
+
             // Upload Image
             setProcessingStatus('Uploading image...')
             const fileExt = 'png'
@@ -105,7 +118,7 @@ const Register = () => {
 
             const { error: uploadError } = await supabase.storage
                 .from('player-photos')
-                .upload(filePath, imageFile)
+                .upload(filePath, compressedFile)
 
             if (uploadError) throw uploadError
 
@@ -137,13 +150,13 @@ const Register = () => {
                 : 'Registration successful! Waiting for approval.'
 
             navigate('/')
-            alert(successMsg)
+            toast.success(successMsg, { duration: 5000 })
 
         } catch (err) {
             console.error('Error submitting form:', err)
             const msg = err.message || "An error occurred during registration."
             setError(msg)
-            alert(msg)
+            toast.error(msg)
             window.scrollTo({ top: 0, behavior: 'smooth' })
         } finally {
             setLoading(false)

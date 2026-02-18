@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { toast } from 'sonner'
 import { X, Save, Check, Download } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import AbstractPlayerCard from '../common/AbstractPlayerCard'
@@ -133,7 +134,8 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                 year_size: parseInt(formData.year_size),
                 // Ensure photo_url is available
                 branch: formData.branch,
-                photo_url: formData.photo_url
+                photo_url: formData.photo_url,
+                card_variant: formData.card_variant // Ensure variant is passed
             }
 
             const dataUrl = await renderPlayerCardToCanvas(playerData);
@@ -142,9 +144,11 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
             link.download = `${formData.name.replace(/\s+/g, '_')}_card.png`
             link.href = dataUrl
             link.click()
+            link.click()
+            toast.success("Card downloaded successfully")
         } catch (error) {
             console.error('Download error:', error)
-            alert('Failed to generate card image')
+            toast.error('Failed to generate card image')
         }
     }
 
@@ -209,9 +213,10 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
 
             onUpdate()
             onClose()
+            toast.success("Player saved successfully")
         } catch (err) {
             console.error("Error saving:", err)
-            alert("Failed to save player. Check console for details.")
+            toast.error("Failed to save player. Check console for details.")
         } finally {
             setLoading(false)
         }
@@ -227,11 +232,13 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                 .eq('id', player.id)
 
             if (error) throw error
+            if (error) throw error
             onUpdate()
             onClose()
+            toast.success("Player approved successfully")
         } catch (err) {
             console.error("Error approving:", err)
-            alert("Failed to approve player")
+            toast.error("Failed to approve player")
         } finally {
             setLoading(false)
         }
@@ -247,11 +254,13 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                 .eq('id', player.id)
 
             if (error) throw error
+            if (error) throw error
             onUpdate()
             onClose()
+            toast.success("Player deleted successfully")
         } catch (err) {
             console.error("Error deleting:", err)
-            alert("Failed to delete player")
+            toast.error("Failed to delete player")
         } finally {
             setLoading(false)
         }

@@ -1,10 +1,11 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import { Suspense, lazy } from 'react'
+import { Toaster } from 'sonner'
 import AdminShortcut from './components/common/AdminShortcut'
 import AbstractBackground from './components/common/AbstractBackground'
 import ScrollToTop from './components/common/ScrollToTop'
-import ErrorBoundary from './components/common/ErrorBoundary' // Import ErrorBoundary
+import ErrorBoundary from './components/common/ErrorBoundary'
 
 // Lazy load pages for better performance
 const Landing = lazy(() => import('./pages/Landing'))
@@ -29,6 +30,7 @@ function App() {
     <ErrorBoundary>
       <HelmetProvider>
         <Router>
+          <Toaster richColors position="top-center" theme="dark" />
           <ScrollToTop />
           <AbstractBackground />
           <AdminShortcut />

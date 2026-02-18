@@ -10,6 +10,8 @@ import LoadingSpinner from '../components/common/LoadingSpinner'
 import { Lock, Search, Filter, RefreshCw, Eye, LogOut } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SEO from '../components/common/SEO'
+import { ALLOWED_ADMIN_EMAILS } from '../config/admin'
+import { toast } from 'sonner'
 
 const Admin = () => {
     const [email, setEmail] = useState('')
@@ -29,8 +31,13 @@ const Admin = () => {
     useEffect(() => {
         // Check active session
         supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session)
             if (session) {
+                if (!ALLOWED_ADMIN_EMAILS.includes(session.user.email)) {
+                    toast.error("Unauthorized access. Admin privileges required.")
+                    supabase.auth.signOut()
+                    return
+                }
+                setSession(session)
                 // Initial load with cache
                 fetchPlayers()
                 fetchMatches()
@@ -40,10 +47,18 @@ const Admin = () => {
         const {
             data: { subscription },
         } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSession(session)
             if (session) {
+                if (!ALLOWED_ADMIN_EMAILS.includes(session.user.email)) {
+                    toast.error("Unauthorized access. Admin privileges required.")
+                    supabase.auth.signOut()
+                    setSession(null)
+                    return
+                }
+                setSession(session)
                 fetchPlayers()
                 fetchMatches()
+            } else {
+                setSession(null)
             }
         })
 
@@ -100,8 +115,16 @@ const Admin = () => {
             password,
         })
 
+        if (!error && !ALLOWED_ADMIN_EMAILS.includes(email)) {
+            toast.error("Unauthorized access. Admin privileges required.")
+            await supabase.auth.signOut()
+            setLoading(false)
+            return
+        }
+
         if (error) {
             setAuthError(error.message)
+            toast.error(error.message)
         }
         setLoading(false)
     }

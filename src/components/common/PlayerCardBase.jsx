@@ -53,12 +53,12 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
             case 'silver': return {
                 border: 'border-gray-300/60',
                 shadow: 'shadow-[0_0_40px_rgba(192,192,192,0.2)]',
-                accent: 'text-gray-100',
-                statsLabel: 'text-gray-300/80',
-                bgGradient: 'bg-gradient-to-b from-black via-black to-gray-300/20',
+                accent: 'text-gray-900', // Dark text
+                statsLabel: 'text-gray-700', // Darker gray for labels
+                bgGradient: 'bg-gradient-to-b from-white via-gray-100 to-gray-300/20', // Light background
                 nameGradient: 'from-transparent via-transparent to-transparent',
-                textColor: '#ffffff',
-                textGlow: 'text-glow'
+                textColor: '#1a1a1a', // Almost black
+                textGlow: 'none' // No glow for dark text
             }
             case 'brown': return {
                 border: 'border-[#54462B]/60',
@@ -242,7 +242,12 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
             >
                 <div
                     className={`font-bebas font-bold leading-none ${variantStyle.textGlow} ${variantStyle.accent}`}
-                    style={{ fontSize: '68px', lineHeight: '0.9', color: variantStyle.textColor }}
+                    style={{
+                        fontSize: '68px',
+                        lineHeight: '0.9',
+                        color: variantStyle.textColor,
+                        filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.3)) drop-shadow(0 0 5px currentColor)'
+                    }}
                 >
                     {average}
                 </div>
@@ -265,7 +270,12 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
             >
                 <div
                     className={`font-bebas font-semibold ${variantStyle.accent}`}
-                    style={{ fontSize: `${layout.position_size}px`, color: variantStyle.textColor, lineHeight: 1 }}
+                    style={{
+                        fontSize: `${layout.position_size}px`,
+                        color: variantStyle.textColor,
+                        lineHeight: 1,
+                        filter: 'drop-shadow(0 0 5px rgba(255,255,255,0.2))'
+                    }}
                 >
                     {player.position}
                 </div>
@@ -371,13 +381,19 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                 style={{
                     position: 'absolute',
                     top: '510px',
-                    left: 0,
-                    width: '400px',
+                    left: '50%', // Center horizontally
+                    transform: `translate(calc(-50% + ${layout.stats_x}px), ${layout.stats_y}px)`, // Combine centering with offset
+                    width: 'auto', // Allow width to fit content + padding
                     zIndex: 20,
                     display: 'flex',
                     justifyContent: 'center',
                     gap: '10px',
-                    transform: `translate(${layout.stats_x}px, ${layout.stats_y}px)`
+                    backgroundColor: 'rgba(0, 0, 0, 0.25)', // Lighter and more transparent
+                    borderRadius: '12px', // Rounded corners
+                    padding: '8px 12px', // Padding around content
+                    backdropFilter: 'blur(2px)', // Reduced blur for lighter feel
+                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)', // Softer shadow
+                    border: '1px solid rgba(255, 255, 255, 0.1)' // Subtle border for definition
                 }}
                 initial={animated ? { opacity: 0 } : { opacity: 1 }}
                 animate={{ opacity: 1 }}
@@ -393,7 +409,7 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                 ].map((stat, i) => (
                     <div key={i} className="flex flex-col items-center" style={{ width: '45px' }}>
                         <div
-                            className={`font-rajdhani uppercase tracking-wider ${variantStyle.statsLabel}`}
+                            className={`font-rajdhani font-bold uppercase tracking-wider ${variantStyle.statsLabel}`}
                             style={{ fontSize: '15px', lineHeight: '1', marginBottom: '4px', color: variantStyle.textColor }}
                         >
                             {stat.l}
@@ -409,26 +425,28 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
             </Item>
 
             {/* 5. SOLD BADGE */}
-            {showSoldBadge && player.status === 'Sold' && (
-                <motion.div
-                    style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%) rotate(-15deg)',
-                        zIndex: 30,
-                        pointerEvents: 'none'
-                    }}
-                    initial={animated ? { opacity: 0, scale: 2, rotate: -30 } : { opacity: 1, scale: 1, rotate: -15 }}
-                    animate={{ opacity: 1, scale: 1, rotate: -15 }}
-                >
-                    <div className="border-8 border-red-600 text-red-600 font-oswald text-6xl font-bold px-6 py-3 uppercase tracking-widest opacity-90 mix-blend-screen border-double bg-black/20 backdrop-blur-sm">
-                        SOLD
-                    </div>
-                </motion.div>
-            )}
+            {
+                showSoldBadge && player.status === 'Sold' && (
+                    <motion.div
+                        style={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '50%',
+                            transform: 'translate(-50%, -50%) rotate(-15deg)',
+                            zIndex: 30,
+                            pointerEvents: 'none'
+                        }}
+                        initial={animated ? { opacity: 0, scale: 2, rotate: -30 } : { opacity: 1, scale: 1, rotate: -15 }}
+                        animate={{ opacity: 1, scale: 1, rotate: -15 }}
+                    >
+                        <div className="border-8 border-red-600 text-red-600 font-oswald text-6xl font-bold px-6 py-3 uppercase tracking-widest opacity-90 mix-blend-screen border-double bg-black/20 backdrop-blur-sm">
+                            SOLD
+                        </div>
+                    </motion.div>
+                )
+            }
 
-        </div>
+        </div >
     )
 }
 

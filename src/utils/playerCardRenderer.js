@@ -28,7 +28,7 @@ export const renderPlayerCardToCanvas = async (player) => {
                     variant = params.get('variant') || 'standard'
                 } catch (e) { }
             }
-            if (player.status === 'Alumni') variant = 'gold';
+
 
             // Constants for Variants
             const variants = {
@@ -41,10 +41,10 @@ export const renderPlayerCardToCanvas = async (player) => {
                 },
                 silver: {
                     border: '#c0c0c0',
-                    gradientStart: '#000000',
+                    gradientStart: '#ffffff', // White
                     gradientEnd: 'rgba(192, 192, 192, 0.2)',
-                    accent: '#c0c0c0',
-                    nameGradient: ['#000000', 'rgba(192, 192, 192, 0.1)', 'transparent']
+                    accent: '#1a1a1a', // Dark text
+                    nameGradient: ['transparent', 'transparent', 'transparent']
                 },
                 neon: {
                     border: '#39ff14',
@@ -65,34 +65,42 @@ export const renderPlayerCardToCanvas = async (player) => {
             const style = variants[variant] || variants.standard;
 
             // 3. Draw Background
-            // Create Gradient
-            const bgGradient = ctx.createLinearGradient(0, 0, 0, 600);
-            bgGradient.addColorStop(0, style.gradientStart);
-            if (variant === 'standard') {
-                bgGradient.addColorStop(0.5, '#020c1b'); // Midpoint for standard
-            }
-            bgGradient.addColorStop(1, style.gradientEnd);
-
-            ctx.fillStyle = bgGradient;
-            ctx.fillRect(0, 0, 400, 600);
-
-            // Draw Border
-            ctx.strokeStyle = style.border;
-            ctx.lineWidth = 3;
-            // Draw rounded rect border manually or just rect for now (Simulated border)
-            // Ideally: roundedRect
-            ctx.beginPath();
-            ctx.roundRect(1.5, 1.5, 397, 597, 24); // inset half linewidth
-            ctx.stroke();
-
-            // Handle Custom Background Image (Year 1 / Year 2)
+            // Handle Custom Background Image logic UP FRONT
             const getCardStyle = (year) => {
-                const y = String(year).toLowerCase()
+                const y = String(year)
                 if (y.includes('1')) return { bg: '/cards/year1.png', isCustom: true }
                 if (y.includes('2')) return { bg: '/cards/year2.png', isCustom: true }
+                if (y.includes('3')) return { bg: '/cards/year3.png', isCustom: true }
+                if (y.includes('4')) return { bg: '/cards/year4.png', isCustom: true }
+                if (y.includes('5')) return { bg: '/cards/year5.png', isCustom: true }
+                if (y.includes('Alumni')) return { bg: '/cards/Alumni.png', isCustom: true }
+                if (y.includes('M.Tech') || y.includes('Masters')) return { bg: '/cards/year5.png', isCustom: true }
+                if (y.includes('PhD')) return { bg: '/cards/year5.png', isCustom: true }
                 return { isCustom: false }
             }
             const cardStyle = player ? getCardStyle(player.year) : { isCustom: false };
+
+            // Draw Base Gradient only if NOT custom
+            if (!cardStyle.isCustom) {
+                const bgGradient = ctx.createLinearGradient(0, 0, 0, 600);
+                bgGradient.addColorStop(0, style.gradientStart);
+                if (variant === 'standard') {
+                    bgGradient.addColorStop(0.5, '#020c1b');
+                }
+                bgGradient.addColorStop(1, style.gradientEnd);
+
+                ctx.fillStyle = bgGradient;
+                ctx.fillRect(0, 0, 400, 600);
+            }
+
+            // Draw Border - ONLY if NOT Custom Background
+            if (!cardStyle.isCustom) {
+                ctx.strokeStyle = style.border;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.roundRect(1.5, 1.5, 397, 597, 24);
+                ctx.stroke();
+            }
 
             if (cardStyle.isCustom) {
                 try {
@@ -246,8 +254,9 @@ export const renderPlayerCardToCanvas = async (player) => {
             }
 
             // Colors
-            let textColor = (variant === 'gold' || variant === 'brown') ? (variant === 'gold' ? '#3E2723' : '#54462B') : '#ffffff';
-            let shadowColor = (variant === 'gold' || variant === 'brown') ? 'transparent' : 'rgba(0, 0, 0, 0.8)';
+            let textColor = (variant === 'gold' || variant === 'brown' || variant === 'silver') ?
+                (variant === 'gold' ? '#3E2723' : variant === 'brown' ? '#54462B' : '#1a1a1a') : '#ffffff';
+            let shadowColor = (variant === 'gold' || variant === 'brown' || variant === 'silver') ? 'transparent' : 'rgba(0, 0, 0, 0.8)';
 
             const statsShadowColor = (variant === 'gold' || variant === 'brown') ? 'transparent' : 'rgba(0,0,0,0.5)';
 
@@ -256,6 +265,7 @@ export const renderPlayerCardToCanvas = async (player) => {
             // Center of width 100 starting at 40 is x=90.
 
             // Rating
+            // Rating
             drawTextWithShadow(
                 average.toString(),
                 90 + layout.rating_x,
@@ -263,11 +273,12 @@ export const renderPlayerCardToCanvas = async (player) => {
                 'bold 68px "Bebas Neue"',
                 textColor,
                 'center',
-                variant === 'gold' ? 0 : 20, // Stronger blur
-                shadowColor, // Dark shadow for visibility
+                variant === 'gold' ? 0 : 30, // Increased blur for glow
+                variant === 'gold' ? 'transparent' : 'rgba(255, 255, 255, 0.5)', // White glow
                 null, 0 // No Hard Border
             );
 
+            // Position (Independent)
             // Position (Independent)
             drawTextWithShadow(
                 player.position,
@@ -276,8 +287,8 @@ export const renderPlayerCardToCanvas = async (player) => {
                 `600 ${layout.position_size}px "Bebas Neue"`,
                 textColor,
                 'center',
-                variant === 'gold' ? 0 : 15,
-                shadowColor, // Dark shadow
+                variant === 'gold' ? 0 : 20,
+                variant === 'gold' ? 'transparent' : 'rgba(255, 255, 255, 0.3)', // Subtle white glow
                 null, 0 // No Hard Border
             );
 
@@ -348,6 +359,19 @@ export const renderPlayerCardToCanvas = async (player) => {
 
             let currentX = 40;
 
+            // Draw Background Pill for Stats
+            ctx.save();
+            const statsWidth = 340; // Approx 6 items + gaps + padding
+            const statsHeight = 70; // Approx height
+            const pillX = 200 - (statsWidth / 2) + layout.stats_x;
+            const pillY = 500 + layout.stats_y; // Moved up to 500 to align with text (Text/Icon starts ~525)
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+            ctx.beginPath();
+            ctx.roundRect(pillX, pillY, statsWidth, statsHeight, 12);
+            ctx.fill();
+            ctx.restore();
+
             stats.forEach(stat => {
                 const centerX = currentX + itemWidth / 2 + layout.stats_x;
 
@@ -356,8 +380,8 @@ export const renderPlayerCardToCanvas = async (player) => {
                     stat.l,
                     centerX,
                     525 + layout.stats_y,
-                    '15px "Rajdhani"',
-                    textColor // Force white
+                    'bold 15px "Rajdhani"',
+                    textColor // Force white (or dark for silver)
                 );
 
                 // Value
