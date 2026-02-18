@@ -261,7 +261,7 @@ const Register = () => {
                                         className="w-full bg-black/50 border border-white/20 rounded-lg p-3 text-white focus:border-neon focus:outline-none transition-colors appearance-none"
                                     >
                                         <option value="" disabled>Select Branch</option>
-                                        {['CSE', 'IT', 'ECE', 'EE', 'MECH', 'CIVIL', 'META', 'MINING', 'BIOTECH', 'ARCH', 'MCA', 'BIOMED', 'MSC'].map(b => <option key={b} value={b}>{b}</option>)}
+                                        {['CSE', 'IT', 'ECE', 'EE', 'MECH', 'CIVIL', 'META', 'CHEM', 'MINING', 'BIOTECH', 'ARCH', 'MCA', 'BIOMED', 'MSC'].map(b => <option key={b} value={b}>{b}</option>)}
                                     </select>
                                 </div>
                             </div>

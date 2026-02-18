@@ -453,7 +453,7 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                                             className="w-full bg-black/50 border border-white/10 px-3 py-2 rounded text-white text-sm focus:border-gold/50 outline-none transition-colors font-rajdhani appearance-none"
                                         >
                                             <option value="" disabled>Select Branch</option>
-                                            {['CSE', 'IT', 'ECE', 'EE', 'MECH', 'CIVIL', 'META', 'MINING', 'BIOTECH', 'ARCH', 'MCA', 'BIOMED', 'MSC'].map(b => <option key={b} value={b}>{b}</option>)}
+                                            {['CSE', 'IT', 'ECE', 'EE', 'MECH', 'CIVIL', 'META', 'CHEM', 'MINING', 'BIOTECH', 'ARCH', 'MCA', 'BIOMED', 'MSC'].map(b => <option key={b} value={b}>{b}</option>)}
                                         </select>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
