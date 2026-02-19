@@ -144,7 +144,6 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
             link.download = `${formData.name.replace(/\s+/g, '_')}_card.png`
             link.href = dataUrl
             link.click()
-            link.click()
             toast.success("Card downloaded successfully")
         } catch (error) {
             console.error('Download error:', error)
@@ -182,8 +181,6 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                 position: formData.position,
                 branch: formData.branch,
                 year: formData.year,
-                is_main_team: formData.is_main_team,
-                status: formData.status,
                 is_main_team: formData.is_main_team,
                 status: formData.status,
                 photo_url: saveUrl,
@@ -232,7 +229,6 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                 .eq('id', player.id)
 
             if (error) throw error
-            if (error) throw error
             onUpdate()
             onClose()
             toast.success("Player approved successfully")
@@ -253,7 +249,6 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                 .delete()
                 .eq('id', player.id)
 
-            if (error) throw error
             if (error) throw error
             onUpdate()
             onClose()

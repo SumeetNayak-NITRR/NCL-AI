@@ -6,8 +6,15 @@ import GlowCard from '../components/common/GlowCard'
 import LiveStats from '../components/landing/LiveStats'
 import { Trophy, Star, Medal, Crown, Timer, Activity } from 'lucide-react'
 import SEO from '../components/common/SEO'
+import { tournaments } from '../data/tournamentData'
+import { legends } from '../data/hallOfFameData'
+import { User } from 'lucide-react'
+import HallOfFameModal from '../components/achievements/HallOfFameModal'
+import { useState } from 'react'
 
 const Achievements = () => {
+    const [selectedAlum, setSelectedAlum] = useState(null)
+
     const achievements = [
 
         {
@@ -102,6 +109,8 @@ const Achievements = () => {
                 </div>
             </section>
 
+
+
             {/* Live Stats Section */}
             <div className="relative z-10 -mt-20 mb-20">
                 <LiveStats />
@@ -164,8 +173,86 @@ const Achievements = () => {
                 </div>
             </section>
 
+            {/* Hall of Fame Section */}
+            <section className="py-20 px-6 bg-gradient-to-b from-black/20 to-transparent border-y border-white/5 relative">
+                <div className="absolute inset-0 bg-gold/5 blur-[100px] opacity-20 pointer-events-none"></div>
+                <div className="max-w-7xl mx-auto relative z-10">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="text-center mb-16"
+                    >
+                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold mb-6">
+                            <Crown size={14} />
+                            <span className="text-xs font-rajdhani uppercase tracking-widest">Legends</span>
+                        </div>
+                        <h2 className="text-5xl md:text-7xl font-bebas text-white uppercase tracking-tight mb-4">
+                            Hall of <span className="text-gold">Fame</span>
+                        </h2>
+                        <p className="text-white/60 font-inter max-w-2xl mx-auto">
+                            Honoring the exceptional players who have left an indelible mark on the history of NITRR football across all tournaments.
+                        </p>
+                    </motion.div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {legends.map((alum, idx) => (
+                            <GlowCard
+                                key={alum.id || idx}
+                                className="group relative p-6 cursor-pointer hover:border-gold/50 transition-colors"
+                                glowColor={alum.card_variant === 'gold' ? '#ffd700' : '#39ff14'}
+                                onClick={() => setSelectedAlum(alum)}
+                            >
+                                <div className="flex items-center gap-5">
+                                    {/* Avatar */}
+                                    <div className="w-16 h-16 rounded-full overflow-hidden bg-black/20 border border-white/10 shrink-0 relative group-hover:scale-105 transition-transform duration-300">
+                                        {alum.photo_url ? (
+                                            <img src={alum.photo_url} alt={alum.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-white/20 font-bebas text-xl bg-gradient-to-br from-white/5 to-transparent">
+                                                {alum.name.charAt(0)}
+                                            </div>
+                                        )}
+                                        {alum.card_variant === 'gold' && (
+                                            <div className="absolute inset-0 border-2 border-gold/50 rounded-full"></div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-xl text-white font-bebas uppercase tracking-wide truncate group-hover:text-gold transition-colors">
+                                            {alum.name}
+                                        </h4>
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/10 text-white/60 font-rajdhani uppercase tracking-wider border border-white/5">
+                                                {alum.year}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-xs text-laser-blue font-rajdhani uppercase tracking-wider">
+                                            <span className="w-1.5 h-1.5 bg-laser-blue rounded-full"></span>
+                                            <span className="truncate">{alum.legacy || 'Legend'}</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Trophy Icon */}
+                                    <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                                        <div className="w-8 h-8 rounded-full bg-gold/10 flex items-center justify-center border border-gold/20">
+                                            <Trophy size={14} className="text-gold" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </GlowCard>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <HallOfFameModal
+                alum={selectedAlum}
+                onClose={() => setSelectedAlum(null)}
+            />
+
             <Footer />
-        </div>
+        </div >
     )
 }
 

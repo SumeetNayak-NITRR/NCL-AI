@@ -277,7 +277,7 @@ const Register = () => {
                             <ul className="text-sm text-white/80 space-y-1 list-disc list-inside font-rajdhani">
                                 <li><strong>Format:</strong> PNG Only (Transparent Background)</li>
                                 <li><strong>Max Size:</strong> 2MB</li>
-                                <li>Use <a href="https://www.remove.bg" target="_blank" rel="noreferrer" className="text-laser-blue hover:underline">remove.bg</a> or similar tools before uploading.</li>
+                                <li>Use <a href="https://www.adobe.com/express/feature/image/remove-background" target="_blank" rel="noreferrer" className="text-laser-blue hover:underline">Adobe Remove Background</a> or similar tools before uploading.</li>
                             </ul>
                         </div>
                         <ImageUpload onImageSelected={setImageFile} onCropPending={setIsCropping} />

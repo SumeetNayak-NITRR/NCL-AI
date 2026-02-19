@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { motion, useMotionTemplate, useMotionValue, animate } from 'framer-motion';
 
-const GlowCard = ({ children, className = "", glowColor = "#39ff14" }) => {
+const GlowCard = ({ children, className = "", glowColor = "#39ff14", ...props }) => {
     const cardRef = useRef(null);
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
@@ -29,6 +29,7 @@ const GlowCard = ({ children, className = "", glowColor = "#39ff14" }) => {
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
             className={`relative overflow-hidden rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm ${className}`}
+            {...props}
         >
             {/* Glow Effect */}
             <motion.div

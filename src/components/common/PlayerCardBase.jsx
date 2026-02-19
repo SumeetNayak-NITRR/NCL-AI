@@ -100,7 +100,7 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
         const y = String(year) // Case sensitive matching for 'Alumni', 'M.Tech'
 
         if (y.includes('1')) return { bg: '/cards/year1.png', isCustom: true }
-        if (y.includes('2')) return { bg: '/cards/year02.png', isCustom: true }
+        if (y.includes('2')) return { bg: '/cards/year2.png', isCustom: true }
         if (y.includes('3')) return { bg: '/cards/year3.png', isCustom: true }
         if (y.includes('4')) return { bg: '/cards/year4.png', isCustom: true }
         if (y.includes('5')) return { bg: '/cards/year5.png', isCustom: true }

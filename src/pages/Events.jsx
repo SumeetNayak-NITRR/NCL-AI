@@ -7,10 +7,13 @@ import { Calendar, MapPin, ArrowUpRight, Clock, Trophy, Shield } from 'lucide-re
 import { fetchWithCache } from '../lib/cache'
 import { supabase } from '../lib/supabase'
 import SEO from '../components/common/SEO'
+import TournamentModal from '../components/events/TournamentModal'
+import { tournaments } from '../data/tournamentData'
 
 const Events = () => {
     const [completedMatches, setCompletedMatches] = useState([])
     const [nextMatch, setNextMatch] = useState(null)
+    const [selectedTournament, setSelectedTournament] = useState(null)
     const [timeLeft, setTimeLeft] = useState('')
     const [loading, setLoading] = useState(true)
 
@@ -81,41 +84,7 @@ const Events = () => {
         setTimeLeft(`${days}d : ${hours}h : ${minutes}m`)
     }
 
-    // Static Annual Events
-    const annualTournaments = [
-        {
-            id: 1,
-            title: "Inter-NIT Tournament",
-            description: "The flagship tournament where NITRR competes against other NITs across India.",
-            period: "August - September",
-            location: "Various NITs",
-            image: "https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&q=80&w=800"
-        },
-        {
-            id: 2,
-            title: "Samar",
-            description: "Annual sports fest of NIT Raipur. A showcase of talent and intensity.",
-            period: "January",
-            location: "NITRR Football Ground",
-            image: "https://images.unsplash.com/photo-1606925797300-0b35e9d1794e?auto=format&fit=crop&q=80&w=800"
-        },
-        {
-            id: 3,
-            title: "GENERAL CHAMPIONSHIP",
-            description: "Departmental rivalries ignite in this high-stakes internal league.",
-            period: "October",
-            location: "NITRR Football Ground",
-            image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&q=80&w=800"
-        },
-        {
-            id: 4,
-            title: "NCL",
-            description: "A Auction based tournament for the football lovers of NIT Raipur.",
-            period: "February-March",
-            location: "NITRR Football Ground",
-            image: "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?auto=format&fit=crop&q=80&w=800"
-        }
-    ]
+    // Static Annual Events removed in favor of dynamic import
 
     return (
         <div className="min-h-screen bg-background text-white">
@@ -178,8 +147,12 @@ const Events = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {annualTournaments.map((event) => (
-                            <GlowCard key={event.id} className="group relative aspect-[16/9] overflow-hidden rounded-xl border border-white/10">
+                        {tournaments.map((event) => (
+                            <GlowCard
+                                key={event.id}
+                                className="group relative aspect-[16/9] overflow-hidden rounded-xl border border-white/10 cursor-pointer"
+                                onClick={() => setSelectedTournament(event)}
+                            >
                                 <img
                                     src={event.image}
                                     alt={event.title}
@@ -204,6 +177,11 @@ const Events = () => {
                         ))}
                     </div>
                 </div>
+
+                <TournamentModal
+                    tournament={selectedTournament}
+                    onClose={() => setSelectedTournament(null)}
+                />
 
                 {/* Section 2: Match Results Sidebar (Right Column - Compact) */}
                 <div className="lg:col-span-1">
