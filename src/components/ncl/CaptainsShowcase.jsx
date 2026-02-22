@@ -4,13 +4,13 @@ import { useState } from 'react'
 const CaptainCard = ({ team, index, isActive, onActivate }) => {
     return (
         <motion.div
-            className={`relative h-[80vh] md:h-screen cursor-pointer overflow-hidden transition-all duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)] border-r border-white/10 last:border-r-0 ${isActive ? 'flex-[4] md:flex-[3]' : 'flex-1 hover:flex-[1.5] brightness-75 hover:brightness-100'
-                }`}
+            className={`relative h-[80vh] md:h-screen cursor-pointer overflow-hidden border-r border-white/10 last:border-r-0 ${isActive ? 'flex-[4] md:flex-[3]' : 'flex-1 hover:flex-[1.5] brightness-75 hover:brightness-100'}`}
+            style={{ transition: 'flex 0.7s cubic-bezier(0.25,0.1,0.25,1), filter 0.3s ease' }}
             onClick={onActivate}
             onMouseEnter={onActivate}
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
+            transition={{ delay: index * 0.1, duration: 0.5 }}
         >
             {/* Background Image / Gradient */}
             <div
@@ -30,10 +30,19 @@ const CaptainCard = ({ team, index, isActive, onActivate }) => {
                     src={team.image}
                     alt={team.captain}
                     loading="lazy"
-                    className={`h-full w-auto object-cover object-bottom filter drop-shadow-[0_0_20px_rgba(0,0,0,0.5)] transition-all duration-700 ${isActive ? 'scale-105 saturate-100' : 'scale-100 saturate-0 opacity-80'}`}
-                    initial={{ y: 50, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.2 + index * 0.1 }}
+                    className={`h-full w-auto object-cover object-bottom filter drop-shadow-[0_0_20px_rgba(0,0,0,0.5)] ${isActive ? 'saturate-100' : 'saturate-0'}`}
+                    style={{ transition: 'filter 0.7s ease' }}
+                    initial={{ y: 50, opacity: 0, scale: 1 }}
+                    animate={{
+                        y: 0,
+                        opacity: isActive ? 1 : 0.6,
+                        scale: isActive ? 1.05 : 1
+                    }}
+                    transition={{
+                        y: { delay: 0.2 + index * 0.1, duration: 0.5 },
+                        opacity: { delay: 0.2 + index * 0.1, duration: 0.5 },
+                        scale: { duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }
+                    }}
                 />
             </div>
 

@@ -189,27 +189,35 @@ export const renderPlayerCardToCanvas = async (player) => {
             // 5. Text & Stats Drawing
 
             // Helper for Text Shadows and Strokes
-            const drawTextWithShadow = (text, x, y, font, color, align = 'center', shadowBlur = 0, shadowColor = 'transparent', strokeColor = null, strokeWidth = 0) => {
+            const drawTextWithShadow = (text, x, y, font, color, align = 'center', hasShadow = false) => {
                 ctx.save();
                 ctx.font = font;
                 ctx.textAlign = align;
 
-                // Shadow
-                if (shadowBlur > 0) {
-                    ctx.shadowColor = shadowColor;
-                    ctx.shadowBlur = shadowBlur;
+                if (hasShadow) {
+                    // Draw outer shadow (0 0 8px rgba(0,0,0,0.6))
+                    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+                    ctx.shadowBlur = 8;
+                    ctx.shadowOffsetY = 0;
+                    ctx.shadowOffsetX = 0;
+                    ctx.fillStyle = color;
+                    ctx.fillText(text, x, y);
+
+                    // Draw inner shadow (0 4px 12px rgba(0,0,0,0.9))
+                    ctx.shadowColor = 'rgba(0,0,0,0.9)';
+                    ctx.shadowBlur = 12;
+                    ctx.shadowOffsetY = 4;
+                    ctx.shadowOffsetX = 0;
+                    ctx.fillText(text, x, y);
                 }
 
-                // Stroke (Border) - Draw first so fill goes over it
-                if (strokeColor && strokeWidth > 0) {
-                    ctx.lineWidth = strokeWidth;
-                    ctx.strokeStyle = strokeColor;
-                    ctx.strokeText(text, x, y);
-                }
-
-                // Fill
+                // Draw actual text without mutating shadow further
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetY = 0;
                 ctx.fillStyle = color;
                 ctx.fillText(text, x, y);
+
                 ctx.restore();
             };
 
@@ -253,43 +261,58 @@ export const renderPlayerCardToCanvas = async (player) => {
                 } catch (e) { }
             }
 
-            // Colors
-            let textColor = (variant === 'gold' || variant === 'brown' || variant === 'silver') ?
-                (variant === 'gold' ? '#3E2723' : variant === 'brown' ? '#54462B' : '#1a1a1a') : '#ffffff';
-            let shadowColor = (variant === 'gold' || variant === 'brown' || variant === 'silver') ? 'transparent' : 'rgba(0, 0, 0, 0.8)';
+            // Font Color Support
+            const getHexFromColorName = (colorName) => {
+                switch (colorName) {
+                    case 'laser-blue': return '#00d4ff'
+                    case 'neon': return '#39ff14'
+                    case 'gold': return '#FFD700'
+                    case 'black': return '#000000'
+                    case 'white': return '#ffffff'
+                    default: return null
+                }
+            }
 
-            const statsShadowColor = (variant === 'gold' || variant === 'brown') ? 'transparent' : 'rgba(0,0,0,0.5)';
+            let explicitFontColor = player.font_color ? getHexFromColorName(player.font_color) : null;
+            if (!explicitFontColor && player.photo_url && player.photo_url.includes('?')) {
+                try {
+                    const params = new URLSearchParams(player.photo_url.split('?')[1])
+                    if (params.get('font_color')) {
+                        explicitFontColor = getHexFromColorName(params.get('font_color'))
+                    }
+                } catch (e) { }
+            }
+
+            let defaultVariantTextColor = (variant === 'gold' || variant === 'brown' || variant === 'silver') ?
+                (variant === 'gold' ? '#3E2723' : variant === 'brown' ? '#54462B' : '#1a1a1a') : '#ffffff';
+
+            let textColor = explicitFontColor || defaultVariantTextColor;
+            let useShadow = !(variant === 'gold' || variant === 'brown' || variant === 'silver');
 
             // A. Rating (Top Left)
             // Position: absolute, top 50, left 40, width 100.
             // Center of width 100 starting at 40 is x=90.
 
             // Rating
-            // Rating
             drawTextWithShadow(
                 average.toString(),
                 90 + layout.rating_x,
-                105 + layout.rating_y, // Approximation for baseline
+                115 + layout.rating_y, // Baseline adjusted to match DOM (top:50px + font:68px)
                 'bold 68px "Bebas Neue"',
                 textColor,
                 'center',
-                variant === 'gold' ? 0 : 30, // Increased blur for glow
-                variant === 'gold' ? 'transparent' : 'rgba(255, 255, 255, 0.5)', // White glow
-                null, 0 // No Hard Border
+                useShadow
             );
 
-            // Position (Independent)
             // Position (Independent)
             drawTextWithShadow(
                 player.position,
                 90 + layout.position_x,
-                140 + layout.position_y,
+                115 + layout.position_size + layout.position_y, // Baseline adjusted to match DOM
                 `600 ${layout.position_size}px "Bebas Neue"`,
                 textColor,
                 'center',
-                variant === 'gold' ? 0 : 20,
-                variant === 'gold' ? 'transparent' : 'rgba(255, 255, 255, 0.3)', // Subtle white glow
-                null, 0 // No Hard Border
+                useShadow
             );
 
             // Branch (Independent)
@@ -297,13 +320,11 @@ export const renderPlayerCardToCanvas = async (player) => {
                 drawTextWithShadow(
                     player.branch,
                     90 + layout.branch_x,
-                    160 + layout.branch_y,
-                    `${layout.branch_size}px "Bebas Neue"`,
+                    145 + layout.branch_size + layout.branch_y, // Baseline adjusted to match DOM
+                    `500 ${layout.branch_size}px "Bebas Neue"`,
                     textColor,
                     'center',
-                    variant === 'gold' ? 0 : 10,
-                    shadowColor,
-                    null, 0
+                    useShadow
                 );
             }
 
@@ -322,21 +343,15 @@ export const renderPlayerCardToCanvas = async (player) => {
 
             // Name Text
             // Top: 438px generally. Font 52px.
-            // Text Shadow: 0 4px 8px rgba(0,0,0,0.5).
-            ctx.save();
-            if (variant !== 'gold') {
-                ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-                ctx.shadowOffsetY = 4;
-                ctx.shadowBlur = 8;
-            }
             drawTextWithShadow(
                 player.name.toUpperCase(),
                 200 + layout.name_x,
                 485 + layout.name_y, // Approx baseline
                 `bold ${layout.name_size}px "Bebas Neue"`,
-                textColor
+                textColor,
+                'center',
+                useShadow
             );
-            ctx.restore();
 
             // C. Stats Row
             // Container Top: 510px.
@@ -381,23 +396,21 @@ export const renderPlayerCardToCanvas = async (player) => {
                     centerX,
                     525 + layout.stats_y,
                     'bold 15px "Rajdhani"',
-                    textColor // Force white (or dark for silver)
+                    textColor,
+                    'center',
+                    false
                 );
 
                 // Value
-                ctx.save();
-                if (variant !== 'gold') {
-                    ctx.shadowColor = 'rgba(0,0,0,0.5)';
-                    ctx.shadowBlur = 4;
-                }
                 drawTextWithShadow(
                     stat.v.toString(),
                     centerX,
                     555 + layout.stats_y,
                     'bold 32px "Bebas Neue"',
-                    textColor // Force white
+                    textColor,
+                    'center',
+                    false
                 );
-                ctx.restore();
 
                 currentX += itemWidth + gap;
             });

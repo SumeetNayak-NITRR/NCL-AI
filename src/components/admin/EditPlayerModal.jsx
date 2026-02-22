@@ -51,11 +51,18 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
             }
         }
 
+        // Auction Info Defaults
+        if (state.key_achievements === undefined) state.key_achievements = ''
+        if (state.preferred_foot === undefined) state.preferred_foot = ''
+        if (state.notable_stats === undefined) state.notable_stats = ''
+        if (state.player_traits === undefined) state.player_traits = ''
+        if (state.base_price === undefined) state.base_price = 0
+
         // Defaults
         if (!state.image_scale) state.image_scale = 1
         if (!state.image_x) state.image_x = 0
         if (!state.image_y) state.image_y = 0
-        if (!state.card_variant) state.card_variant = state.status === 'Alumni' ? 'gold' : 'standard'
+        if (!state.card_variant) state.card_variant = 'standard'
 
         // Tournament Stats Defaults
         if (state.goals === undefined) state.goals = 0
@@ -184,6 +191,12 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                 is_main_team: formData.is_main_team,
                 status: formData.status,
                 photo_url: saveUrl,
+                // Auction Info
+                key_achievements: formData.key_achievements,
+                preferred_foot: formData.preferred_foot,
+                notable_stats: formData.notable_stats,
+                player_traits: formData.player_traits,
+                base_price: parseInt(formData.base_price) || 0,
                 // Tournament Stats
                 goals: parseInt(formData.goals) || 0,
                 assists: parseInt(formData.assists) || 0,
@@ -262,10 +275,10 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
     }
 
     return (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-            <div className="bg-gray-900 border border-white/20 rounded-xl w-full max-w-5xl h-[90vh] flex flex-col shadow-2xl relative overflow-hidden">
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 backdrop-blur-md">
+            <div className="bg-black/70 border border-white/10 rounded-2xl w-full max-w-5xl h-[90vh] flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.8)] backdrop-blur-2xl relative overflow-hidden">
                 {/* Header */}
-                <div className="flex justify-between items-center p-6 border-b border-white/10 bg-black/40">
+                <div className="flex justify-between items-center p-6 border-b border-white/10 bg-black/40 backdrop-blur-md">
                     <div>
                         <h2 className="text-2xl font-oswald text-gold uppercase tracking-wide">
                             {player.id ? 'Edit Player Profile' : 'New Player Entry'}
@@ -395,7 +408,7 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                         <div className="flex flex-col gap-6">
 
                             {/* 1. General Info Panel */}
-                            <div className="bg-black/40 rounded-xl p-6 border border-white/5">
+                            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:border-white/20 transition-colors">
                                 <h3 className="text-sm font-oswald text-gold uppercase tracking-widest mb-4 flex items-center gap-2">
                                     <span className="w-1 h-4 bg-gold block"></span>
                                     Player Details
@@ -482,7 +495,7 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                             </div>
 
                             {/* 2. Image Control Panel */}
-                            <div className="bg-black/40 rounded-xl p-6 border border-white/5">
+                            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:border-white/20 transition-colors">
                                 <h3 className="text-sm font-oswald text-laser-blue uppercase tracking-widest mb-4 flex items-center gap-2">
                                     <span className="w-1 h-4 bg-laser-blue block"></span>
                                     Image Settings
@@ -584,7 +597,7 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
 
 
                             {/* 3. Stats Panel */}
-                            <div className="bg-black/40 rounded-xl p-6 border border-white/5 flex-1">
+                            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:border-white/20 transition-colors flex-1">
                                 <h3 className="text-sm font-oswald text-neon uppercase tracking-widest mb-4 flex items-center gap-2">
                                     <span className="w-1 h-4 bg-neon block"></span>
                                     Performance Stats
@@ -616,7 +629,7 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                             </div>
 
                             {/* 3.5. Tournament Stats Panel (New) */}
-                            <div className="bg-black/40 rounded-xl p-6 border border-white/5 flex-1">
+                            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:border-white/20 transition-colors flex-1">
                                 <h3 className="text-sm font-oswald text-white uppercase tracking-widest mb-4 flex items-center gap-2">
                                     <span className="w-1 h-4 bg-white block"></span>
                                     Tournament Stats
@@ -654,8 +667,46 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                                 </div>
                             </div>
 
+                            {/* 3.6. Auction Info Panel (New) */}
+                            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:border-white/20 transition-colors flex-1">
+                                <h3 className="text-sm font-oswald text-gold uppercase tracking-widest mb-4 flex items-center gap-2">
+                                    <span className="w-1 h-4 bg-gold block"></span>
+                                    Auction & Player Info
+                                </h3>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase text-white/40 font-rajdhani tracking-wider">Key Achievements</label>
+                                        <textarea name="key_achievements" value={formData.key_achievements || ''} onChange={handleChange} className="w-full bg-black/50 border border-white/10 px-3 py-2 rounded text-white text-sm focus:border-gold/50 outline-none min-h-[80px]" placeholder="e.g. Golden Boot 2023" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase text-white/40 font-rajdhani tracking-wider">Player Traits</label>
+                                        <textarea name="player_traits" value={formData.player_traits || ''} onChange={handleChange} className="w-full bg-black/50 border border-white/10 px-3 py-2 rounded text-white text-sm focus:border-gold/50 outline-none min-h-[80px]" placeholder="e.g. Clinical Finisher" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase text-white/40 font-rajdhani tracking-wider">Notable Stats</label>
+                                        <input type="text" name="notable_stats" value={formData.notable_stats || ''} onChange={handleChange} className="w-full bg-black/50 border border-white/10 px-3 py-2 rounded text-white text-sm focus:border-gold/50 outline-none" placeholder="e.g. 5 goals in last 3 matches" />
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] uppercase text-white/40 font-rajdhani tracking-wider">Preferred Foot</label>
+                                            <select name="preferred_foot" value={formData.preferred_foot || ''} onChange={handleChange} className="w-full bg-black/50 border border-white/10 px-3 py-2 rounded text-white text-sm focus:border-gold/50 outline-none appearance-none">
+                                                <option value="" disabled>Select Foot</option>
+                                                <option value="Right">Right</option>
+                                                <option value="Left">Left</option>
+                                                <option value="Both">Both</option>
+                                            </select>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <label className="text-[10px] uppercase text-gold/60 font-rajdhani tracking-wider">Base Price</label>
+                                            <input type="number" name="base_price" value={formData.base_price || 0} onChange={handleChange} className="w-full bg-black/50 border border-white/10 px-3 py-2 rounded text-white text-sm focus:border-gold/50 outline-none" placeholder="e.g. 100000" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* 4. Advanced Layout Panel */}
-                            <div className="bg-black/40 rounded-xl p-6 border border-white/5">
+                            <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:border-white/20 transition-colors">
                                 <h3 className="text-sm font-oswald text-white/60 uppercase tracking-widest mb-4 flex items-center gap-2">
                                     <span className="w-1 h-4 bg-white/60 block"></span>
                                     Advanced Layout
@@ -833,7 +884,7 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                 </div>
 
                 {/* Footer Controls */}
-                <div className="p-6 border-t border-white/10 bg-black/40 flex justify-between items-center backdrop-blur-md">
+                <div className="p-6 border-t border-white/10 bg-black/60 flex justify-between items-center backdrop-blur-xl">
                     <div>
                         {player.id && (
                             <button

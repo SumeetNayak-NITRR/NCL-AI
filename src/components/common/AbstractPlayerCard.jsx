@@ -6,7 +6,7 @@ const AbstractPlayerCard = ({ player, showStats = true, showRating = true }) => 
     // Variant Logic
     const getVariant = () => {
         if (player.card_variant) return player.card_variant
-        if (player.status === 'Alumni') return 'gold'
+        if (player.status === 'Alumni' || player.year === 'Alumni') return 'standard'
 
         if (player.photo_url && player.photo_url.includes('?')) {
             try {

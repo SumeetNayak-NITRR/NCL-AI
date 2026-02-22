@@ -40,10 +40,12 @@ const Team = () => {
     }
 
     const filteredPlayers = players.filter(p => {
-        if (filter === 'Alumni') return p.status === 'Alumni'
+        const isAlumni = p.status === 'Alumni' || p.year === 'Alumni'
+
+        if (filter === 'Alumni') return isAlumni
 
         // Exclude Alumni from other filters (Squad, Positions, etc.)
-        if (p.status === 'Alumni') return false
+        if (isAlumni) return false
 
         if (filter === 'All') return true
         if (filter === 'Main Squad') return p.is_main_team
@@ -54,7 +56,7 @@ const Team = () => {
     const getGlowColor = (player) => {
         let variant = 'standard'
         if (player.card_variant) variant = player.card_variant
-        else if (player.status === 'Alumni') variant = 'gold'
+        else if (player.status === 'Alumni' || player.year === 'Alumni') variant = 'standard'
         else if (player.photo_url && player.photo_url.includes('?')) {
             try {
                 const params = new URLSearchParams(player.photo_url.split('?')[1])

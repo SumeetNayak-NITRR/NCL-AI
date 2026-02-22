@@ -7,11 +7,12 @@ import EditMatchModal from '../components/admin/EditMatchModal'
 import MatchResultModal from '../components/admin/MatchResultModal'
 import PlayerCardPreview from '../components/admin/PlayerCardPreview'
 import LoadingSpinner from '../components/common/LoadingSpinner'
-import { Lock, Search, Filter, RefreshCw, Eye, LogOut } from 'lucide-react'
+import { Lock, Search, Filter, RefreshCw, Eye, LogOut, ArrowLeft, Info, Download } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SEO from '../components/common/SEO'
 import { ALLOWED_ADMIN_EMAILS } from '../config/admin'
 import { toast } from 'sonner'
+import { exportAuctionPptx } from '../lib/exportAuctionPptx'
 
 const Admin = () => {
     const [email, setEmail] = useState('')
@@ -27,6 +28,7 @@ const Admin = () => {
     const [matches, setMatches] = useState([])
     const [selectedMatch, setSelectedMatch] = useState(null)
     const [activeTab, setActiveTab] = useState('players') // 'players' or 'matches'
+    const [exporting, setExporting] = useState(false)
 
     useEffect(() => {
         // Check active session
@@ -133,6 +135,24 @@ const Admin = () => {
         await supabase.auth.signOut()
     }
 
+    const handleExportPptx = async () => {
+        const approvedPlayers = players.filter(p => p.status === 'Ready' || p.status === 'approved' || p.status === 'Approved')
+        if (!approvedPlayers.length) {
+            toast.error('No approved players to export.')
+            return
+        }
+        setExporting(true)
+        toast.info(`Generating slides for ${approvedPlayers.length} players...`)
+        try {
+            await exportAuctionPptx(approvedPlayers)
+            toast.success('NCL_Auction_2025.pptx downloaded!')
+        } catch (err) {
+            toast.error('Export failed: ' + err.message)
+        } finally {
+            setExporting(false)
+        }
+    }
+
     const handleManualRefresh = () => {
         fetchPlayers(true)
         fetchMatches(true)
@@ -159,55 +179,62 @@ const Admin = () => {
                 {/* Background Effect */}
                 <div className="absolute inset-0 bg-gradient-radial from-dark-blue/20 via-transparent to-transparent opacity-50 pointer-events-none" />
 
-                <div className="bg-white/5 p-8 rounded-xl border border-white/10 w-full max-w-md text-center backdrop-blur-md relative z-10 shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-                    <div className="w-16 h-16 bg-black/50 rounded-full flex items-center justify-center mx-auto mb-6 border border-gold/30 shadow-[0_0_20px_rgba(255,215,0,0.2)]">
-                        <Lock className="w-8 h-8 text-gold" />
+                <div className="bg-black/40 backdrop-blur-xl p-10 rounded-2xl border border-white/10 w-full max-w-md text-center relative z-10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-gold/50 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-700" />
+
+                    <div className="w-20 h-20 bg-black/50 rounded-full flex items-center justify-center mx-auto mb-8 border-2 border-gold/30 shadow-[0_0_30px_rgba(255,215,0,0.15)] relative">
+                        <div className="absolute inset-0 rounded-full bg-gold/5 blur-md"></div>
+                        <Lock className="w-8 h-8 text-gold relative z-10" />
                     </div>
 
-                    <h1 className="text-3xl font-oswald text-white mb-2">Admin Portal</h1>
-                    <p className="text-white/40 text-sm font-rajdhani mb-8 tracking-wider uppercase">Authorized Personnel Only</p>
+                    <h1 className="text-4xl font-oswald text-white mb-2 tracking-tight drop-shadow-lg">ADMIN PORTAL</h1>
+                    <p className="text-gold text-sm font-rajdhani mb-10 tracking-[0.2em] uppercase font-bold drop-shadow-md">Classified Access Only</p>
 
                     {authError && (
-                        <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded mb-4 text-sm font-rajdhani">
+                        <div className="bg-red-500/10 backdrop-blur-md border border-red-500/30 text-red-400 p-4 rounded-xl mb-6 text-sm font-rajdhani flex items-center gap-3">
+                            <Info size={18} className="flex-shrink-0" />
                             {authError}
                         </div>
                     )}
 
-                    <form onSubmit={handleLogin} className="space-y-4">
-                        <div className="space-y-1 text-left">
-                            <label className="text-xs text-white/40 font-rajdhani uppercase tracking-wider ml-1">Email</label>
+                    <form onSubmit={handleLogin} className="space-y-6">
+                        <div className="space-y-2 text-left">
+                            <label className="text-xs text-white font-rajdhani uppercase tracking-widest pl-1 font-bold drop-shadow-md">Secure Email</label>
                             <input
                                 type="email"
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
                                 placeholder="admin@nitrrfc.com"
-                                className="w-full bg-black/50 border border-white/10 p-3 rounded text-white focus:border-gold outline-none transition-colors font-rajdhani"
+                                className="w-full bg-black/60 backdrop-blur-md border-[1.5px] border-white/30 p-4 rounded-xl text-white font-bold focus:bg-black/90 focus:border-gold focus:ring-2 focus:ring-gold/50 hover:border-white/50 outline-none transition-all font-rajdhani text-xl placeholder:text-white/40 shadow-inner"
                                 required
                             />
                         </div>
 
-                        <div className="space-y-1 text-left">
-                            <label className="text-xs text-white/40 font-rajdhani uppercase tracking-wider ml-1">Password</label>
+                        <div className="space-y-2 text-left">
+                            <label className="text-xs text-white font-rajdhani uppercase tracking-widest pl-1 font-bold drop-shadow-md">Passcode</label>
                             <input
                                 type="password"
                                 value={password}
                                 onChange={e => setPassword(e.target.value)}
                                 placeholder="••••••••"
-                                className="w-full bg-black/50 border border-white/10 p-3 rounded text-white focus:border-gold outline-none transition-colors font-rajdhani"
+                                className="w-full bg-black/60 backdrop-blur-md border-[1.5px] border-white/30 p-4 rounded-xl text-white font-bold focus:bg-black/90 focus:border-gold focus:ring-2 focus:ring-gold/50 hover:border-white/50 outline-none transition-all font-rajdhani text-xl placeholder:text-white/40 tracking-[0.2em] shadow-inner"
                                 required
                             />
                         </div>
 
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full bg-gold text-black font-oswald font-bold uppercase py-3 rounded hover:bg-gold/80 shadow-[0_0_20px_rgba(255,215,0,0.4)] hover:shadow-[0_0_30px_rgba(255,215,0,0.6)] transition-all border border-gold/50 disabled:opacity-50 disabled:cursor-not-allowed mt-4"
-                        >
-                            {loading ? <LoadingSpinner size="sm" color="black" /> : 'Access Database'}
-                        </button>
+                        <div className="pt-2">
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full relative overflow-hidden bg-gradient-to-r from-gold via-yellow-300 to-gold text-black font-oswald font-bold uppercase text-xl py-4 rounded-xl shadow-[0_0_20px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.6)] transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
+                            >
+                                <div className="absolute inset-0 w-full h-full bg-white/20 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity" />
+                                {loading ? <LoadingSpinner size="sm" color="black" /> : 'Initialize Override'}
+                            </button>
+                        </div>
 
-                        <Link to="/" className="block text-white/40 text-xs hover:text-white mt-6 transition-colors font-rajdhani tracking-widest uppercase">
-                            ← Return to Public Site
+                        <Link to="/" className="text-white/30 text-xs hover:text-white mt-8 transition-colors font-rajdhani tracking-widest uppercase flex items-center justify-center gap-2 group">
+                            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> Return to Public Grid
                         </Link>
                     </form>
                 </div>
@@ -228,13 +255,13 @@ const Admin = () => {
             <div className="max-w-7xl mx-auto relative z-10">
                 <header className="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-white/10 pb-6 gap-4">
                     <div>
-                        <h1 className="text-4xl font-oswald text-gold">Admin Dashboard</h1>
-                        <p className="text-white/40 text-sm font-rajdhani tracking-wider uppercase mt-1">
+                        <h1 className="text-4xl font-oswald text-gold drop-shadow-md">Admin Dashboard</h1>
+                        <p className="text-white/80 text-sm font-rajdhani tracking-wider uppercase mt-1 font-bold">
                             Session Active • {session.user.email}
                         </p>
                     </div>
 
-                    <div className="flex gap-4">
+                    <div className="flex flex-wrap gap-4 items-center">
                         {activeTab === 'players' ? (
                             <button
                                 onClick={() => setSelectedPlayer({
@@ -246,24 +273,37 @@ const Admin = () => {
                                     is_main_team: false,
                                     photo_url: ''
                                 })}
-                                className="px-6 py-2 bg-gold text-black font-oswald uppercase rounded hover:bg-gold/80 transition-all shadow-[0_0_15px_rgba(255,215,0,0.3)] hover:shadow-[0_0_25px_rgba(255,215,0,0.5)] font-bold tracking-wide"
+                                className="px-6 py-3 bg-gradient-to-r from-gold via-yellow-400 to-gold text-black font-oswald uppercase rounded-xl hover:scale-105 transition-all shadow-[0_0_20px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.5)] font-bold tracking-wide relative overflow-hidden group"
                             >
+                                <div className="absolute inset-0 bg-white/20 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 + New Player
                             </button>
                         ) : (
                             <button
                                 onClick={() => setSelectedMatch({})}
-                                className="px-6 py-2 bg-laser-blue text-black font-oswald uppercase rounded hover:bg-laser-blue/80 transition-all shadow-[0_0_15px_rgba(0,0,255,0.3)] hover:shadow-[0_0_25px_rgba(0,0,255,0.5)] font-bold tracking-wide"
+                                className="px-6 py-3 bg-gradient-to-r from-laser-blue via-cyan-400 to-laser-blue text-black font-oswald uppercase rounded-xl hover:scale-105 transition-all shadow-[0_0_20px_rgba(0,255,255,0.3)] hover:shadow-[0_0_40px_rgba(0,255,255,0.5)] font-bold tracking-wide relative overflow-hidden group"
                             >
+                                <div className="absolute inset-0 bg-white/20 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 + Schedule Match
                             </button>
                         )}
-                        <button onClick={handleManualRefresh} className="p-2 bg-white/5 rounded hover:bg-white/10 text-white border border-white/10 transition-colors" title="Force Refresh Data">
+                        <button onClick={handleManualRefresh} className="p-3 bg-black/40 backdrop-blur-sm rounded-xl hover:bg-white/10 text-white border border-white/10 hover:border-white/30 transition-all shadow-lg" title="Force Refresh Data">
                             <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
                         </button>
+                        {activeTab === 'players' && (
+                            <button
+                                onClick={handleExportPptx}
+                                disabled={exporting}
+                                className="px-5 py-3 bg-black/40 backdrop-blur-sm border border-white/10 hover:border-gold/50 text-white hover:text-gold rounded-xl font-oswald uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed"
+                                title="Export Auction PPTX"
+                            >
+                                <Download size={16} className={exporting ? 'animate-bounce' : ''} />
+                                {exporting ? 'Exporting...' : 'Export Slides'}
+                            </button>
+                        )}
                         <button
                             onClick={handleLogout}
-                            className="px-4 py-2 border border-red-500/30 text-red-500/80 hover:text-red-500 hover:bg-red-500/10 rounded font-oswald uppercase transition-all flex items-center gap-2"
+                            className="px-5 py-3 border border-red-500/30 text-red-400 hover:text-red-300 hover:bg-red-500/10 hover:border-red-500/50 rounded-xl font-oswald uppercase transition-all flex items-center gap-2 shadow-lg"
                         >
                             <LogOut size={16} /> Logout
                         </button>
@@ -271,20 +311,20 @@ const Admin = () => {
                 </header>
 
                 {/* Tabs */}
-                <div className="flex gap-4 mb-8 border-b border-white/10">
+                <div className="flex gap-4 mb-8 border-b border-white/20">
                     <button
                         onClick={() => setActiveTab('players')}
-                        className={`pb-3 px-4 font-oswald uppercase tracking-wider transition-colors relative ${activeTab === 'players' ? 'text-gold' : 'text-white/40 hover:text-white'}`}
+                        className={`pb-3 px-4 font-oswald uppercase tracking-wider transition-colors relative font-bold text-lg ${activeTab === 'players' ? 'text-gold' : 'text-white/60 hover:text-white'}`}
                     >
                         Players
-                        {activeTab === 'players' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 w-full h-1 bg-gold rounded-t-full" />}
+                        {activeTab === 'players' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 w-full h-1 bg-gold rounded-t-full shadow-[0_0_10px_rgba(255,215,0,0.8)]" />}
                     </button>
                     <button
                         onClick={() => setActiveTab('matches')}
-                        className={`pb-3 px-4 font-oswald uppercase tracking-wider transition-colors relative ${activeTab === 'matches' ? 'text-laser-blue' : 'text-white/40 hover:text-white'}`}
+                        className={`pb-3 px-4 font-oswald uppercase tracking-wider transition-colors relative font-bold text-lg ${activeTab === 'matches' ? 'text-laser-blue' : 'text-white/60 hover:text-white'}`}
                     >
                         Matches
-                        {activeTab === 'matches' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 w-full h-1 bg-laser-blue rounded-t-full" />}
+                        {activeTab === 'matches' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 w-full h-1 bg-laser-blue rounded-t-full shadow-[0_0_10px_rgba(0,255,255,0.8)]" />}
                     </button>
                 </div>
 
@@ -292,23 +332,23 @@ const Admin = () => {
                 {activeTab === 'players' ? (
                     <>
                         {/* Player Controls */}
-                        <div className="flex flex-col md:flex-row gap-4 mb-8">
+                        <div className="flex flex-col md:flex-row gap-6 mb-8">
                             <div className="relative flex-1 group">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-neon transition-colors" size={20} />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/60 group-focus-within:text-neon transition-colors" size={24} />
                                 <input
                                     type="text"
                                     placeholder="Search database..."
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
-                                    className="w-full bg-black/40 border border-white/10 rounded-lg pl-10 pr-4 py-3 focus:border-neon outline-none text-white font-rajdhani tracking-wide transition-all focus:bg-black/60"
+                                    className="w-full bg-black/60 backdrop-blur-md border-[1.5px] border-white/30 rounded-xl pl-12 pr-4 py-4 focus:border-neon focus:ring-2 focus:ring-neon/50 outline-none text-white font-rajdhani tracking-wide transition-all hover:border-white/50 text-xl font-bold placeholder:text-white/40 shadow-inner"
                                 />
                             </div>
-                            <div className="flex gap-2 bg-black/40 p-1 rounded-lg border border-white/10 overflow-x-auto">
+                            <div className="flex gap-2 bg-black/40 backdrop-blur-md p-1.5 rounded-xl border border-white/10 overflow-x-auto shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
                                 {['All', 'Pending', 'Ready', 'Sold', 'Alumni'].map(s => (
                                     <button
                                         key={s}
                                         onClick={() => setFilter(s)}
-                                        className={`px-4 py-2 rounded font-oswald uppercase transition-all whitespace-nowrap ${filter === s ? 'bg-white/10 text-white border border-white/20 shadow-[0_0_10px_rgba(255,255,255,0.1)]' : 'text-white/40 hover:text-white hover:bg-white/5'}`}
+                                        className={`px-5 py-2.5 rounded-lg font-oswald uppercase transition-all whitespace-nowrap text-sm tracking-wide ${filter === s ? 'bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.4)]' : 'text-white/40 hover:text-white hover:bg-white/10'}`}
                                     >
                                         {s}
                                     </button>
@@ -317,10 +357,10 @@ const Admin = () => {
                         </div>
 
                         {/* Players Table */}
-                        <div className="bg-black/40 border border-white/10 rounded-xl overflow-hidden backdrop-blur-sm shadow-xl">
+                        <div className="bg-black/40 border border-white/10 rounded-3xl overflow-hidden backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left">
-                                    <thead className="bg-white/5 text-white/40 font-oswald uppercase text-xs tracking-widest border-b border-white/5">
+                                    <thead className="bg-white/10 text-white/80 font-oswald uppercase text-sm tracking-widest border-b border-white/20 font-bold">
                                         <tr>
                                             <th className="p-4 pl-6">Player Profile</th>
                                             <th className="p-4">Year / Season</th>
@@ -339,7 +379,7 @@ const Admin = () => {
                                                 </div>
                                             </td></tr>
                                         ) : filteredPlayers.length === 0 ? (
-                                            <tr><td colSpan="6" className="p-12 text-center text-white/30 font-rajdhani">No players matching your criteria.</td></tr>
+                                            <tr><td colSpan="6" className="p-12 text-center text-white/70 font-rajdhani text-lg">No players matching your criteria.</td></tr>
                                         ) : (
                                             filteredPlayers.map(player => (
                                                 <tr key={player.id} className="hover:bg-white/5 transition-colors group">
@@ -358,13 +398,13 @@ const Admin = () => {
                                                                 }`}></div>
                                                         </div>
                                                         <div>
-                                                            <div className="font-bold text-white group-hover:text-gold transition-colors font-oswald tracking-wide text-lg">{player.name}</div>
-                                                            <div className="text-white/30 text-xs font-mono">{player.id.slice(0, 8)}...</div>
+                                                            <div className="font-bold text-white group-hover:text-gold transition-colors font-oswald tracking-wide text-lg drop-shadow-sm">{player.name}</div>
+                                                            <div className="text-white/60 text-xs font-mono">{player.id.slice(0, 8)}...</div>
                                                         </div>
                                                     </td>
-                                                    <td className="p-4 text-white/60 font-rajdhani">{player.year}</td>
+                                                    <td className="p-4 text-white/90 font-rajdhani font-bold text-lg">{player.year}</td>
                                                     <td className="p-4">
-                                                        <span className="bg-white/5 px-2 py-1 rounded text-xs font-mono text-white/80 border border-white/5">{player.position}</span>
+                                                        <span className="bg-white/10 px-3 py-1.5 rounded text-sm font-mono text-white border border-white/20 font-bold shadow-sm">{player.position}</span>
                                                     </td>
                                                     <td className="p-4">
                                                         <span className="font-bebas text-xl text-neon drop-shadow-[0_0_5px_rgba(57,255,20,0.5)]">
@@ -405,7 +445,7 @@ const Admin = () => {
                     /* Matches Table */
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {matches.length === 0 ? (
-                            <div className="col-span-full py-20 text-center text-white/30 font-rajdhani uppercase tracking-widest border border-dashed border-white/10 rounded-xl">
+                            <div className="col-span-full py-20 text-center text-white/70 font-rajdhani uppercase tracking-widest border-2 border-dashed border-white/20 rounded-xl font-bold text-xl drop-shadow-md">
                                 No matches scheduled
                             </div>
                         ) : (

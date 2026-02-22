@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { motion } from 'framer-motion'
 import { CARD_LAYOUT_DEFAULTS } from '../../config/cardLayout'
 
@@ -23,9 +23,9 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
     const average = Math.round((player.pace + player.shooting + player.passing + player.dribbling + player.defending + player.physical) / 6)
 
     // Variant Logic
-    const getVariant = () => {
+    const variant = useMemo(() => {
         if (player.card_variant) return player.card_variant
-        if (player.status === 'Alumni') return 'gold'
+        if (player.status === 'Alumni' || player.year === 'Alumni') return 'standard'
 
         if (player.photo_url && player.photo_url.includes('?')) {
             try {
@@ -34,9 +34,7 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
             } catch (e) { }
         }
         return 'standard'
-    }
-
-    const variant = getVariant()
+    }, [player.card_variant, player.status, player.year, player.photo_url])
 
     const getVariantStyles = (v) => {
         switch (v) {
@@ -95,6 +93,38 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
 
     const variantStyle = getVariantStyles(variant)
 
+    // Font Color Override Logic
+    const appliedFontColor = useMemo(() => {
+        const getHexFromColorName = (colorName) => {
+            switch (colorName) {
+                case 'laser-blue': return '#00d4ff'
+                case 'neon': return '#39ff14'
+                case 'gold': return '#FFD700'
+                case 'black': return '#000000'
+                case 'white': return '#ffffff'
+                default: return variantStyle.textColor // unknown color, fallback 
+            }
+        }
+
+        // Explicit selection from editor
+        if (player.font_color) {
+            return getHexFromColorName(player.font_color)
+        }
+
+        // URL Persistence
+        if (player.photo_url && player.photo_url.includes('?')) {
+            try {
+                const params = new URLSearchParams(player.photo_url.split('?')[1])
+                if (params.get('font_color')) {
+                    return getHexFromColorName(params.get('font_color'))
+                }
+            } catch (e) { }
+        }
+
+        // Fallback to variant default
+        return variantStyle.textColor
+    }, [player.font_color, player.photo_url, variantStyle.textColor])
+
     // Helper to get card background based on year
     const getCardStyle = (year) => {
         const y = String(year) // Case sensitive matching for 'Alumni', 'M.Tech'
@@ -114,7 +144,7 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
     const cardStyle = player ? getCardStyle(player.year) : { isCustom: false }
 
     // Image positioning logic
-    const getImageStyle = () => {
+    const imageStyle = useMemo(() => {
         let scale = player.image_scale;
         let x = player.image_x;
         let y = player.image_y;
@@ -134,11 +164,11 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
             transform: `scale(${scale || 1}) translate(${x || 0}px, ${y || 0}px)`,
             transformOrigin: '50% 100%' // Pivot from bottom center
         }
-    }
+    }, [player.image_scale, player.image_x, player.image_y, player.photo_url])
 
     // Layout positioning logic
-    const getLayout = () => {
-        let layout = {
+    const layout = useMemo(() => {
+        let currentLayout = {
             name_x: CARD_LAYOUT_DEFAULTS.NAME_X,
             name_y: CARD_LAYOUT_DEFAULTS.NAME_Y,
             name_size: CARD_LAYOUT_DEFAULTS.NAME_SIZE,
@@ -158,41 +188,44 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
         if (player.photo_url && player.photo_url.includes('?')) {
             try {
                 const p = new URLSearchParams(player.photo_url.split('?')[1]);
-                if (p.get('name_x')) layout.name_x = parseInt(p.get('name_x'));
-                if (p.get('name_y')) layout.name_y = parseInt(p.get('name_y'));
-                if (p.get('name_size')) layout.name_size = parseInt(p.get('name_size'));
-                if (p.get('stats_x')) layout.stats_x = parseInt(p.get('stats_x'));
-                if (p.get('stats_y')) layout.stats_y = parseInt(p.get('stats_y'));
-                if (p.get('rating_x')) layout.rating_x = parseInt(p.get('rating_x'));
-                if (p.get('rating_y')) layout.rating_y = parseInt(p.get('rating_y'));
-                if (p.get('position_x')) layout.position_x = parseInt(p.get('position_x'));
-                if (p.get('position_y')) layout.position_y = parseInt(p.get('position_y'));
-                if (p.get('position_size')) layout.position_size = parseInt(p.get('position_size'));
-                if (p.get('branch_x')) layout.branch_x = parseInt(p.get('branch_x'));
-                if (p.get('branch_y')) layout.branch_y = parseInt(p.get('branch_y'));
-                if (p.get('branch_size')) layout.branch_size = parseInt(p.get('branch_size'));
+                if (p.get('name_x')) currentLayout.name_x = parseInt(p.get('name_x'));
+                if (p.get('name_y')) currentLayout.name_y = parseInt(p.get('name_y'));
+                if (p.get('name_size')) currentLayout.name_size = parseInt(p.get('name_size'));
+                if (p.get('stats_x')) currentLayout.stats_x = parseInt(p.get('stats_x'));
+                if (p.get('stats_y')) currentLayout.stats_y = parseInt(p.get('stats_y'));
+                if (p.get('rating_x')) currentLayout.rating_x = parseInt(p.get('rating_x'));
+                if (p.get('rating_y')) currentLayout.rating_y = parseInt(p.get('rating_y'));
+                if (p.get('position_x')) currentLayout.position_x = parseInt(p.get('position_x'));
+                if (p.get('position_y')) currentLayout.position_y = parseInt(p.get('position_y'));
+                if (p.get('position_size')) currentLayout.position_size = parseInt(p.get('position_size'));
+                if (p.get('branch_x')) currentLayout.branch_x = parseInt(p.get('branch_x'));
+                if (p.get('branch_y')) currentLayout.branch_y = parseInt(p.get('branch_y'));
+                if (p.get('branch_size')) currentLayout.branch_size = parseInt(p.get('branch_size'));
             } catch (e) { }
         }
 
         // 2. Override with direct props (Edit Mode source)
-        if (player.name_x !== undefined) layout.name_x = player.name_x;
-        if (player.name_y !== undefined) layout.name_y = player.name_y;
-        if (player.name_size !== undefined) layout.name_size = player.name_size;
-        if (player.stats_x !== undefined) layout.stats_x = player.stats_x;
-        if (player.stats_y !== undefined) layout.stats_y = player.stats_y;
-        if (player.rating_x !== undefined) layout.rating_x = player.rating_x;
-        if (player.rating_y !== undefined) layout.rating_y = player.rating_y;
-        if (player.position_x !== undefined) layout.position_x = player.position_x;
-        if (player.position_y !== undefined) layout.position_y = player.position_y;
-        if (player.position_size !== undefined) layout.position_size = player.position_size;
-        if (player.branch_x !== undefined) layout.branch_x = player.branch_x;
-        if (player.branch_y !== undefined) layout.branch_y = player.branch_y;
-        if (player.branch_size !== undefined) layout.branch_size = player.branch_size;
+        if (player.name_x !== undefined) currentLayout.name_x = player.name_x;
+        if (player.name_y !== undefined) currentLayout.name_y = player.name_y;
+        if (player.name_size !== undefined) currentLayout.name_size = player.name_size;
+        if (player.stats_x !== undefined) currentLayout.stats_x = player.stats_x;
+        if (player.stats_y !== undefined) currentLayout.stats_y = player.stats_y;
+        if (player.rating_x !== undefined) currentLayout.rating_x = player.rating_x;
+        if (player.rating_y !== undefined) currentLayout.rating_y = player.rating_y;
+        if (player.position_x !== undefined) currentLayout.position_x = player.position_x;
+        if (player.position_y !== undefined) currentLayout.position_y = player.position_y;
+        if (player.position_size !== undefined) currentLayout.position_size = player.position_size;
+        if (player.branch_x !== undefined) currentLayout.branch_x = player.branch_x;
+        if (player.branch_y !== undefined) currentLayout.branch_y = player.branch_y;
+        if (player.branch_size !== undefined) currentLayout.branch_size = player.branch_size;
 
-        return layout;
-    }
-
-    const layout = getLayout();
+        return currentLayout;
+    }, [
+        player.photo_url, player.name_x, player.name_y, player.name_size,
+        player.stats_x, player.stats_y, player.rating_x, player.rating_y,
+        player.position_x, player.position_y, player.position_size,
+        player.branch_x, player.branch_y, player.branch_size
+    ])
 
     return (
         <div
@@ -205,6 +238,7 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
             }}
             className={`
                 overflow-hidden
+                player-card-mobile
                 ${cardStyle.isCustom
                     ? `bg-cover bg-center bg-no-repeat`
                     : `${variantStyle.bgGradient} border-[3px] ${variantStyle.border}`
@@ -245,8 +279,8 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                     style={{
                         fontSize: '68px',
                         lineHeight: '0.9',
-                        color: variantStyle.textColor,
-                        filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.3)) drop-shadow(0 0 5px currentColor)'
+                        color: appliedFontColor,
+                        textShadow: (variant === 'gold' || variant === 'brown' || variant === 'silver') ? 'none' : '0 4px 12px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.6)'
                     }}
                 >
                     {average}
@@ -272,9 +306,9 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                     className={`font-bebas font-semibold ${variantStyle.accent}`}
                     style={{
                         fontSize: `${layout.position_size}px`,
-                        color: variantStyle.textColor,
+                        color: appliedFontColor,
                         lineHeight: 1,
-                        filter: 'drop-shadow(0 0 5px rgba(255,255,255,0.2))'
+                        textShadow: (variant === 'gold' || variant === 'brown' || variant === 'silver') ? 'none' : '0 4px 12px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.6)'
                     }}
                 >
                     {player.position}
@@ -300,8 +334,8 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                     <div
                         className={`font-bebas font-medium ${variantStyle.accent}`}
                         style={{
-                            fontSize: `${layout.branch_size}px`, color: variantStyle.textColor,
-                            textShadow: (variant === 'gold' || variant === 'brown') ? 'none' : '0 2px 4px rgba(0,0,0,0.5)',
+                            fontSize: `${layout.branch_size}px`, color: appliedFontColor,
+                            textShadow: (variant === 'gold' || variant === 'brown' || variant === 'silver') ? 'none' : '0 4px 12px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.6)'
                         }}
                     >
                         {player.branch}
@@ -335,7 +369,7 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                     style={{
                         height: '100%',
                         width: 'auto',
-                        ...getImageStyle()
+                        ...imageStyle
                     }}
                 />
             </Item>
@@ -368,8 +402,8 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                         lineHeight: '1',
                         margin: 0,
                         padding: '0 10px',
-                        textShadow: (variant === 'gold' || variant === 'brown') ? 'none' : '0 2px 4px rgba(0,0,0,0.5)',
-                        color: variantStyle.textColor
+                        textShadow: (variant === 'gold' || variant === 'brown' || variant === 'silver') ? 'none' : '0 4px 12px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.6)',
+                        color: appliedFontColor
                     }}
                 >
                     {player.name}
@@ -410,13 +444,13 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                     <div key={i} className="flex flex-col items-center" style={{ width: '45px' }}>
                         <div
                             className={`font-rajdhani font-bold uppercase tracking-wider ${variantStyle.statsLabel}`}
-                            style={{ fontSize: '15px', lineHeight: '1', marginBottom: '4px', color: variantStyle.textColor }}
+                            style={{ fontSize: '15px', lineHeight: '1', marginBottom: '4px', color: appliedFontColor }}
                         >
                             {stat.l}
                         </div>
                         <div
                             className="font-bold font-bebas"
-                            style={{ fontSize: '32px', lineHeight: '1', color: variantStyle.textColor }}
+                            style={{ fontSize: '32px', lineHeight: '1', color: appliedFontColor }}
                         >
                             {stat.v}
                         </div>

@@ -1,12 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { removeBackground } from '../lib/removeBackground'
 import ImageUpload from '../components/register/ImageUpload'
 import { Info, ArrowLeft } from 'lucide-react'
-import { Link } from 'react-router-dom'
 import SEO from '../components/common/SEO'
+import Navigation from '../components/common/Navigation'
+import Footer from '../components/common/Footer'
 import { toast } from 'sonner'
 import imageCompression from 'browser-image-compression'
 
@@ -14,14 +15,49 @@ const positions = ['ST', 'CB', 'CM', 'GK', 'CDM', 'Winger', 'Fullback']
 const years = ['1st', '2nd', '3rd', '4th', '5th']
 const statsLabels = ['Pace', 'Shooting', 'Passing', 'Dribbling', 'Defending', 'Physical']
 
+// SVG Pitch lines pattern for the hero
+const PitchPattern = () => (
+    <svg className="absolute inset-0 w-full h-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        {/* Centre circle */}
+        <circle cx="50%" cy="50%" r="80" fill="none" stroke="white" strokeWidth="2" />
+        <circle cx="50%" cy="50%" r="4" fill="white" />
+        {/* Centre line */}
+        <line x1="0" y1="50%" x2="100%" y2="50%" stroke="white" strokeWidth="2" />
+        {/* Outer boundary */}
+        <rect x="5%" y="5%" width="90%" height="90%" fill="none" stroke="white" strokeWidth="2" />
+        {/* Left penalty box */}
+        <rect x="5%" y="30%" width="12%" height="40%" fill="none" stroke="white" strokeWidth="1.5" />
+        {/* Right penalty box */}
+        <rect x="83%" y="30%" width="12%" height="40%" fill="none" stroke="white" strokeWidth="1.5" />
+        {/* Left goal box */}
+        <rect x="5%" y="42%" width="4%" height="16%" fill="none" stroke="white" strokeWidth="1.5" />
+        {/* Right goal box */}
+        <rect x="91%" y="42%" width="4%" height="16%" fill="none" stroke="white" strokeWidth="1.5" />
+        {/* Corner arcs */}
+        <path d="M 5% 5% A 20 20 0 0 1 6% 8%" fill="none" stroke="white" strokeWidth="1.5" />
+        <path d="M 95% 5% A 20 20 0 0 0 94% 8%" fill="none" stroke="white" strokeWidth="1.5" />
+        <path d="M 5% 95% A 20 20 0 0 0 6% 92%" fill="none" stroke="white" strokeWidth="1.5" />
+        <path d="M 95% 95% A 20 20 0 0 1 94% 92%" fill="none" stroke="white" strokeWidth="1.5" />
+    </svg>
+)
+
 const Register = () => {
     const navigate = useNavigate()
+    const sectionRefs = [useRef(null), useRef(null), useRef(null), useRef(null)]
+
+    const scrollToSection = (i) => {
+        sectionRefs[i].current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
     const [formData, setFormData] = useState({
         name: '',
         roll_number: '',
         year: '',
         branch: '',
         position: '',
+        key_achievements: '',
+        preferred_foot: '',
+        notable_stats: '',
+        player_traits: '',
         stats: {
             pace: 50,
             shooting: 50,
@@ -34,8 +70,25 @@ const Register = () => {
     const [imageFile, setImageFile] = useState(null)
     const [isCropping, setIsCropping] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [processingStatus, setProcessingStatus] = useState('') // For user feedback
+    const [processingStatus, setProcessingStatus] = useState('')
     const [error, setError] = useState(null)
+
+    const overallRating = Math.round(
+        Object.values(formData.stats).reduce((a, b) => a + b, 0) / 6
+    )
+
+    // Section completion tracking
+    const sectionDone = [
+        // 01 Personal: name, roll_number, year, branch, position
+        !!(formData.name && formData.roll_number.length === 8 && formData.year && formData.branch && formData.position),
+        // 02 Photo
+        !!imageFile,
+        // 03 Stats: all non-default (any stat adjusted away from 50)
+        Object.values(formData.stats).some(v => v !== 50),
+        // 04 Auction: at least achievements or traits filled
+        !!(formData.key_achievements || formData.player_traits || formData.preferred_foot),
+    ]
+    const totalDone = sectionDone.filter(Boolean).length
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value })
@@ -53,273 +106,362 @@ const Register = () => {
         setLoading(true)
         setError(null)
 
-        // Basic Validation
         if (formData.roll_number.length !== 8 || isNaN(formData.roll_number)) {
             const msg = "Roll Number must be exactly 8 digits."
-            setError(msg)
-            toast.error(msg)
-            setLoading(false)
-            return
+            setError(msg); toast.error(msg); setLoading(false); return
         }
-
         if (isCropping) {
             const msg = "Please click 'Confirm Crop' on your photo before submitting."
-            setError(msg)
-            toast.warning(msg)
-            setLoading(false)
-            return
+            setError(msg); toast.warning(msg); setLoading(false); return
         }
-
         if (!imageFile) {
             const msg = "Please upload a photo."
-            setError(msg)
-            toast.error(msg)
+            setError(msg); toast.error(msg)
             window.scrollTo({ top: 0, behavior: 'smooth' })
-            setLoading(false)
-            return
+            setLoading(false); return
         }
-
-        // VALIDATION: Check file size (2MB) and type (PNG)
-        // Client-side compression will define the final size, but we check raw size too
-        if (imageFile.size > 10 * 1024 * 1024) { // Allow larger raw files since we compress
+        if (imageFile.size > 10 * 1024 * 1024) {
             const msg = "File too large. Maximum raw size is 10MB."
-            setError(msg)
-            toast.error(msg)
+            setError(msg); toast.error(msg)
             window.scrollTo({ top: 0, behavior: 'smooth' })
-            setLoading(false)
-            return
+            setLoading(false); return
         }
-
         if (imageFile.type !== 'image/png') {
             const msg = "Invalid format. Please upload a PNG file."
-            setError(msg)
-            toast.error(msg)
+            setError(msg); toast.error(msg)
             window.scrollTo({ top: 0, behavior: 'smooth' })
-            setLoading(false)
-            return
+            setLoading(false); return
         }
 
         try {
-            // Compress Image
             setProcessingStatus('Compressing image...')
-            const options = {
-                maxSizeMB: 2,
-                maxWidthOrHeight: 1920,
-                useWebWorker: true,
-                fileType: 'image/png'
-            }
+            const options = { maxSizeMB: 2, maxWidthOrHeight: 1920, useWebWorker: true, fileType: 'image/png' }
             const compressedFile = await imageCompression(imageFile, options)
 
-            // Upload Image
             setProcessingStatus('Uploading image...')
-            const fileExt = 'png'
-            const fileName = `${formData.roll_number}_${Date.now()}.${fileExt}` // Use Roll No in filename for organization
-            const filePath = `${fileName}`
-
-            const { error: uploadError } = await supabase.storage
-                .from('player-photos')
-                .upload(filePath, compressedFile)
-
+            const fileName = `${formData.roll_number}_${Date.now()}.png`
+            const { error: uploadError } = await supabase.storage.from('player-photos').upload(fileName, compressedFile)
             if (uploadError) throw uploadError
 
-            // Get Public URL
             setProcessingStatus('Saving player data...')
-            const { data: { publicUrl } } = supabase.storage
-                .from('player-photos')
-                .getPublicUrl(filePath)
+            const { data: { publicUrl } } = supabase.storage.from('player-photos').getPublicUrl(fileName)
 
-            // Calculate Overall Rating for visual feedback or just verification
-
-
-            // CALL SECURE RPC FUNCTION
-            const { data: rpcData, error: rpcError } = await supabase
-                .rpc('register_player', {
-                    p_name: formData.name,
-                    p_roll_number: formData.roll_number,
-                    p_year: formData.year,
-                    p_branch: formData.branch,
-                    p_position: formData.position,
-                    p_stats: formData.stats,
-                    p_photo_url: publicUrl
-                })
-
+            const { data: rpcData, error: rpcError } = await supabase.rpc('register_player', {
+                p_name: formData.name,
+                p_roll_number: formData.roll_number,
+                p_year: formData.year,
+                p_branch: formData.branch,
+                p_position: formData.position,
+                p_stats: formData.stats,
+                p_photo_url: publicUrl,
+                p_key_achievements: formData.key_achievements,
+                p_preferred_foot: formData.preferred_foot,
+                p_notable_stats: formData.notable_stats,
+                p_player_traits: formData.player_traits
+            })
             if (rpcError) throw rpcError
 
             const successMsg = rpcData.status === 'updated'
-                ? 'Profile updated successfully! Pending admin re-approval.'
-                : 'Registration successful! Waiting for approval.'
-
+                ? 'Profile updated! Pending admin re-approval.'
+                : 'Registration successful! Pending admin approval.'
             navigate('/')
             toast.success(successMsg, { duration: 5000 })
 
         } catch (err) {
-            console.error('Error submitting form:', err)
             const msg = err.message || "An error occurred during registration."
-            setError(msg)
-            toast.error(msg)
+            setError(msg); toast.error(msg)
             window.scrollTo({ top: 0, behavior: 'smooth' })
         } finally {
             setLoading(false)
         }
     }
 
+    const inputClass = "w-full bg-transparent border-b border-white/30 focus:border-laser-blue outline-none py-3 text-white font-rajdhani text-lg tracking-wide transition-colors duration-300 placeholder:text-white/30"
+    const selectClass = "w-full bg-transparent border-b border-white/30 focus:border-laser-blue outline-none py-3 text-white font-rajdhani text-lg tracking-wide transition-colors duration-300 appearance-none cursor-pointer"
+    const labelClass = "block text-xs font-rajdhani tracking-[0.4em] text-white/70 uppercase mb-2"
+
+    const sectionVariants = {
+        hidden: { opacity: 0, y: 40 },
+        visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] } }
+    }
+
     return (
-        <div className="min-h-screen bg-background text-white p-4 pb-20">
+        <div className="min-h-screen bg-background text-white">
             <SEO
                 title="Register"
-                description="Join the NITRR FC league. Create your player card and submit your profile for the draft."
+                description="Join the NITRR FC squad. Submit your player profile for the NCL draft."
             />
-            <div className="max-w-2xl mx-auto">
-                <Link to="/" className="inline-flex items-center text-white/50 hover:text-white mb-8 transition-colors">
-                    <ArrowLeft className="mr-2" /> Back to Home
-                </Link>
+            <Navigation />
 
-                <h1 className="text-3xl md:text-5xl font-oswald text-white mb-2 flex items-center gap-4">
-                    <div className="w-12 h-12 relative rounded-full border border-white/20 bg-black/40 overflow-hidden flex-shrink-0">
-                        <img src="/logo.png" alt="Logo" className="w-full h-full object-contain p-1" />
-                    </div>
-                    Player Registration
-                </h1>
-                <p className="text-white/60 mb-8 font-light">Join the draft. Prove your worth.</p>
+            {/* ── HERO ── */}
+            <section className="relative min-h-[60vh] flex flex-col justify-end overflow-hidden px-6 pb-16 pt-32">
+                {/* Pitch pattern */}
+                <PitchPattern />
+                {/* Grass-green tint at bottom */}
+                <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+                {/* Left vertical text stripe — matches Landing */}
+                <div className="absolute left-6 top-1/2 -translate-y-1/2 hidden md:flex flex-col gap-4 border-l border-white/10 pl-4">
+                    <span className="text-vertical text-xs font-rajdhani tracking-[0.3em] text-white/40 uppercase">NITRR FC • NCL 2025</span>
+                </div>
+
+                <div className="relative z-10 max-w-7xl mx-auto w-full">
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
+                        className="text-sm font-rajdhani tracking-[0.5em] text-laser-blue uppercase mb-4"
+                    >
+                        Season Draft — Open Now
+                    </motion.p>
+                    <motion.h1
+                        initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+                        className="text-6xl md:text-[10vw] font-bebas leading-[0.85] tracking-tighter text-white mb-6 mix-blend-difference"
+                    >
+                        JOIN NCL <span className="text-outline-active">2025</span>
+                    </motion.h1>
+                    <motion.p
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4, duration: 0.8 }}
+                        className="text-white/50 font-rajdhani tracking-widest uppercase text-sm max-w-md"
+                    >
+                        Fill out your player profile. Get verified by the admin. Compete in the auction.
+                    </motion.p>
+                </div>
+            </section>
+
+            {/* ── FLOATING SECTION NAVIGATOR (right side vertical) ── */}
+            <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6, duration: 0.5 }}
+                className="fixed right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center gap-1.5 bg-background/90 backdrop-blur-xl border border-white/10 px-2.5 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.7)]"
+            >
+                <span className="font-rajdhani text-[9px] tracking-[0.2em] text-white/30 uppercase mb-1">
+                    {totalDone}/4
+                </span>
+                {[
+                    { n: '01', label: 'Personal' },
+                    { n: '02', label: 'Photo' },
+                    { n: '03', label: 'Stats' },
+                    { n: '04', label: 'Auction' },
+                ].map(({ n, label }, i) => (
+                    <button
+                        key={n}
+                        type="button"
+                        onClick={() => scrollToSection(i)}
+                        title={`Go to ${label}`}
+                        className={`flex flex-col items-center gap-0.5 px-2 py-2 border font-bebas text-sm tracking-wider transition-all duration-300 w-full ${sectionDone[i]
+                            ? 'bg-laser-blue border-laser-blue text-white'
+                            : 'border-white/15 text-white/30 hover:border-white/50 hover:text-white/70'
+                            }`}
+                    >
+                        {n}
+                        <span className={`font-rajdhani text-[8px] tracking-widest uppercase ${sectionDone[i] ? 'text-white/70' : 'text-white/20'}`}>
+                            {label.slice(0, 4)}
+                        </span>
+                    </button>
+                ))}
+            </motion.div>
+
+            {/* ── FORM ── */}
+            <section className="max-w-5xl mx-auto px-6 md:px-8 pb-40">
 
                 {error && (
-                    <div className="bg-red-500/10 border border-red-500 text-red-500 p-4 rounded-lg mb-6 flex items-center gap-2">
-                        <Info size={20} />
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+                        className="bg-signal-red/10 border border-signal-red/30 text-signal-red p-4 mb-10 flex items-start gap-3 font-rajdhani text-sm tracking-wide"
+                    >
+                        <Info size={18} className="flex-shrink-0 mt-0.5" />
                         {error}
-                    </div>
+                    </motion.div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-8">
-                    {/* Personal Details */}
-                    <div className="bg-white/5 p-6 rounded-xl border border-white/10">
-                        <h2 className="text-2xl font-oswald text-neon mb-6">Details</h2>
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-oswald uppercase text-white/70 mb-1">Full Name</label>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        required
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        className="w-full bg-black/50 border border-white/20 rounded-lg p-3 text-white focus:border-neon focus:outline-none transition-colors"
-                                        placeholder="Enter your name"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-oswald uppercase text-white/70 mb-1">Roll Number (8 Digits)</label>
-                                    <input
-                                        type="text"
-                                        name="roll_number"
-                                        required
-                                        maxLength="8"
-                                        pattern="\d{8}"
-                                        value={formData.roll_number}
-                                        onChange={handleChange}
-                                        className="w-full bg-black/50 border border-white/20 rounded-lg p-3 text-white focus:border-neon focus:outline-none transition-colors tracking-widest font-mono"
-                                        placeholder="e.g. 22115045"
-                                        title="Please enter exactly 8 digits"
-                                    />
-                                </div>
-                            </div>
+                <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-oswald uppercase text-white/70 mb-1">Academic Year</label>
-                                    <select
-                                        name="year"
-                                        required
-                                        value={formData.year}
-                                        onChange={handleChange}
-                                        className="w-full bg-black/50 border border-white/20 rounded-lg p-3 text-white focus:border-neon focus:outline-none transition-colors appearance-none"
-                                    >
-                                        <option value="" disabled>Select Year</option>
-                                        {years.map(y => <option key={y} value={y}>{y}</option>)}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-oswald uppercase text-white/70 mb-1">Position</label>
-                                    <select
-                                        name="position"
-                                        required
-                                        value={formData.position}
-                                        onChange={handleChange}
-                                        className="w-full bg-black/50 border border-white/20 rounded-lg p-3 text-white focus:border-neon focus:outline-none transition-colors appearance-none"
-                                    >
-                                        <option value="" disabled>Select Position</option>
-                                        {positions.map(p => <option key={p} value={p}>{p}</option>)}
-                                    </select>
-                                </div>
-                                <div className="col-span-2">
-                                    <label className="block text-sm font-oswald uppercase text-white/70 mb-1">Branch</label>
-                                    <select
-                                        name="branch"
-                                        required
-                                        value={formData.branch}
-                                        onChange={handleChange}
-                                        className="w-full bg-black/50 border border-white/20 rounded-lg p-3 text-white focus:border-neon focus:outline-none transition-colors appearance-none"
-                                    >
-                                        <option value="" disabled>Select Branch</option>
-                                        {['CSE', 'IT', 'ECE', 'EE', 'MECH', 'CIVIL', 'META', 'CHEM', 'MINING', 'BIOTECH', 'ARCH', 'MCA', 'BIOMED', 'MSC'].map(b => <option key={b} value={b}>{b}</option>)}
-                                    </select>
-                                </div>
+                    {/* ── Section 01: Personal ── */}
+                    <motion.div ref={sectionRefs[0]} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="border border-white/10 bg-white/[0.02] p-8 md:p-10">
+                        <div className="flex items-start gap-6 mb-10 pb-8 border-b border-white/10">
+                            <span className="font-bebas text-5xl text-laser-blue/30 leading-none select-none">01</span>
+                            <div>
+                                <h2 className="font-bebas text-2xl tracking-wider text-white mb-1">PERSONAL DETAILS</h2>
+                                <p className="text-white/40 font-rajdhani text-sm tracking-widest uppercase">Identity & Academic Info • 5 fields</p>
                             </div>
                         </div>
-                    </div>
 
-                    <div className="bg-white/5 p-6 rounded-xl border border-white/10">
-                        <h2 className="text-2xl font-oswald text-neon mb-6">Player Card Photo</h2>
-                        <div className="bg-laser-blue/10 border border-laser-blue/20 p-4 rounded-lg mb-6">
-                            <h3 className="text-laser-blue font-oswald uppercase mb-2 flex items-center gap-2">
-                                <Info size={16} /> Strict Upload Guidelines
-                            </h3>
-                            <ul className="text-sm text-white/80 space-y-1 list-disc list-inside font-rajdhani">
-                                <li><strong>Format:</strong> PNG Only (Transparent Background)</li>
-                                <li><strong>Max Size:</strong> 2MB</li>
-                                <li>Use <a href="https://www.adobe.com/express/feature/image/remove-background" target="_blank" rel="noreferrer" className="text-laser-blue hover:underline">Adobe Remove Background</a> or similar tools before uploading.</li>
-                            </ul>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
+                            <div>
+                                <label className={labelClass}>Full Name</label>
+                                <input type="text" name="name" required value={formData.name} onChange={handleChange} className={inputClass} placeholder="John Doe" />
+                            </div>
+                            <div>
+                                <label className={labelClass}>Roll Number</label>
+                                <input type="text" name="roll_number" required maxLength="8" pattern="\d{8}" value={formData.roll_number} onChange={handleChange} className={`${inputClass} tracking-[0.3em] font-mono`} placeholder="22115045" title="Exactly 8 digits" />
+                            </div>
+                            <div>
+                                <label className={labelClass}>Academic Year</label>
+                                <select name="year" required value={formData.year} onChange={handleChange} className={selectClass}>
+                                    <option value="" disabled className="bg-background">Select Year</option>
+                                    {years.map(y => <option key={y} value={y} className="bg-background">{y}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className={labelClass}>Branch</label>
+                                <select name="branch" required value={formData.branch} onChange={handleChange} className={selectClass}>
+                                    <option value="" disabled className="bg-background">Select Branch</option>
+                                    {['CSE', 'IT', 'ECE', 'EE', 'MECH', 'CIVIL', 'META', 'CHEM', 'MINING', 'BIOTECH', 'ARCH', 'MCA', 'BIOMED', 'MSC'].map(b => <option key={b} value={b} className="bg-background">{b}</option>)}
+                                </select>
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className={labelClass}>Playing Position</label>
+                                <div className="flex flex-wrap gap-3 pt-2">
+                                    {positions.map(p => (
+                                        <button
+                                            key={p} type="button"
+                                            onClick={() => setFormData({ ...formData, position: p })}
+                                            className={`px-5 py-2 font-bebas text-lg tracking-wider border transition-all duration-200 ${formData.position === p
+                                                ? 'bg-laser-blue border-laser-blue text-white'
+                                                : 'border-white/20 text-white/60 hover:border-white/60 hover:text-white'
+                                                }`}
+                                        >
+                                            {p}
+                                        </button>
+                                    ))}
+                                </div>
+                                {!formData.position && <input type="text" className="sr-only" required value={formData.position} readOnly tabIndex={-1} />}
+                            </div>
                         </div>
+                    </motion.div>
+
+                    {/* ── Section 02: Photo Upload ── */}
+                    <motion.div ref={sectionRefs[1]} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="border border-white/10 bg-white/[0.02] p-8 md:p-10">
+                        <div className="flex items-start gap-6 mb-10 pb-8 border-b border-white/10">
+                            <span className="font-bebas text-5xl text-laser-blue/30 leading-none select-none">02</span>
+                            <div>
+                                <h2 className="font-bebas text-2xl tracking-wider text-white mb-1">PLAYER CARD PHOTO</h2>
+                                <p className="text-white/40 font-rajdhani text-sm tracking-widest uppercase">Your official card image • 1 upload</p>
+                            </div>
+                        </div>
+
+                        {/* Guidelines */}
+                        <div className="flex items-start gap-4 mb-10 border-l-2 border-laser-blue pl-5">
+                            <div className="font-rajdhani text-sm text-white/70 tracking-wide leading-relaxed space-y-1">
+                                <p className="text-white font-semibold uppercase tracking-widest text-xs mb-2">Photo Guidelines</p>
+                                <p>• <strong>PNG format only</strong> — transparent background required</p>
+                                <p>• Max file size: <strong>2MB</strong></p>
+                                <p>• Use <a href="https://www.adobe.com/express/feature/image/remove-background" target="_blank" rel="noreferrer" className="text-laser-blue hover:underline">Adobe Remove Background</a> to strip the background first</p>
+                            </div>
+                        </div>
+
                         <ImageUpload onImageSelected={setImageFile} onCropPending={setIsCropping} />
-                    </div>
+                    </motion.div>
 
-                    {/* Stats */}
-                    <div className="bg-white/5 p-6 rounded-xl border border-white/10">
-                        <h2 className="text-2xl font-oswald text-neon mb-6">Self-Rated Stats</h2>
-                        <p className="text-sm text-white/50 mb-6 flex items-center gap-2"><Info size={16} /> Be honest. Admin will verify these.</p>
+                    {/* ── Section 03: Self-Rated Stats ── */}
+                    <motion.div ref={sectionRefs[2]} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="border border-white/10 bg-white/[0.02] p-8 md:p-10">
+                        <div className="flex items-start gap-6 mb-10 pb-8 border-b border-white/10">
+                            <span className="font-bebas text-5xl text-laser-blue/30 leading-none select-none">03</span>
+                            <div className="flex-1 flex items-start justify-between">
+                                <div>
+                                    <h2 className="font-bebas text-2xl tracking-wider text-white mb-1">SELF-RATED STATS</h2>
+                                    <p className="text-white/40 font-rajdhani text-sm tracking-widest uppercase flex items-center gap-2">
+                                        <Info size={13} className="text-neon" /> 6 attributes — be honest, admin verifies
+                                    </p>
+                                </div>
+                                {/* Live OVR */}
+                                <div className="text-right">
+                                    <div className="font-bebas text-6xl leading-none text-white">{overallRating}</div>
+                                    <div className="font-rajdhani text-xs tracking-[0.4em] text-white/40 uppercase">OVR</div>
+                                </div>
+                            </div>
+                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
                             {statsLabels.map(stat => (
                                 <div key={stat}>
-                                    <div className="flex justify-between mb-1">
-                                        <label className="text-sm font-oswald uppercase text-white/70">{stat}</label>
-                                        <span className="text-white/80 font-bold">{formData.stats[stat.toLowerCase()]}</span>
+                                    <div className="flex justify-between items-baseline mb-3">
+                                        <label className="font-bebas text-xl tracking-wider text-white/80">{stat}</label>
+                                        <span className="font-bebas text-3xl text-laser-blue leading-none">{formData.stats[stat.toLowerCase()]}</span>
                                     </div>
-                                    <input
-                                        type="range"
-                                        min="1"
-                                        max="99"
-                                        value={formData.stats[stat.toLowerCase()]}
-                                        onChange={(e) => handleStatChange(stat, e.target.value)}
-                                        className="w-full h-2 bg-black/50 rounded-lg appearance-none cursor-pointer accent-neon"
-                                    />
+                                    <div className="relative">
+                                        <div className="h-px w-full bg-white/10 absolute top-1/2 -translate-y-1/2" />
+                                        <input
+                                            type="range" min="1" max="99"
+                                            value={formData.stats[stat.toLowerCase()]}
+                                            onChange={(e) => handleStatChange(stat, e.target.value)}
+                                            className="relative w-full h-1 bg-transparent appearance-none cursor-pointer accent-laser-blue focus:outline-none"
+                                        />
+                                    </div>
                                 </div>
                             ))}
                         </div>
-                    </div>
+                    </motion.div>
 
-                    <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-white text-black font-oswald font-bold uppercase text-xl py-4 rounded-lg shadow-[0_0_30px_rgba(255,215,0,0.5)] hover:shadow-[0_0_50px_rgba(255,215,0,0.7)] disabled:opacity-50 disabled:cursor-not-allowed transition-all border-2 border-gold/50"
+                    {/* ── Section 04: Auction Profile ── */}
+                    <motion.div ref={sectionRefs[3]} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="border border-white/10 bg-white/[0.02] p-8 md:p-10">
+                        <div className="flex items-start gap-6 mb-10 pb-8 border-b border-white/10">
+                            <span className="font-bebas text-5xl text-laser-blue/30 leading-none select-none">04</span>
+                            <div>
+                                <h2 className="font-bebas text-2xl tracking-wider text-white mb-1">AUCTION PROFILE</h2>
+                                <p className="text-white/40 font-rajdhani text-sm tracking-widest uppercase">What you bring to the pitch • 4 fields</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
+                            <div>
+                                <label className={labelClass}>Key Achievements</label>
+                                <textarea name="key_achievements" value={formData.key_achievements} onChange={handleChange}
+                                    className={`${inputClass} resize-none border-b min-h-[90px]`}
+                                    placeholder="e.g. Golden Boot 2023, Captained CSE" />
+                            </div>
+                            <div>
+                                <label className={labelClass}>Player Traits</label>
+                                <textarea name="player_traits" value={formData.player_traits} onChange={handleChange}
+                                    className={`${inputClass} resize-none border-b min-h-[90px]`}
+                                    placeholder="e.g. Clinical Finisher, Set-Piece Specialist" />
+                            </div>
+                            <div>
+                                <label className={labelClass}>Notable Stats</label>
+                                <input type="text" name="notable_stats" value={formData.notable_stats} onChange={handleChange}
+                                    className={inputClass} placeholder="e.g. 5 Goals in last 3 matches" />
+                            </div>
+                            <div>
+                                <label className={labelClass}>Preferred Foot</label>
+                                <div className="flex gap-4 pt-2">
+                                    {['Right', 'Left', 'Both'].map(foot => (
+                                        <button key={foot} type="button"
+                                            onClick={() => setFormData({ ...formData, preferred_foot: foot })}
+                                            className={`px-5 py-2 font-bebas text-lg tracking-wider border transition-all duration-200 ${formData.preferred_foot === foot ? 'bg-gold border-gold text-black' : 'border-white/20 text-white/60 hover:border-white/60 hover:text-white'}`}
+                                        >
+                                            {foot}
+                                        </button>
+                                    ))}
+                                </div>
+                                {!formData.preferred_foot && <input type="text" className="sr-only" required value={formData.preferred_foot} readOnly tabIndex={-1} />}
+                            </div>
+                        </div>
+                    </motion.div>
+
+                    {/* ── Submit ── */}
+                    <motion.div
+                        variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true }}
+                        className="border-t border-white/10 pt-12 pb-4"
                     >
-                        {loading ? (processingStatus || 'Submitting...') : 'Submit Registration'}
-                    </motion.button>
-                </form >
-            </div >
-        </div >
+                        <motion.button
+                            whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
+                            type="submit" disabled={loading}
+                            className="group relative w-full px-8 py-6 bg-off-white text-black font-bebas text-2xl tracking-[0.2em] uppercase overflow-hidden disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                        >
+                            <span className="relative z-10 group-hover:text-off-white transition-colors duration-300">
+                                {loading ? (processingStatus || 'Submitting...') : 'Sign the Contract — Submit'}
+                            </span>
+                            <div className="absolute inset-0 bg-laser-blue transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                        </motion.button>
+                        <p className="text-center text-white/30 font-rajdhani text-xs tracking-widest uppercase mt-6">
+                            Your profile will be reviewed by an admin before appearing in the squad list.
+                        </p>
+                    </motion.div>
+
+                </form>
+            </section>
+
+            <Footer />
+        </div>
     )
 }
 

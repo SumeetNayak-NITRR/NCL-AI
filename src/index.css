@@ -45,4 +45,26 @@
     -webkit-text-stroke: 1px #fff;
     color: transparent;
   }
+
+  /* 
+   * Mobile scale override for the fixed 400x600 PlayerCardBase 
+   * Ensures the card fits into small screen spaces without destroying
+   * the absolute pixel internal layout.
+   */
+  .player-card-mobile {
+    transform: scale(0.8);
+    transform-origin: top center;
+  }
+
+  @media (max-width: 400px) {
+    .player-card-mobile {
+      transform: scale(0.75);
+    }
+  }
+
+  @media (max-width: 360px) {
+    .player-card-mobile {
+      transform: scale(0.65);
+    }
+  }
 }
