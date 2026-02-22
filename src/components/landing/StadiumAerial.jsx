@@ -115,7 +115,7 @@ const StadiumAerial = () => {
     return (
         <section
             ref={containerRef}
-            className="relative h-[400vh] bg-void-black"
+            className="relative h-[150vh] bg-void-black"
         >
             {/* Sticky viewport container */}
             <div className="sticky top-0 h-[100dvh] overflow-hidden">

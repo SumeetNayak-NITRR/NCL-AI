@@ -12,6 +12,7 @@
   "dependencies": {
     "browser-image-compression": "^2.0.2",
     "html2canvas": "^1.4.1",
+    "lenis": "^1.3.17",
     "pptxgenjs": "^4.0.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

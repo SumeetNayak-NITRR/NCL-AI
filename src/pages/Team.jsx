@@ -15,7 +15,7 @@ const Team = () => {
     const [filter, setFilter] = useState('Main Squad')
     const [selectedPlayer, setSelectedPlayer] = useState(null)
 
-    const positions = ['Alumni', 'Main Squad', 'All', 'ST', 'CM', 'CDM', 'Winger', 'Fullback', 'CB', 'GK']
+    const positions = ['Alumni', 'Main Squad', 'All', 'ST', 'CF', 'LW', 'RW', 'LM', 'RM', 'CAM', 'CM', 'CDM', 'LB', 'RB', 'CB', 'GK']
 
     useEffect(() => {
         fetchPlayers()

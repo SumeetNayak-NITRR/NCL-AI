@@ -65,12 +65,23 @@ const ImageUpload = ({ onImageSelected, onCropPending }) => {
                     <img src={previewUrl} alt="Cropped" className="w-full h-full object-cover" />
                     <button
                         onClick={cancelCrop}
-                        className="absolute top-0 right-0 bg-red-500 p-1 rounded-full m-1 hover:bg-red-600 transition-colors"
+                        title="Remove photo"
+                        className="absolute top-0 right-0 bg-red-500 p-1.5 rounded-full m-2 hover:bg-red-600 transition-transform hover:scale-110 shadow-lg"
                     >
                         <X size={16} className="text-white" />
                     </button>
                 </div>
-                <p className="text-neon text-sm flex items-center gap-1"><Check size={16} /> Photo Ready</p>
+                <div className="flex flex-col items-center gap-2">
+                    <p className="text-neon text-base font-bebas tracking-wide flex items-center gap-1">
+                        <Check size={18} /> Photo Ready
+                    </p>
+                    <button
+                        onClick={cancelCrop}
+                        className="text-white/50 text-xs font-rajdhani uppercase tracking-widest hover:text-white transition-colors flex items-center gap-1 mt-1 border-b border-transparent hover:border-white pb-0.5"
+                    >
+                        <Upload size={12} /> Upload Different Photo
+                    </button>
+                </div>
             </div>
         )
     }

@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { removeBackground } from '../lib/removeBackground'
 import ImageUpload from '../components/register/ImageUpload'
 import { Info, ArrowLeft } from 'lucide-react'
 import SEO from '../components/common/SEO'
@@ -11,7 +10,7 @@ import Footer from '../components/common/Footer'
 import { toast } from 'sonner'
 import imageCompression from 'browser-image-compression'
 
-const positions = ['ST', 'CB', 'CM', 'GK', 'CDM', 'Winger', 'Fullback']
+const positions = ['ST', 'CF', 'LW', 'RW', 'LM', 'RM', 'CAM', 'CM', 'CDM', 'LB', 'RB', 'CB', 'GK']
 const years = ['1st', '2nd', '3rd', '4th', '5th']
 const statsLabels = ['Pace', 'Shooting', 'Passing', 'Dribbling', 'Defending', 'Physical']
 
@@ -101,6 +100,35 @@ const Register = () => {
         })
     }
 
+    // Helper to check if an image has transparency
+    const checkImageTransparency = (file) => {
+        return new Promise((resolve) => {
+            const url = URL.createObjectURL(file)
+            const img = new Image()
+            img.onload = () => {
+                const canvas = document.createElement('canvas')
+                canvas.width = img.width
+                canvas.height = img.height
+                const ctx = canvas.getContext('2d')
+                ctx.drawImage(img, 0, 0)
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height).data
+
+                let hasTransparentPixels = false
+                // Check every 4th byte (Alpha channel)
+                for (let i = 3; i < imageData.length; i += 4) {
+                    if (imageData[i] < 255) { // If alpha is less than fully opaque
+                        hasTransparentPixels = true
+                        break
+                    }
+                }
+                URL.revokeObjectURL(url)
+                resolve(hasTransparentPixels)
+            }
+            img.onerror = () => resolve(true) // If error reading, bypass check rather than block
+            img.src = url
+        })
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault()
         setLoading(true)
@@ -128,6 +156,15 @@ const Register = () => {
         }
         if (imageFile.type !== 'image/png') {
             const msg = "Invalid format. Please upload a PNG file."
+            setError(msg); toast.error(msg)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+            setLoading(false); return
+        }
+
+        setProcessingStatus('Checking image background...')
+        const isTransparent = await checkImageTransparency(imageFile)
+        if (!isTransparent) {
+            const msg = "BACKGROUND DETECTED! You MUST remove the background from your photo before uploading. Use remove.bg or Adobe Express."
             setError(msg); toast.error(msg)
             window.scrollTo({ top: 0, behavior: 'smooth' })
             setLoading(false); return
@@ -221,7 +258,7 @@ const Register = () => {
                         initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4, duration: 0.8 }}
                         className="text-white/50 font-rajdhani tracking-widest uppercase text-sm max-w-md"
                     >
-                        Fill out your player profile. Get verified by the admin. Compete in the auction.
+                        Fill out your player profile. Get verified. Compete in the auction.
                     </motion.p>
                 </div>
             </section>
@@ -335,17 +372,22 @@ const Register = () => {
                             <span className="font-bebas text-5xl text-laser-blue/30 leading-none select-none">02</span>
                             <div>
                                 <h2 className="font-bebas text-2xl tracking-wider text-white mb-1">PLAYER CARD PHOTO</h2>
-                                <p className="text-white/40 font-rajdhani text-sm tracking-widest uppercase">Your official card image • 1 upload</p>
+                                <p className="text-white/40 font-rajdhani text-sm tracking-widest uppercase">Your card image • 1 upload</p>
                             </div>
                         </div>
 
-                        {/* Guidelines */}
-                        <div className="flex items-start gap-4 mb-10 border-l-2 border-laser-blue pl-5">
-                            <div className="font-rajdhani text-sm text-white/70 tracking-wide leading-relaxed space-y-1">
-                                <p className="text-white font-semibold uppercase tracking-widest text-xs mb-2">Photo Guidelines</p>
-                                <p>• <strong>PNG format only</strong> — transparent background required</p>
-                                <p>• Max file size: <strong>2MB</strong></p>
-                                <p>• Use <a href="https://www.adobe.com/express/feature/image/remove-background" target="_blank" rel="noreferrer" className="text-laser-blue hover:underline">Adobe Remove Background</a> to strip the background first</p>
+                        {/* Refined Guidelines */}
+                        <div className="flex items-start gap-4 mb-10 border-l-2 border-laser-blue pl-5 bg-gradient-to-r from-laser-blue/5 to-transparent p-4 rounded-r-lg">
+                            <div className="font-rajdhani text-sm text-white/80 tracking-wide leading-relaxed space-y-2">
+                                <div className="flex items-center gap-2 text-laser-blue mb-1">
+                                    <Info size={16} />
+                                    <p className="font-bebas tracking-widest text-lg leading-none mt-1">BACKGROUND REMOVAL REQUIRED</p>
+                                </div>
+                                <p>Our automated system requires a clean, transparent PNG to generate your player card. Photos with backgrounds will be blocked.</p>
+                                <p className="pt-2 text-white/50 text-xs uppercase tracking-widest">• Max Size: 2MB • Format: PNG</p>
+                                <p className="pt-1 text-xs text-white/70 animate-pulse font-bold tracking-wide">
+                                    Pro Tip: Use <a href="https://www.remove.bg" target="_blank" rel="noreferrer" className="text-[#ff2200] hover:text-white underline decoration-[#ff2200]/50 underline-offset-4 transition-colors">remove.bg</a> or <a href="https://www.adobe.com/express/feature/image/remove-background" target="_blank" rel="noreferrer" className="text-[#ff2200] hover:text-white underline decoration-[#ff2200]/50 underline-offset-4 transition-colors">Adobe Express</a> to clear your background instantly before uploading.
+                                </p>
                             </div>
                         </div>
 
@@ -453,7 +495,7 @@ const Register = () => {
                             <div className="absolute inset-0 bg-laser-blue transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
                         </motion.button>
                         <p className="text-center text-white/30 font-rajdhani text-xs tracking-widest uppercase mt-6">
-                            Your profile will be reviewed by an admin before appearing in the squad list.
+                            Your profile will be reviewed before appearing in the squad list.
                         </p>
                     </motion.div>
 

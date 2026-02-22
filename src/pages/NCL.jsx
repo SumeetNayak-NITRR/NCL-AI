@@ -12,7 +12,7 @@ const NCL = () => {
         <div className="min-h-screen">
             <SEO
                 title="The League"
-                description="NCL Season 2k26 - Explore teams, match highlights, and the official tournament leaderboard."
+                description="NCL Season 2k26 - Explore teams, match highlights, and the tournament leaderboard."
             />
             <Navigation />
 

@@ -19,7 +19,7 @@ const Footer = () => {
                             </span>
                         </div>
                         <p className="text-white/60 text-sm font-rajdhani">
-                            Official Football Club of NIT Raipur. Building champions on and off the field.
+                            Football Club of NIT Raipur. Building champions on and off the field.
                         </p>
                     </div>
 

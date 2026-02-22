@@ -155,7 +155,7 @@ export const exportAuctionPptx = async (players) => {
             valign: 'middle', fontFace: 'Arial Black', align: 'left'
         })
         // "OVERALL" label — right portion
-        slide.addText('OVERALL', {
+        slide.addText('OVR', {
             x: rx + 1.0, y: ry, w: 0.75, h: chipH,
             fontSize: 9, color: MUTED, bold: true,
             valign: 'middle', fontFace: 'Arial', charSpacing: 1, align: 'left'
@@ -169,30 +169,34 @@ export const exportAuctionPptx = async (players) => {
         })
         ry += 0.28
 
-        // Rows helper
-        const addRow = (label, value) => {
+        // Rows helper with height parameters
+        const addRow = (label, value, baseHeight = 0.55) => {
             if (!value || !value.trim()) return
+
             // Left blue accent bar
             slide.addShape(pptx.ShapeType.rect, {
-                x: rx, y: ry + 0.02, w: 0.05, h: 0.65,
+                x: rx, y: ry + 0.02, w: 0.05, h: baseHeight - 0.05,
                 fill: { color: BLUE }, line: 'none'
             })
+            // Label
             slide.addText(label.toUpperCase(), {
-                x: rx + 0.15, y: ry, w: rw - 0.15, h: 0.24,
+                x: rx + 0.15, y: ry, w: rw - 0.15, h: 0.15,
                 fontSize: 8, color: MUTED, bold: true,
                 fontFace: 'Arial', charSpacing: 3
             })
+            // Value
             slide.addText(value, {
-                x: rx + 0.15, y: ry + 0.24, w: rw - 0.15, h: 0.4,
-                fontSize: 14, color: OFF_W, fontFace: 'Arial', shrinkText: true
+                x: rx + 0.15, y: ry + 0.15, w: rw - 0.15, h: baseHeight - 0.15,
+                fontSize: 13, color: OFF_W, fontFace: 'Arial', shrinkText: true, valign: 'top'
             })
-            ry += 0.72
+            ry += baseHeight + 0.08
         }
 
-        addRow('Key Achievements', player.key_achievements)
-        addRow('Notable Stats', player.notable_stats)
-        addRow('Player Traits', player.player_traits)
-        addRow('Preferred Foot', player.preferred_foot)
+        // Custom space allocations based on typical text sizes
+        addRow('Key Achievements', player.key_achievements, 1.1)
+        addRow('Notable Stats', player.notable_stats, 0.85)
+        addRow('Player Traits', player.player_traits, 0.5)
+        addRow('Preferred Foot', player.preferred_foot, 0.45)
 
         // Watermark
         slide.addText('NCL  •  NITRR FC  •  2025', {

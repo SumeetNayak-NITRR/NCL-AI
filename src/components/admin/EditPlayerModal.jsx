@@ -434,7 +434,7 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                                                 onChange={handleChange}
                                                 className="w-full bg-black/50 border border-white/10 px-3 py-2 rounded text-white text-sm focus:border-gold/50 outline-none transition-colors font-rajdhani appearance-none"
                                             >
-                                                {['ST', 'CB', 'CM', 'GK', 'CDM', 'Winger', 'Fullback'].map(p => <option key={p} value={p}>{p}</option>)}
+                                                {['ST', 'CF', 'LW', 'RW', 'LM', 'RM', 'CAM', 'CM', 'CDM', 'LB', 'RB', 'CB', 'GK'].map(p => <option key={p} value={p}>{p}</option>)}
                                             </select>
                                         </div>
                                         <div className="space-y-1">

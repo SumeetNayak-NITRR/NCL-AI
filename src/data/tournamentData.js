@@ -138,8 +138,8 @@ export const tournaments = [
 
             {
                 year: '2024',
-                team: '',
-                captain: '',
+                team: 'Meta + BME',
+                captain: 'Rashal Thakur',
                 result: 'Champions',
                 image: 'https://images.unsplash.com/photo-1522778119026-d647f0565c71?auto=format&fit=crop&q=80&w=500',
                 stats: 'Goals: 12 | Conceded: 3'
@@ -147,7 +147,7 @@ export const tournaments = [
 
             {
                 year: '2023',
-                team: '',
+                team: 'ECE + MECH',
                 captain: '',
                 result: 'Champions',
                 image: 'https://images.unsplash.com/photo-1522778119026-d647f0565c71?auto=format&fit=crop&q=80&w=500',
