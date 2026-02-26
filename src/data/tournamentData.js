@@ -33,7 +33,7 @@ export const tournaments = [
                 captain: 'Mayank Keshriya',
                 result: 'Runners Up',
                 location: 'NIT Jamshedpur',
-                image: '/memories/new-beginnings-2024.jpg',
+                image: '/memories/new-beginnings-2024.webp',
                 stats: 'Best Performance in consecutive Years'
             },
             {
@@ -42,7 +42,7 @@ export const tournaments = [
                 captain: 'Harsh Kumar',
                 result: 'Champions',
                 location: 'NIT Rourkela',
-                image: '/memories/champions-2023.jpg',
+                image: '/memories/champions-2023.webp',
                 stats: 'Best Performance in college history'
             }
         ]
@@ -155,7 +155,7 @@ export const tournaments = [
                 captain: 'Pritesh Kharwal',
                 result: 'Winner',
                 location: 'NIT Raipur',
-                image: '/memories/samar-2026.jpeg',
+                image: '/memories/samar-2026.webp',
                 stats: 'A victory at home ground'
             },
             {
@@ -164,7 +164,7 @@ export const tournaments = [
                 captain: 'Harsh Kumar',
                 result: 'Winner',
                 location: 'HNLU',
-                image: '/memories/samar-2026.jpeg',
+                image: '/memories/samar-2026.webp',
                 stats: 'Winner of Coloussus cup organized by HNLU'
             },
         ]

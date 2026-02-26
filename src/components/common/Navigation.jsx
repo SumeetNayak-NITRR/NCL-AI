@@ -32,12 +32,12 @@ const Navigation = () => {
 
                 {/* Logo - Top Left Corner */}
                 <Link to="/" className="group relative z-50 flex items-center gap-3">
-                    {/* Placeholder for actual logo - User to replace with <img src="/logo.png" /> */}
+                    {/* Placeholder for actual logo - User to replace with <img src="/logo.webp" /> */}
                     {/* Circular Logo Frame */}
                     <div className="w-14 h-14 relative flex items-center justify-center rounded-full border border-white/20 bg-black/40 backdrop-blur-sm overflow-hidden shadow-[0_0_15px_rgba(0,34,255,0.3)] group-hover:border-laser-blue/50 transition-all duration-300">
                         <div className="absolute inset-0 bg-laser-blue opacity-10 group-hover:opacity-20 transition-opacity"></div>
                         <img
-                            src="/logo.png"
+                            src="/logo.webp"
                             alt="NITRR FC"
                             className="w-full h-full object-contain p-1 transform group-hover:scale-110 transition-transform duration-500"
                             onError={(e) => {

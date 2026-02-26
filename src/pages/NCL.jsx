@@ -5,6 +5,7 @@ import Features from '../components/landing/Features'
 import Highlights from '../components/landing/Highlights'
 import ParticleBackground from '../components/landing/ParticleBackground'
 import TournamentLeaderboard from '../components/ncl/TournamentLeaderboard'
+import HypeTicker from '../components/ncl/HypeTicker'
 import SEO from '../components/common/SEO'
 
 const NCL = () => {
@@ -28,6 +29,8 @@ const NCL = () => {
                     </h1>
                 </div>
             </section>
+
+            <HypeTicker />
 
             <CaptainsShowcase />
             <Features />

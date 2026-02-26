@@ -8,6 +8,7 @@ import Footer from '../components/common/Footer'
 import Memories from '../components/landing/Memories'
 import ParticleBackground from '../components/landing/ParticleBackground'
 import StadiumAerial from '../components/landing/StadiumAerial'
+import StadiumZoom from '../components/landing/StadiumZoom'
 import SEO from '../components/common/SEO'
 
 const Landing = () => {
@@ -114,10 +115,16 @@ const Landing = () => {
                     <span className="text-[10px] font-rajdhani uppercase tracking-[0.2em] text-white/50">Scroll</span>
                 </motion.div>
 
-                {/* Stadium Aerial Scroll Animation - Cinematic Showcase */}
+
+
+
+                {/* Stadium aerial scroll-zoom — cinematic reveal */}
+                <StadiumZoom />
+
+                {/* THE JOURNEY photo strip */}
                 <StadiumAerial />
 
-                {/* Memories Timeline */}
+                {/* Memories / Life at NITRR */}
                 <Memories />
 
                 <Footer />

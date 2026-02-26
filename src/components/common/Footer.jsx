@@ -12,7 +12,7 @@ const Footer = () => {
                     <div>
                         <div className="flex items-center gap-2 mb-4">
                             <div className="w-12 h-12 bg-black border border-white/20 rounded-full flex items-center justify-center p-1 shadow-[0_0_15px_rgba(0,34,255,0.3)]">
-                                <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+                                <img src="/logo.webp" alt="Logo" className="w-full h-full object-contain" />
                             </div>
                             <span className="text-white font-bebas text-xl uppercase tracking-wider">
                                 NITRR FC
@@ -55,7 +55,7 @@ const Footer = () => {
                             <a href="javascript:void(0)" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Facebook">
                                 <Facebook size={20} />
                             </a>
-                            <a href="mailto:contact@nitrrfc.com" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Email">
+                            <a href="https://mail.google.com/mail/?view=cm&to=sumeet1928@gmail.com" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Email">
                                 <Mail size={20} />
                             </a>
                         </div>

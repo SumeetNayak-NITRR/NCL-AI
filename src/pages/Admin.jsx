@@ -246,7 +246,7 @@ const Admin = () => {
                         </div>
 
                         <Link to="/" className="text-white/30 text-xs hover:text-white mt-8 transition-colors font-rajdhani tracking-widest uppercase flex items-center justify-center gap-2 group">
-                            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> Return to Public Grid
+                            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> Return to Public View
                         </Link>
                     </form>
                 </div>
