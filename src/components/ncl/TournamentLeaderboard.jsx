@@ -65,7 +65,7 @@ const TournamentLeaderboard = () => {
                                 <div className="flex-1 flex items-center gap-3">
                                     <div className="w-10 h-10 bg-black rounded-full overflow-hidden border border-white/10 group-hover:border-white/30 transition-colors">
                                         {player.photo_url ? (
-                                            <img src={player.photo_url} alt={player.name} className="w-full h-full object-cover" />
+                                            <img src={player.photo_url} alt={player.name} className="w-full h-full object-cover" loading="lazy" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-white/10 text-xs">?</div>
                                         )}

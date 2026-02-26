@@ -207,7 +207,7 @@ const Achievements = () => {
                                     {/* Avatar */}
                                     <div className="w-16 h-16 rounded-full overflow-hidden bg-black/20 border border-white/10 shrink-0 relative group-hover:scale-105 transition-transform duration-300">
                                         {alum.photo_url ? (
-                                            <img src={alum.photo_url} alt={alum.name} className="w-full h-full object-cover" />
+                                            <img src={alum.photo_url} alt={alum.name} className="w-full h-full object-cover" loading="lazy" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-white/20 font-bebas text-xl bg-gradient-to-br from-white/5 to-transparent">
                                                 {alum.name.charAt(0)}

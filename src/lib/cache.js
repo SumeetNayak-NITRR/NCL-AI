@@ -13,11 +13,9 @@ export const fetchWithCache = async (key, fetcher, ttlMinutes = 5) => {
     const now = Date.now();
 
     if (cached && (now - cached.timestamp) < (ttlMinutes * 60 * 1000)) {
-        // console.log(`[Cache] Hit for ${key}`);
         return cached.data;
     }
 
-    // console.log(`[Cache] Miss for ${key}. Fetching...`);
     try {
         const data = await fetcher();
         cache.set(key, {

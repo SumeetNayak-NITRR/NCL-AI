@@ -67,4 +67,26 @@
       transform: scale(0.65);
     }
   }
+
+  @keyframes flashReveal {
+    0% {
+      filter: brightness(0) blur(10px);
+      transform: scale(1.1);
+    }
+
+    10% {
+      filter: brightness(2) blur(5px);
+      transform: scale(1.05);
+    }
+
+    50% {
+      filter: brightness(1.5) blur(0px);
+      transform: scale(1);
+    }
+
+    100% {
+      filter: brightness(1.1) blur(0px);
+      transform: scale(1);
+    }
+  }
 }

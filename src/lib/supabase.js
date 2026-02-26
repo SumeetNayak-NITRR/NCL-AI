@@ -10,11 +10,6 @@ const hasValidCredentials =
     supabaseUrl !== 'your_supabase_url' &&
     supabaseAnonKey !== 'your_supabase_anon_key'
 
-if (!hasValidCredentials) {
-    console.warn('⚠️ Supabase credentials not configured. Using dummy client.')
-    console.warn('📝 Update your .env file with real Supabase credentials to enable full functionality.')
-}
-
 // Use dummy values if credentials are missing to prevent app crash
 export const supabase = createClient(
     hasValidCredentials ? supabaseUrl : 'https://placeholder.supabase.co',

@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react'
 import Cropper from 'react-easy-crop'
 import getCroppedImg from '../../lib/utils'
 import { Upload, X, Check } from 'lucide-react'
+import { toast } from 'sonner'
 
 const ImageUpload = ({ onImageSelected, onCropPending }) => {
     const [imageSrc, setImageSrc] = useState(null)
@@ -13,6 +14,19 @@ const ImageUpload = ({ onImageSelected, onCropPending }) => {
     const onFileChange = async (e) => {
         if (e.target.files && e.target.files.length > 0) {
             const file = e.target.files[0]
+
+            if (file.type !== 'image/png') {
+                toast.error("Invalid format! Please upload a PNG file without a background. JPGs are not supported.")
+                e.target.value = ''
+                return
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                toast.error("Original file size too large. Maximum is 10MB.")
+                e.target.value = ''
+                return
+            }
+
             let imageDataUrl = await readFile(file)
             setImageSrc(imageDataUrl)
             setPreviewUrl(null)
@@ -38,7 +52,6 @@ const ImageUpload = ({ onImageSelected, onCropPending }) => {
                 imageSrc,
                 croppedAreaPixels
             )
-            console.log('donee', { croppedImage })
 
             // Create a preview URL
             const url = URL.createObjectURL(croppedImage)
@@ -124,7 +137,7 @@ const ImageUpload = ({ onImageSelected, onCropPending }) => {
             <label className="w-full flex flex-col items-center px-4 py-6 bg-white/5 text-white rounded-lg shadow-lg tracking-wide uppercase border border-white/10 cursor-pointer hover:bg-white/10 hover:border-gold transition-all group">
                 <Upload className="w-8 h-8 text-gold group-hover:scale-110 transition-transform mb-2" />
                 <span className="mt-2 text-base leading-normal font-oswald">Select Photo</span>
-                <input type='file' className="hidden" accept="image/*" onChange={onFileChange} />
+                <input type='file' className="hidden" accept="image/png" onChange={onFileChange} />
             </label>
         </div>
     )

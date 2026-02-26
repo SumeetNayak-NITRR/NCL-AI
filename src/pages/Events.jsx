@@ -156,8 +156,9 @@ const Events = () => {
                                 <img
                                     src={event.image}
                                     alt={event.title}
+                                    className="w-full h-full object-cover filter grayscale brightness-50 contrast-125 transition-all duration-700
+                                             group-hover:grayscale-0 group-hover:brightness-100 group-hover:contrast-100 group-hover:scale-110 group-hover:rotate-1"
                                     loading="lazy"
-                                    className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 ease-out group-hover:scale-110"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
                                 <div className="absolute bottom-0 left-0 p-6 w-full">

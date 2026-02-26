@@ -1,163 +1,175 @@
-import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 
-const CaptainCard = ({ team, index, isActive, onActivate }) => {
+/* ---------------------------------------------------------------
+   CaptainsShowcase — smooth accordion panel for 6 captain cards.
+
+   Performance fixes vs old version:
+   • Removed grayscale() CSS filter from background div (was running
+     a 1-second GPU-composited transition on every hover)
+   • Removed grayscale-[50%] + transition-all on the <img> — was
+     fighting with Framer Motion animate at the same time
+   • Dropped motion.div / motion.img for the card wrapper; the flex
+     accordion uses a plain CSS transition which the browser can
+     handle natively without React re-renders driving it
+   • Image scale handled via simple CSS class swap, not animate prop
+--------------------------------------------------------------- */
+
+const CaptainCard = ({ team, index, isActive, onClick, onMouseEnter, onMouseLeave }) => {
     return (
-        <motion.div
-            className={`relative h-[80vh] md:h-screen cursor-pointer overflow-hidden border-r border-white/10 last:border-r-0 ${isActive ? 'flex-[4] md:flex-[3]' : 'flex-1 hover:flex-[1.5] brightness-75 hover:brightness-100'}`}
-            style={{ transition: 'flex 0.7s cubic-bezier(0.25,0.1,0.25,1), filter 0.3s ease' }}
-            onClick={onActivate}
-            onMouseEnter={onActivate}
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1, duration: 0.5 }}
+        <div
+            className={`relative cursor-pointer overflow-hidden border-r border-white/10 last:border-r-0
+                h-[calc(100%/6)] md:h-full
+                ${isActive ? 'flex-[4] md:flex-[3]' : 'flex-[1]'}`}
+            style={{
+                transition: 'flex 0.55s cubic-bezier(0.25, 0.1, 0.25, 1)',
+            }}
+            onClick={onClick}
+            onMouseEnter={onMouseEnter}
+            onMouseLeave={onMouseLeave}
         >
-            {/* Background Image / Gradient */}
+            {/* ── Colour gradient backdrop (no filter animation) ── */}
             <div
-                className={`absolute inset-0 bg-cover bg-center transition-transform duration-1000 ${isActive ? 'scale-110' : 'scale-100 grayscale'}`}
+                className="absolute inset-0"
                 style={{
-                    backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.9)), ${team.bgPattern}`,
-                    backgroundColor: team.color
+                    backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.85)), ${team.bgPattern}`,
+                    backgroundColor: team.color,
                 }}
             />
 
-            {/* Overlay Gradient for depth */}
-            <div className={`absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-90`} />
-
-            {/* Character/Captain Image Silhouette */}
+            {/* ── Captain photo ── */}
             <div className="absolute inset-x-0 bottom-0 h-4/5 flex items-end justify-center overflow-hidden pointer-events-none">
-                <motion.img
+                <img
                     src={team.image}
                     alt={team.captain}
                     loading="lazy"
-                    className={`h-full w-auto object-cover object-bottom filter drop-shadow-[0_0_20px_rgba(0,0,0,0.5)] ${isActive ? 'saturate-100' : 'saturate-0'}`}
-                    style={{ transition: 'filter 0.7s ease' }}
-                    initial={{ y: 50, opacity: 0, scale: 1 }}
-                    animate={{
-                        y: 0,
-                        opacity: isActive ? 1 : 0.6,
-                        scale: isActive ? 1.05 : 1
-                    }}
-                    transition={{
-                        y: { delay: 0.2 + index * 0.1, duration: 0.5 },
-                        opacity: { delay: 0.2 + index * 0.1, duration: 0.5 },
-                        scale: { duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }
-                    }}
+                    className={`h-full w-auto object-cover object-bottom will-change-transform
+                        ${isActive ? 'opacity-100 scale-105' : 'opacity-50 scale-100'}`}
+                    style={{ transition: 'opacity 0.4s ease, transform 0.55s cubic-bezier(0.25, 0.1, 0.25, 1)' }}
                 />
             </div>
 
-            {/* Element Effects (Particles/Fog) */}
-            <div className="absolute inset-0 pointer-events-none mix-blend-screen opacity-40">
-                <div className="w-full h-full bg-noise opacity-20"></div>
+            {/* ── Bottom gradient vignette ── */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
+
+            {/* ── Inactive: rotated number label ── */}
+            <div
+                className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap pointer-events-none
+                    ${isActive ? 'opacity-0' : 'opacity-100'}`}
+                style={{ transition: 'opacity 0.35s ease' }}
+            >
+                <span className="text-4xl md:text-6xl font-bebas tracking-widest text-white/30 uppercase">
+                    #{index + 1}
+                </span>
             </div>
 
-            {/* Content Container */}
-            <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-8 z-20 pointer-events-none">
-
-                {/* Vertical Text (When Inactive) */}
-                <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap transition-opacity duration-500 ${isActive ? 'opacity-0' : 'opacity-100'}`}>
-                    <span className="text-4xl md:text-6xl font-bebas tracking-widest text-white/40 drop-shadow-md uppercase">
-                        #{index + 1}
-                    </span>
-                </div>
-
-                {/* Main Text Content */}
-                <motion.div
-                    initial={false}
-                    animate={{
-                        opacity: isActive ? 1 : 0,
-                        y: isActive ? 0 : 20,
-                        display: isActive ? 'block' : 'none'
-                    }}
-                    transition={{ duration: 0.5 }}
+            {/* ── Active: name / role text ── */}
+            <div
+                className={`absolute bottom-0 left-0 right-0 p-6 md:p-8 z-20 pointer-events-none
+                    ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                style={{ transition: 'opacity 0.4s ease, transform 0.4s ease' }}
+            >
+                <p className="text-xs md:text-sm font-rajdhani uppercase tracking-[0.3em] text-white/70 mb-1">
+                    {team.role}
+                </p>
+                <h2 className="text-3xl md:text-6xl font-bebas uppercase text-white leading-[0.85] mb-1 drop-shadow-lg">
+                    {team.captain}
+                </h2>
+                <h3
+                    className="text-base md:text-2xl font-rajdhani font-bold uppercase tracking-widest"
+                    style={{ color: team.accentColor }}
                 >
-                    <h3 className="text-xs md:text-sm font-rajdhani uppercase tracking-[0.3em] text-white/80 mb-2">
-                        {team.role}
-                    </h3>
-                    <h2 className="text-3xl md:text-7xl font-bebas uppercase text-white leading-[0.85] mb-2 drop-shadow-lg">
-                        {team.captain}
-                    </h2>
-                    <h1
-                        className="text-xl md:text-3xl font-rajdhani font-bold uppercase tracking-widest mb-6"
-                        style={{ color: team.accentColor }}
-                    >
-                        {team.name}
-                    </h1>
-
-                    {/* Stats Grid */}
-
-                </motion.div>
+                    {team.name}
+                </h3>
             </div>
 
-            {/* Hover Glow */}
-            <div className={`absolute inset-0 border-[0.5px] border-white/0 transition-all duration-300 pointer-events-none ${isActive ? 'border-white/10 bg-white/5' : ''}`} />
-        </motion.div>
+            {/* ── Active: accent border glow ── */}
+            <div
+                className={`absolute inset-0 pointer-events-none border border-white/0
+                    ${isActive ? 'border-white/10' : ''}`}
+                style={{ transition: 'border-color 0.3s ease' }}
+            />
+        </div>
     )
 }
 
 const CaptainsShowcase = () => {
     const [activeIndex, setActiveIndex] = useState(0)
+    const hoverTimeoutRef = useRef(null)
+
+    const handleMouseEnter = (index) => {
+        clearTimeout(hoverTimeoutRef.current)
+        hoverTimeoutRef.current = setTimeout(() => setActiveIndex(index), 120)
+    }
+
+    const handleMouseLeave = () => {
+        clearTimeout(hoverTimeoutRef.current)
+    }
+
+    const handleClick = (index) => {
+        clearTimeout(hoverTimeoutRef.current)
+        setActiveIndex(index)
+    }
 
     const teams = [
         {
             id: 1,
-            name: "ODIA PEOPLES",
+            name: "TEAM NAME",
             captain: "SANJIV BHOI",
             role: "Captain",
             color: "#4a0404",
             accentColor: "#f87171",
             bgPattern: "radial-gradient(circle at 50% 50%, #7f1d1d, #450a0a)",
-            image: "https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&q=80&w=600"
+            image: "assests/captain/sanjiv.jpg"
         },
         {
             id: 2,
-            name: "DHOLU GANG",
+            name: "TEAM NAME",
             captain: "AYUSH SINGH",
             role: "Captain",
             color: "#0c4a6e",
             accentColor: "#38bdf8",
             bgPattern: "radial-gradient(circle at 50% 50%, #0369a1, #0c4a6e)",
-            image: "https://images.unsplash.com/photo-1592194996308-7b43878e84a6?auto=format&fit=crop&q=80&w=600"
+            image: "assests/captain/ayush.jpg"
         },
         {
             id: 3,
-            name: "TEAM TRACTOR",
+            name: "TEAM NAME",
             captain: "PIYUSH GUPTA",
             role: "Captain",
             color: "#422006",
             accentColor: "#facc15",
             bgPattern: "radial-gradient(circle at 50% 50%, #ca8a04, #422006)",
-            image: "https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&q=80&w=600"
+            image: "assests/captain/piyush.jpg"
         },
         {
             id: 4,
-            name: "...",
+            name: "TEAM NAME",
             captain: "ABHYUDAYA",
             role: "Captain",
             color: "#052e16",
             accentColor: "#4ade80",
             bgPattern: "radial-gradient(circle at 50% 50%, #15803d, #052e16)",
-            image: "https://images.unsplash.com/photo-1592194996308-7b43878e84a6?auto=format&fit=crop&q=80&w=600"
+            image: "assests/captain/abhyudaya.jpg"
         },
         {
             id: 5,
-            name: "PECHKASH GANG",
+            name: "TEAM NAME",
             captain: "Siddharth JHA",
             role: "Captain",
             color: "#2e1065",
             accentColor: "#a78bfa",
             bgPattern: "radial-gradient(circle at 50% 50%, #6b21a8, #2e1065)",
-            image: "https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&q=80&w=600"
+            image: "assests/captain/jha.jpg"
         },
         {
             id: 6,
-            name: "KHAU GANG",
+            name: "TEAM NAME",
             captain: "JUGAL MEHTA",
             role: "Captain",
             color: "#164e63",
             accentColor: "#22d3ee",
             bgPattern: "radial-gradient(circle at 50% 50%, #0891b2, #164e63)",
-            image: "https://images.unsplash.com/photo-1592194996308-7b43878e84a6?auto=format&fit=crop&q=80&w=600"
+            image: "assests/captain/jugal.jpg"
         }
     ]
 
@@ -170,7 +182,9 @@ const CaptainsShowcase = () => {
                         index={index}
                         team={team}
                         isActive={activeIndex === index}
-                        onActivate={() => setActiveIndex(index)}
+                        onClick={() => handleClick(index)}
+                        onMouseEnter={() => handleMouseEnter(index)}
+                        onMouseLeave={handleMouseLeave}
                     />
                 ))}
             </div>
@@ -179,19 +193,3 @@ const CaptainsShowcase = () => {
 }
 
 export default CaptainsShowcase
-
-/*<div className="grid grid-cols-3 gap-4 border-t border-white/10 pt-4 max-w-md">
-                        <div>
-                            <div className="text-xs text-white/50 uppercase tracking-wider">PWR</div>
-                            <div className="text-xl font-bebas text-white">96</div>
-                        </div>
-                        <div>
-                            <div className="text-xs text-white/50 uppercase tracking-wider">IQ</div>
-                            <div className="text-xl font-bebas text-white">88</div>
-                        </div>
-                        <div>
-                            <div className="text-xs text-white/50 uppercase tracking-wider">EXP</div>
-                            <div className="text-xl font-bebas text-white">LVL.5</div>
-                        </div>
-                    </div>
-*/

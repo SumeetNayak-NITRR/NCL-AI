@@ -386,7 +386,7 @@ const Register = () => {
                                 <p>Our automated system requires a clean, transparent PNG to generate your player card. Photos with backgrounds will be blocked.</p>
                                 <p className="pt-2 text-white/50 text-xs uppercase tracking-widest">• Max Size: 2MB • Format: PNG</p>
                                 <p className="pt-1 text-xs text-white/70 animate-pulse font-bold tracking-wide">
-                                    Pro Tip: Use <a href="https://www.remove.bg" target="_blank" rel="noreferrer" className="text-[#ff2200] hover:text-white underline decoration-[#ff2200]/50 underline-offset-4 transition-colors">remove.bg</a> or <a href="https://www.adobe.com/express/feature/image/remove-background" target="_blank" rel="noreferrer" className="text-[#ff2200] hover:text-white underline decoration-[#ff2200]/50 underline-offset-4 transition-colors">Adobe Express</a> to clear your background instantly before uploading.
+                                    Pro Tip: Use <a href="https://www.remove.bg" target="_blank" rel="noopener noreferrer" className="text-[#ff2200] hover:text-white underline decoration-[#ff2200]/50 underline-offset-4 transition-colors">remove.bg</a> or <a href="https://www.adobe.com/express/feature/image/remove-background" target="_blank" rel="noopener noreferrer" className="text-[#ff2200] hover:text-white underline decoration-[#ff2200]/50 underline-offset-4 transition-colors">Adobe Express</a> to clear your background instantly before uploading.
                                 </p>
                             </div>
                         </div>

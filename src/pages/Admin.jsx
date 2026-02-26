@@ -22,12 +22,13 @@ const Admin = () => {
     const [loading, setLoading] = useState(false)
     const [filter, setFilter] = useState('All')
     const [search, setSearch] = useState('')
+    const [auctionSearch, setAuctionSearch] = useState('')
     const [selectedPlayer, setSelectedPlayer] = useState(null)
     const [selectedCardPlayer, setSelectedCardPlayer] = useState(null)
     const [authError, setAuthError] = useState(null)
     const [matches, setMatches] = useState([])
     const [selectedMatch, setSelectedMatch] = useState(null)
-    const [activeTab, setActiveTab] = useState('players') // 'players' or 'matches'
+    const [activeTab, setActiveTab] = useState('players') // 'players', 'matches', or 'auction'
     const [exporting, setExporting] = useState(false)
 
     useEffect(() => {
@@ -136,7 +137,7 @@ const Admin = () => {
     }
 
     const handleExportPptx = async () => {
-        const approvedPlayers = players.filter(p => p.status === 'Ready' || p.status === 'approved' || p.status === 'Approved')
+        const approvedPlayers = players.filter(p => ['Ready', 'approved', 'Approved'].includes(p.status))
         if (!approvedPlayers.length) {
             toast.error('No approved players to export.')
             return
@@ -156,6 +157,17 @@ const Admin = () => {
     const handleManualRefresh = () => {
         fetchPlayers(true)
         fetchMatches(true)
+    }
+
+    const updateAuctionStatus = async (playerId, updates) => {
+        try {
+            const { error } = await supabase.from('players').update(updates).eq('id', playerId)
+            if (error) throw error
+            toast.success('Auction updated!')
+            fetchPlayers(true) // Refresh state
+        } catch (err) {
+            toast.error('Failed: ' + err.message)
+        }
     }
 
     const filteredPlayers = players.filter(p => {
@@ -229,7 +241,7 @@ const Admin = () => {
                                 className="w-full relative overflow-hidden bg-gradient-to-r from-gold via-yellow-300 to-gold text-black font-oswald font-bold uppercase text-xl py-4 rounded-xl shadow-[0_0_20px_rgba(255,215,0,0.3)] hover:shadow-[0_0_40px_rgba(255,215,0,0.6)] transition-all disabled:opacity-50 disabled:cursor-not-allowed group"
                             >
                                 <div className="absolute inset-0 w-full h-full bg-white/20 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity" />
-                                {loading ? <LoadingSpinner size="sm" color="black" /> : 'Initialize Override'}
+                                {loading ? <LoadingSpinner size="sm" color="black" /> : 'Welcome Back Admin'}
                             </button>
                         </div>
 
@@ -326,6 +338,13 @@ const Admin = () => {
                         Matches
                         {activeTab === 'matches' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 w-full h-1 bg-laser-blue rounded-t-full shadow-[0_0_10px_rgba(0,255,255,0.8)]" />}
                     </button>
+                    <button
+                        onClick={() => setActiveTab('auction')}
+                        className={`pb-3 px-4 font-oswald uppercase tracking-wider transition-colors relative font-bold text-lg ${activeTab === 'auction' ? 'text-neon' : 'text-white/60 hover:text-white'}`}
+                    >
+                        Live Auction
+                        {activeTab === 'auction' && <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 w-full h-1 bg-neon rounded-t-full shadow-[0_0_10px_rgba(57,255,20,0.8)]" />}
+                    </button>
                 </div>
 
                 {/* Content Area */}
@@ -386,7 +405,7 @@ const Admin = () => {
                                                     <td className="p-4 pl-6 flex items-center gap-4">
                                                         <div className="w-12 h-12 bg-black rounded-lg overflow-hidden border border-white/10 relative group-hover:border-white/30 transition-colors shadow-inner">
                                                             {player.photo_url ? (
-                                                                <img src={player.photo_url} alt={player.name} className="w-full h-full object-cover" />
+                                                                <img src={player.photo_url} alt={player.name} className="w-full h-full object-cover" loading="lazy" />
                                                             ) : (
                                                                 <div className="w-full h-full flex items-center justify-center text-white/10 text-xl font-bebas">?</div>
                                                             )}
@@ -441,7 +460,7 @@ const Admin = () => {
                             </div>
                         </div>
                     </>
-                ) : (
+                ) : activeTab === 'matches' ? (
                     /* Matches Table */
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {matches.length === 0 ? (
@@ -499,7 +518,85 @@ const Admin = () => {
                             ))
                         )}
                     </div>
-                )}
+                ) : activeTab === 'auction' ? (
+                    /* Auction Tab Area */
+                    <div className="flex flex-col gap-6 h-full min-h-[70vh]">
+                        {/* Queue Management & PPTX Export */}
+                        <div className="w-full bg-black/40 border border-white/10 rounded-2xl p-6 flex flex-col h-full max-h-[80vh]">
+                            <div className="flex justify-between items-end mb-4 gap-4 flex-wrap">
+                                <div>
+                                    <h2 className="font-bebas text-3xl text-white mb-2">Auction Queue Setup</h2>
+                                    <p className="font-rajdhani text-sm text-white/50">Assign order and mystery flags. Unordered players will appear at the end.</p>
+                                </div>
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            toast.info("Generating Presentation...");
+                                            const { exportAuctionPptx } = await import('../lib/exportAuctionPptx');
+                                            await exportAuctionPptx(players);
+                                            toast.success("Presentation ready!");
+                                        } catch (e) {
+                                            console.error(e);
+                                            toast.error("Export failed.");
+                                        }
+                                    }}
+                                    className="px-6 py-3 bg-gradient-to-r from-laser-blue/80 to-purple-500/80 hover:from-laser-blue hover:to-purple-500 text-white font-oswald uppercase tracking-widest text-sm rounded transition-all shadow-lg flex items-center gap-2"
+                                >
+                                    <Download size={18} />
+                                    Generate PPTX Deck
+                                </button>
+                            </div>
+
+                            <input
+                                type="text"
+                                placeholder="Search Approved Players..."
+                                value={auctionSearch}
+                                onChange={e => setAuctionSearch(e.target.value)}
+                                className="w-full max-w-md bg-black/50 border border-white/20 rounded p-3 text-sm mb-4 font-rajdhani focus:border-neon outline-none"
+                            />
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 overflow-y-auto pr-2 custom-scrollbar">
+                                {players.filter(p => ['Ready', 'approved', 'Approved'].includes(p.status) && p.name.toLowerCase().includes(auctionSearch.toLowerCase()))
+                                    .sort((a, b) => {
+                                        const orderA = a.auction_order;
+                                        const orderB = b.auction_order;
+                                        if (orderA === null || orderA === undefined || orderA === 0) return 1; // Send zeroes/nulls to back
+                                        if (orderB === null || orderB === undefined || orderB === 0) return -1;
+                                        return orderA - orderB;
+                                    })
+                                    .map(p => (
+                                        <div key={p.id} className={`p-4 rounded-xl border flex gap-4 items-center transition-all ${p.is_mystery ? 'border-[#ff2200]/50 bg-gradient-to-r from-[#ff2200]/10 to-transparent' : 'border-white/10 bg-white/5 hover:border-white/30'}`}>
+                                            <div className="w-16 h-16 bg-black rounded overflow-hidden flex-shrink-0 border-2 border-white/5">
+                                                {p.photo_url ? <img src={p.photo_url} alt={p.name} className={`w-full h-full object-cover ${p.is_mystery ? 'brightness-50 grayscale' : ''}`} loading="lazy" /> : <div className="text-white/20 text-center pt-4 font-bebas text-2xl">?</div>}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="font-bebas text-white truncate text-2xl tracking-wide">{p.name}</div>
+                                                <div className="text-sm font-rajdhani tracking-widest text-laser-blue uppercase">{p.position} • ₹{p.base_price || 2000}</div>
+                                            </div>
+                                            <div className="flex flex-col gap-2 items-end">
+                                                <div className="bg-black/40 px-2 py-1 rounded border border-white/10 flex items-center gap-2">
+                                                    <span className="text-[10px] text-white/40 tracking-widest font-rajdhani uppercase">Order</span>
+                                                    <input
+                                                        type="number"
+                                                        defaultValue={p.auction_order || ''}
+                                                        placeholder="—"
+                                                        onBlur={(e) => updateAuctionStatus(p.id, { auction_order: parseInt(e.target.value) || null })}
+                                                        className="w-10 bg-transparent border-b border-white/30 text-center text-sm font-mono text-neon outline-none focus:border-neon"
+                                                    />
+                                                </div>
+                                                <button
+                                                    onClick={() => updateAuctionStatus(p.id, { is_mystery: !p.is_mystery })}
+                                                    className={`w-full py-1 rounded text-xs uppercase tracking-widest font-bold font-rajdhani transition-colors border ${p.is_mystery ? 'bg-[#ff2200] text-white border-[#ff2200] shadow-[0_0_10px_rgba(255,34,0,0.4)]' : 'bg-transparent text-white/40 border-white/20 hover:text-white hover:border-white/50'}`}
+                                                >
+                                                    Mystery
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                            </div>
+                        </div>
+                    </div>
+                ) : null}
             </div>
 
             {selectedPlayer && (

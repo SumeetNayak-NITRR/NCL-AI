@@ -33,8 +33,9 @@ const TournamentModal = ({ tournament, onClose }) => {
                     <div className="relative h-64 md:h-80 shrink-0">
                         <img
                             src={tournament.image}
-                            alt={tournament.title}
+                            alt={`${tournament.title} Poster`}
                             className="absolute inset-0 w-full h-full object-cover"
+                            loading="lazy"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/60 to-transparent"></div>
 
