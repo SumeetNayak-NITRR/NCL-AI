@@ -97,6 +97,28 @@ const Navigation = () => {
                             className="fixed inset-0 bg-background z-40 md:hidden flex flex-col justify-center items-center"
                         >
                             <div className="bg-noise absolute inset-0 opacity-[0.05]"></div>
+
+                            {/* Logo pinned top-left inside overlay */}
+                            <Link
+                                to="/"
+                                onClick={() => setIsOpen(false)}
+                                className="absolute top-0 left-0 z-10 flex items-center gap-3 px-4 py-6"
+                            >
+                                <div className="w-14 h-14 relative flex items-center justify-center rounded-full border border-white/20 bg-black/40 backdrop-blur-sm overflow-hidden shadow-[0_0_15px_rgba(0,34,255,0.3)]">
+                                    <div className="absolute inset-0 bg-laser-blue opacity-10"></div>
+                                    <img
+                                        src="/logo.webp"
+                                        alt="NITRR FC"
+                                        className="w-full h-full object-contain p-1"
+                                    />
+                                </div>
+                                <div className="flex flex-col leading-none">
+                                    <span className="font-bebas text-2xl text-white tracking-tighter">
+                                        NITRR FC
+                                    </span>
+                                </div>
+                            </Link>
+
                             <div className="flex flex-col gap-8 text-center relative z-10">
                                 {links.map((link) => (
                                     <Link

@@ -124,113 +124,230 @@ const DesktopCard = ({ t, i, isActive, enter, leave, setActive }) => (
     </div>
 )
 
-// ── Mobile card (vertical accordion) ─────────────────────────
-// Perf fixes:
-// • 1 image per card (was 2) — halves GPU texture memory
-// • No willChange:'height' on all 6 — was exhausting mobile VRAM
-// • contain:'paint layout' isolates each card's repaint from siblings
-const MobileCard = ({ t, i, isActive, setActive }) => {
-    const INACTIVE_H = 110
-    const ACTIVE_H = '95vw'
+// ── Mobile carousel (swipe / dot nav) ────────────────────────
+// Perf: only transform:translateX is animated — fully GPU-composited,
+// zero layout cost. No height animation, no willChange on multiple nodes.
+const MobileCarousel = ({ activeIdx, setActiveIdx }) => {
+    const touchX = useRef(null)
+    const autoTimer = useRef(null)
+    const total = teams.length
+
+    const go = (idx) => {
+        const next = (idx + total) % total
+        setActiveIdx(next)
+    }
+
+    // Auto-advance every 4 s
+    const resetAuto = () => {
+        clearInterval(autoTimer.current)
+        autoTimer.current = setInterval(() => setActiveIdx(p => (p + 1) % total), 4000)
+    }
+
+    useEffect(() => {
+        resetAuto()
+        return () => clearInterval(autoTimer.current)
+    }, []) // eslint-disable-line
+
+    const onTouchStart = (e) => { touchX.current = e.touches[0].clientX }
+    const onTouchEnd = (e) => {
+        if (touchX.current === null) return
+        const dx = e.changedTouches[0].clientX - touchX.current
+        touchX.current = null
+        if (Math.abs(dx) < 40) return          // ignore tiny taps
+        resetAuto()
+        go(dx < 0 ? activeIdx + 1 : activeIdx - 1)
+    }
+
+    const t = teams[activeIdx]
 
     return (
-        <div
-            onClick={() => setActive(isActive ? -1 : i)}
+        <section
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
             style={{
                 position: 'relative',
+                width: '100%',
+                height: '100svh',
                 overflow: 'hidden',
-                cursor: 'pointer',
-                backgroundColor: t.color,
-                borderBottom: '1px solid rgba(0,0,0,0.35)',
-                height: isActive ? ACTIVE_H : `${INACTIVE_H}px`,
-                minHeight: isActive ? '300px' : `${INACTIVE_H}px`,
-                transition: 'height 0.4s cubic-bezier(0.4,0,0.2,1)',
-                // REMOVED willChange:'height' — was creating GPU layers for all 6 simultaneously
-                contain: 'paint layout', // isolate repaint to this card only
+                backgroundColor: '#000',
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
             }}
         >
-            {/* ── Single image — serves both inactive strip and active framed view ── */}
-            <img
-                src={t.image}
-                alt={t.captain}
-                loading="eager"
-                decoding="async"
+            {/* Sliding strip — all 6 images side-by-side, only translateX changes */}
+            <div
                 style={{
-                    position: 'absolute',
-                    // Active: inset from edges so team color shows as frame
-                    // Inactive: covers full card — card height clips it to a strip
-                    top: isActive ? '90px' : 0,
-                    left: isActive ? '50px' : 0,
-                    right: isActive ? '50px' : 0,
-                    bottom: 0,
-                    width: isActive ? 'calc(100% - 100px)' : '100%',
-                    height: isActive ? 'calc(100% - 90px)' : '100%',
-                    objectFit: 'cover',
-                    objectPosition: `${t.photoX} ${t.photoY}`,
-                    opacity: isActive ? 0.9 : 0.55,
-                    filter: isActive ? 'none' : 'grayscale(50%)',
-                    // Only transition opacity — position snaps (avoids layout animation cost)
-                    transition: 'opacity 0.35s ease',
+                    display: 'flex',
+                    width: `${total * 100}%`,
+                    height: '100%',
+                    transform: `translateX(-${(activeIdx * 100) / total}%)`,
+                    transition: 'transform 0.42s cubic-bezier(0.4,0,0.2,1)',
+                    willChange: 'transform',  // single composited layer
                 }}
-            />
+            >
+                {teams.map((card) => (
+                    <div
+                        key={card.id}
+                        style={{
+                            width: `${100 / total}%`,
+                            height: '100%',
+                            position: 'relative',
+                            flexShrink: 0,
+                            backgroundColor: card.color,
+                        }}
+                    >
+                        {/* Photo */}
+                        <img
+                            src={card.image}
+                            alt={card.captain}
+                            loading="eager"
+                            decoding="async"
+                            style={{
+                                position: 'absolute', inset: 0,
+                                width: '100%', height: '100%',
+                                objectFit: 'cover',
+                                objectPosition: `${card.photoX} ${card.photoY}`,
+                                opacity: 0.85,
+                            }}
+                        />
 
-            {/* Ghost number (inactive) */}
+                        {/* Bottom gradient */}
+                        <div style={{
+                            position: 'absolute', inset: 0,
+                            background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.1) 50%, transparent 75%)',
+                            pointerEvents: 'none',
+                        }} />
+
+                        {/* Top gradient (subtle) */}
+                        <div style={{
+                            position: 'absolute', inset: 0,
+                            background: 'linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, transparent 30%)',
+                            pointerEvents: 'none',
+                        }} />
+
+                        {/* Accent bar — bottom left */}
+                        <div style={{
+                            position: 'absolute', bottom: 0, left: 0,
+                            width: '4px', height: '55%',
+                            background: `linear-gradient(to top, ${card.accentColor}, transparent)`,
+                        }} />
+
+                        {/* Ghost number — top right */}
+                        <div style={{
+                            position: 'absolute', top: '22px', right: '20px',
+                            fontFamily: 'Bebas Neue, sans-serif',
+                            fontSize: '4rem',
+                            color: 'white',
+                            opacity: 0.12,
+                            lineHeight: 1,
+                            pointerEvents: 'none',
+                        }}>
+                            #{String(card.id).padStart(2, '0')}
+                        </div>
+
+                        {/* Caption */}
+                        <div style={{
+                            position: 'absolute', bottom: 0, left: 0, right: 0,
+                            padding: '0 24px 88px',
+                        }}>
+                            <p style={{
+                                fontFamily: 'Rajdhani, sans-serif',
+                                fontSize: '0.65rem',
+                                letterSpacing: '0.4em',
+                                textTransform: 'uppercase',
+                                color: 'rgba(255,255,255,0.55)',
+                                marginBottom: '6px',
+                            }}>
+                                {card.role}
+                            </p>
+                            <h2 style={{
+                                fontFamily: 'Bebas Neue, sans-serif',
+                                fontSize: 'clamp(3rem, 12vw, 5rem)',
+                                textTransform: 'uppercase',
+                                color: '#fff',
+                                lineHeight: 0.9,
+                                marginBottom: '10px',
+                            }}>
+                                {card.captain}
+                            </h2>
+                            <p style={{
+                                fontFamily: 'Rajdhani, sans-serif',
+                                fontWeight: 700,
+                                fontSize: '0.9rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.25em',
+                                color: card.accentColor,
+                                textShadow: `0 0 16px ${card.accentColor}80`,
+                            }}>
+                                {card.name}
+                            </p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* ── Dot indicators + arrow nav ── */}
             <div style={{
-                position: 'absolute', inset: 0,
+                position: 'absolute', bottom: '32px', left: 0, right: 0,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                opacity: isActive ? 0 : 1,
-                transition: 'opacity 0.25s ease',
-                pointerEvents: 'none',
+                gap: '10px',
+                padding: '0 16px',
             }}>
-                <span style={{
-                    fontFamily: 'Bebas Neue, sans-serif',
-                    fontSize: '2.5rem',
-                    color: 'white',
-                    opacity: 0.45,
-                    textShadow: `0 0 20px ${t.accentColor}`,
-                    lineHeight: 1,
-                }}>
-                    #{String(i + 1)}
-                </span>
+                {/* Prev arrow */}
+                <button
+                    onClick={() => { resetAuto(); go(activeIdx - 1) }}
+                    style={{
+                        background: 'rgba(255,255,255,0.12)',
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        borderRadius: '50%',
+                        width: '32px', height: '32px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', color: '#fff', fontSize: '1rem',
+                        flexShrink: 0,
+                    }}
+                    aria-label="Previous captain"
+                >
+                    ‹
+                </button>
+
+                {/* Dots */}
+                {teams.map((_, di) => (
+                    <button
+                        key={di}
+                        onClick={() => { resetAuto(); setActiveIdx(di) }}
+                        style={{
+                            width: di === activeIdx ? '24px' : '7px',
+                            height: '7px',
+                            borderRadius: '4px',
+                            backgroundColor: di === activeIdx ? t.accentColor : 'rgba(255,255,255,0.3)',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: 0,
+                            transition: 'width 0.3s ease, background-color 0.3s ease',
+                            boxShadow: di === activeIdx ? `0 0 8px ${t.accentColor}80` : 'none',
+                        }}
+                        aria-label={`Go to captain ${di + 1}`}
+                    />
+                ))}
+
+                {/* Next arrow */}
+                <button
+                    onClick={() => { resetAuto(); go(activeIdx + 1) }}
+                    style={{
+                        background: 'rgba(255,255,255,0.12)',
+                        border: '1px solid rgba(255,255,255,0.2)',
+                        borderRadius: '50%',
+                        width: '32px', height: '32px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer', color: '#fff', fontSize: '1rem',
+                        flexShrink: 0,
+                    }}
+                    aria-label="Next captain"
+                >
+                    ›
+                </button>
             </div>
-
-            {/* Bottom gradient — active state only */}
-            <div style={{
-                position: 'absolute', inset: 0,
-                background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 50%)',
-                opacity: isActive ? 1 : 0,
-                transition: 'opacity 0.35s ease',
-                pointerEvents: 'none',
-            }} />
-
-            {/* Left accent bar */}
-            <div style={{
-                position: 'absolute', top: 0, left: 0, bottom: 0, width: '4px',
-                backgroundColor: t.accentColor,
-                opacity: isActive ? 1 : 0.4,
-                transition: 'opacity 0.3s ease',
-            }} />
-
-            {/* Caption — active state */}
-            <div style={{
-                position: 'absolute', bottom: 0, left: '16px', right: '16px',
-                paddingBottom: '18px',
-                opacity: isActive ? 1 : 0,
-                transform: isActive ? 'translateY(0)' : 'translateY(10px)',
-                transition: 'opacity 0.3s ease 0.1s, transform 0.35s ease 0.1s',
-                pointerEvents: 'none',
-            }}>
-                <p style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: '0.65rem', letterSpacing: '0.35em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)', marginBottom: '4px' }}>
-                    {t.role}
-                </p>
-                <h2 style={{ fontFamily: 'Bebas Neue, sans-serif', fontSize: '2.2rem', textTransform: 'uppercase', color: '#fff', lineHeight: 0.95, marginBottom: '6px' }}>
-                    {t.captain}
-                </h2>
-                <p style={{ fontFamily: 'Rajdhani, sans-serif', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.2em', color: t.accentColor, textShadow: `0 0 12px ${t.accentColor}70` }}>
-                    {t.name}
-                </p>
-            </div>
-        </div>
+        </section>
     )
 }
 
@@ -252,13 +369,7 @@ const CaptainsShowcase = () => {
     const leave = () => clearTimeout(timer.current)
 
     if (isMobile) {
-        return (
-            <section style={{ backgroundColor: '#000', overflow: 'hidden' }}>
-                {teams.map((t, i) => (
-                    <MobileCard key={t.id} t={t} i={i} isActive={active === i} setActive={setActive} />
-                ))}
-            </section>
-        )
+        return <MobileCarousel activeIdx={active} setActiveIdx={setActive} />
     }
 
     return (

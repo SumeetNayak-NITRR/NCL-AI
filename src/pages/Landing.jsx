@@ -40,7 +40,7 @@ const Landing = () => {
                         className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden"
                         style={{ scale: bgScale, opacity: bgOpacity }}
                     >
-                        <h1 className="text-[25vw] font-bebas text-white leading-none tracking-tighter mix-blend-screen animate-pulse">
+                        <h1 className="text-[25vw] font-bebas text-white leading-none tracking-tighter mix-blend-screen animate-pulse text-center w-full px-4">
                             NITRR..
                         </h1>
                     </motion.div>
@@ -76,7 +76,7 @@ const Landing = () => {
                                     THE <span className="text-outline-active">LIMITS</span>
                                 </h1>
 
-                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mt-12">
+                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mt-12 pr-6 sm:pr-0">
                                     <Link to="/register" className="group relative px-6 sm:px-8 py-4 bg-off-white text-black font-bold uppercase tracking-widest overflow-hidden text-center w-full sm:w-auto">
                                         <span className="relative z-10 group-hover:text-off-white transition-colors duration-300">Join the NCL_2026</span>
                                         <div className="absolute inset-0 bg-laser-blue transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
