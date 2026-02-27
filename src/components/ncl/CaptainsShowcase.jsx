@@ -125,9 +125,13 @@ const DesktopCard = ({ t, i, isActive, enter, leave, setActive }) => (
 )
 
 // ── Mobile card (vertical accordion) ─────────────────────────
+// Perf fixes:
+// • 1 image per card (was 2) — halves GPU texture memory
+// • No willChange:'height' on all 6 — was exhausting mobile VRAM
+// • contain:'paint layout' isolates each card's repaint from siblings
 const MobileCard = ({ t, i, isActive, setActive }) => {
-    const INACTIVE_H = 110   // px — height of collapsed row
-    const ACTIVE_H = '95vw' // expanded — tall portrait frame
+    const INACTIVE_H = 110
+    const ACTIVE_H = '95vw'
 
     return (
         <div
@@ -140,11 +144,12 @@ const MobileCard = ({ t, i, isActive, setActive }) => {
                 borderBottom: '1px solid rgba(0,0,0,0.35)',
                 height: isActive ? ACTIVE_H : `${INACTIVE_H}px`,
                 minHeight: isActive ? '300px' : `${INACTIVE_H}px`,
-                transition: 'height 0.45s cubic-bezier(0.4,0,0.2,1)',
-                willChange: 'height',
+                transition: 'height 0.4s cubic-bezier(0.4,0,0.2,1)',
+                // REMOVED willChange:'height' — was creating GPU layers for all 6 simultaneously
+                contain: 'paint layout', // isolate repaint to this card only
             }}
         >
-            {/* ── Framed photo (active) — inset so team color shows as border ── */}
+            {/* ── Single image — serves both inactive strip and active framed view ── */}
             <img
                 src={t.image}
                 alt={t.captain}
@@ -152,100 +157,67 @@ const MobileCard = ({ t, i, isActive, setActive }) => {
                 decoding="async"
                 style={{
                     position: 'absolute',
-                    top: '90px',        // team color shows above
-                    left: '50px',       // team color shows on left
-                    right: '50px',      // team color shows on right
+                    // Active: inset from edges so team color shows as frame
+                    // Inactive: covers full card — card height clips it to a strip
+                    top: isActive ? '90px' : 0,
+                    left: isActive ? '50px' : 0,
+                    right: isActive ? '50px' : 0,
                     bottom: 0,
-                    width: 'calc(100% - 100px)',
-                    height: 'calc(100% - 90px)',
+                    width: isActive ? 'calc(100% - 100px)' : '100%',
+                    height: isActive ? 'calc(100% - 90px)' : '100%',
                     objectFit: 'cover',
                     objectPosition: `${t.photoX} ${t.photoY}`,
-                    opacity: isActive ? 0.9 : 0,
-                    transition: 'opacity 0.4s ease',
-                    borderRadius: '2px 2px 0 0',
+                    opacity: isActive ? 0.9 : 0.55,
+                    filter: isActive ? 'none' : 'grayscale(50%)',
+                    // Only transition opacity — position snaps (avoids layout animation cost)
+                    transition: 'opacity 0.35s ease',
                 }}
             />
 
-            {/* ── Inactive: larger centered portrait + big ghost number ── */}
-            <div style={{
-                position: 'absolute',
-                inset: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: isActive ? 0 : 1,
-                transition: 'opacity 0.3s ease',
-                pointerEvents: 'none',
-            }}>
-                {/* Portrait photo */}
-                <div style={{
-                    position: 'relative',
-                    width: '110px',
-                    height: '100%',
-                    overflow: 'hidden',
-                    flexShrink: 0,
-                }}>
-                    <img
-                        src={t.image}
-                        alt=""
-                        loading="eager"
-                        decoding="async"
-                        style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            objectPosition: `${t.photoX} ${t.photoY}`,
-                            filter: 'grayscale(30%)',
-                        }}
-                    />
-                    {/* Team color tint over the inactive photo */}
-                    <div style={{
-                        position: 'absolute', inset: 0,
-                        background: `${t.color}90`,
-                    }} />
-                    {/* Big ghost number centered over photo */}
-                    <div style={{
-                        position: 'absolute', inset: 0,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                        <span style={{
-                            fontFamily: 'Bebas Neue, sans-serif',
-                            fontSize: '2rem',
-                            letterSpacing: '0.05em',
-                            color: 'white',
-                            opacity: 0.5,
-                            textShadow: `0 0 20px ${t.accentColor}`,
-                            lineHeight: 1,
-                        }}>
-                            #{String(i + 1)}
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            {/* Bottom gradient (active state) */}
+            {/* Ghost number (inactive) */}
             <div style={{
                 position: 'absolute', inset: 0,
-                background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 55%)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                opacity: isActive ? 0 : 1,
+                transition: 'opacity 0.25s ease',
+                pointerEvents: 'none',
+            }}>
+                <span style={{
+                    fontFamily: 'Bebas Neue, sans-serif',
+                    fontSize: '2.5rem',
+                    color: 'white',
+                    opacity: 0.45,
+                    textShadow: `0 0 20px ${t.accentColor}`,
+                    lineHeight: 1,
+                }}>
+                    #{String(i + 1)}
+                </span>
+            </div>
+
+            {/* Bottom gradient — active state only */}
+            <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 50%)',
                 opacity: isActive ? 1 : 0,
-                transition: 'opacity 0.4s ease',
+                transition: 'opacity 0.35s ease',
+                pointerEvents: 'none',
             }} />
 
             {/* Left accent bar */}
             <div style={{
                 position: 'absolute', top: 0, left: 0, bottom: 0, width: '4px',
                 backgroundColor: t.accentColor,
-                opacity: isActive ? 1 : 0.5,
-                transition: 'opacity 0.35s ease',
+                opacity: isActive ? 1 : 0.4,
+                transition: 'opacity 0.3s ease',
             }} />
 
-            {/* Bottom caption (active) */}
+            {/* Caption — active state */}
             <div style={{
                 position: 'absolute', bottom: 0, left: '16px', right: '16px',
                 paddingBottom: '18px',
                 opacity: isActive ? 1 : 0,
                 transform: isActive ? 'translateY(0)' : 'translateY(10px)',
-                transition: 'opacity 0.35s ease 0.1s, transform 0.4s ease 0.1s',
+                transition: 'opacity 0.3s ease 0.1s, transform 0.35s ease 0.1s',
                 pointerEvents: 'none',
             }}>
                 <p style={{ fontFamily: 'Rajdhani, sans-serif', fontSize: '0.65rem', letterSpacing: '0.35em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)', marginBottom: '4px' }}>

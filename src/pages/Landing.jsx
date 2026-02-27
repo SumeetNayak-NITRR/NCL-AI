@@ -76,12 +76,12 @@ const Landing = () => {
                                     THE <span className="text-outline-active">LIMITS</span>
                                 </h1>
 
-                                <div className="flex flex-col md:flex-row gap-6 mt-12">
-                                    <Link to="/register" className="group relative px-8 py-4 bg-off-white text-black font-bold uppercase tracking-widest overflow-hidden">
+                                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mt-12">
+                                    <Link to="/register" className="group relative px-6 sm:px-8 py-4 bg-off-white text-black font-bold uppercase tracking-widest overflow-hidden text-center w-full sm:w-auto">
                                         <span className="relative z-10 group-hover:text-off-white transition-colors duration-300">Join the NCL_2026</span>
                                         <div className="absolute inset-0 bg-laser-blue transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
                                     </Link>
-                                    <Link to="/about" className="px-8 py-4 border border-white/20 text-white font-rajdhani uppercase tracking-widest hover:bg-white/5 transition-all">
+                                    <Link to="/about" className="px-6 sm:px-8 py-4 border border-white/20 text-white font-rajdhani uppercase tracking-widest hover:bg-white/5 transition-all text-center w-full sm:w-auto">
                                         Discover More
                                     </Link>
                                 </div>
