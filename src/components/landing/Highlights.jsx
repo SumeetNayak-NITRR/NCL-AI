@@ -47,41 +47,17 @@ const Highlights = () => {
     }, [])
 
     return (
-        <section className="py-32 px-6 bg-gradient-to-b from-void-black to-background relative overflow-hidden">
-            {/* Animated background elements */}
-            <div className="absolute inset-0 opacity-30">
-                {[...Array(20)].map((_, i) => (
-                    <motion.div
-                        key={i}
-                        className="absolute w-1 h-1 bg-laser-blue rounded-full"
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                        }}
-                        animate={{
-                            opacity: [0, 1, 0],
-                            scale: [0, 1.5, 0],
-                        }}
-                        transition={{
-                            duration: 3,
-                            repeat: Infinity,
-                            delay: i * 0.2,
-                        }}
-                    />
-                ))}
+        <section className="py-16 md:py-32 px-6 bg-gradient-to-b from-void-black to-background relative overflow-hidden">
+            {/* Static decorative background — no animated particles */}
+            <div className="absolute inset-0 pointer-events-none">
+                <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-laser-blue/5 blur-[80px]" />
+                <div className="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full bg-laser-blue/5 blur-[80px]" />
             </div>
 
-            {/* Large quote decoration */}
-            <motion.div
-                className="absolute top-20 left-10 opacity-5"
-                animate={{
-                    rotate: [0, 5, 0],
-                    scale: [1, 1.1, 1],
-                }}
-                transition={{ duration: 8, repeat: Infinity }}
-            >
+            {/* Static quote decoration */}
+            <div className="absolute top-20 left-10 opacity-5 pointer-events-none">
                 <Quote size={200} className="text-laser-blue" />
-            </motion.div>
+            </div>
 
             <div className="max-w-5xl mx-auto relative z-10">
                 {/* Section Header */}
@@ -92,13 +68,10 @@ const Highlights = () => {
                     viewport={{ once: true }}
                     transition={{ duration: 0.8 }}
                 >
-                    <motion.h2
-                        className="text-sm font-rajdhani tracking-[0.5em] text-laser-blue uppercase mb-4"
-                        animate={{ opacity: [0.7, 1, 0.7] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                    >
+                    {/* Static label — removed Infinity opacity pulse */}
+                    <h2 className="text-sm font-rajdhani tracking-[0.5em] text-laser-blue uppercase mb-4">
                         Player Voices
-                    </motion.h2>
+                    </h2>
                     <h1 className="text-5xl md:text-8xl font-bebas text-white uppercase tracking-tighter leading-[0.9]">
                         HEAR FROM <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-laser-blue to-white">
@@ -110,30 +83,30 @@ const Highlights = () => {
                 {/* Carousel */}
                 <div className="relative">
                     {/* Main content area */}
-                    <div className="relative min-h-[400px] flex items-center justify-center">
+                    <div className="relative min-h-[300px] md:min-h-[400px] flex items-center justify-center">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={currentIndex}
                                 className="w-full"
-                                initial={{ opacity: 0, x: 100 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -100 }}
-                                transition={{ duration: 0.5 }}
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.4 }}
                             >
-                                <div className="relative p-12 md:p-16 bg-white/5 backdrop-blur-md border border-white/20">
+                                <div className="relative p-6 md:p-16 bg-white/5 border border-white/20">
                                     {/* Quote icon */}
                                     <div className="absolute top-8 left-8 opacity-20">
                                         <Quote size={48} className="text-laser-blue" />
                                     </div>
 
                                     {/* Quote text */}
-                                    <p className="text-2xl md:text-3xl font-inter text-white/90 leading-relaxed mb-8 relative z-10 italic">
+                                    <p className="text-xl md:text-3xl font-inter text-white/90 leading-relaxed mb-6 md:mb-8 relative z-10 italic">
                                         "{highlights[currentIndex].quote}"
                                     </p>
 
                                     {/* Author info */}
                                     <div className="flex items-center gap-4 relative z-10">
-                                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-laser-blue to-laser-blue/50 flex items-center justify-center">
+                                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-laser-blue to-laser-blue/50 flex items-center justify-center flex-shrink-0">
                                             <span className="text-2xl font-bebas text-white">
                                                 {highlights[currentIndex].author.charAt(0)}
                                             </span>
@@ -160,38 +133,33 @@ const Highlights = () => {
 
                     {/* Navigation buttons */}
                     <div className="flex justify-center items-center gap-6 mt-12">
-                        <motion.button
+                        <button
                             onClick={prevSlide}
-                            className="w-14 h-14 rounded-full border-2 border-white/20 hover:border-laser-blue flex items-center justify-center text-white hover:text-laser-blue transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,34,255,0.5)]"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.95 }}
+                            className="w-14 h-14 rounded-full border-2 border-white/20 hover:border-laser-blue flex items-center justify-center text-white hover:text-laser-blue transition-colors duration-300"
                         >
                             <ChevronLeft size={24} />
-                        </motion.button>
+                        </button>
 
                         {/* Dots indicator */}
                         <div className="flex gap-3">
                             {highlights.map((_, index) => (
-                                <motion.button
+                                <button
                                     key={index}
                                     onClick={() => setCurrentIndex(index)}
                                     className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex
                                         ? 'w-12 bg-laser-blue shadow-[0_0_10px_rgba(0,34,255,0.8)]'
                                         : 'w-2 bg-white/30 hover:bg-white/50'
                                         }`}
-                                    whileHover={{ scale: 1.2 }}
                                 />
                             ))}
                         </div>
 
-                        <motion.button
+                        <button
                             onClick={nextSlide}
-                            className="w-14 h-14 rounded-full border-2 border-white/20 hover:border-laser-blue flex items-center justify-center text-white hover:text-laser-blue transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,34,255,0.5)]"
-                            whileHover={{ scale: 1.1 }}
-                            whileTap={{ scale: 0.95 }}
+                            className="w-14 h-14 rounded-full border-2 border-white/20 hover:border-laser-blue flex items-center justify-center text-white hover:text-laser-blue transition-colors duration-300"
                         >
                             <ChevronRight size={24} />
-                        </motion.button>
+                        </button>
                     </div>
                 </div>
             </div>

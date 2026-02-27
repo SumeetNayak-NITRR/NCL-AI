@@ -10,29 +10,17 @@ const FeatureCard = ({ icon: Icon, title, description, index }) => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: index * 0.1 }}
         >
-            {/* Glowing background effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-laser-blue/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"></div>
-
-            <div className="relative p-8 bg-white/5 backdrop-blur-sm border border-white/10 group-hover:border-laser-blue/50 transition-all duration-500 overflow-hidden h-full flex flex-col">
-                {/* Animated corner accent */}
-                <motion.div
-                    className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-laser-blue/30 to-transparent"
-                    initial={{ scale: 0, rotate: 0 }}
-                    whileInView={{ scale: 1, rotate: 45 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: index * 0.1 + 0.3 }}
-                ></motion.div>
+            {/* Static card — no backdrop-blur (mobile GPU killer) */}
+            <div className="relative p-8 bg-white/5 border border-white/10 h-full flex flex-col overflow-hidden">
+                {/* Static corner accent */}
+                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-laser-blue/20 to-transparent rotate-45" />
 
                 {/* Icon */}
-                <motion.div
-                    className="mb-6 relative z-10"
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                >
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-laser-blue to-laser-blue/50 flex items-center justify-center shadow-[0_0_30px_rgba(0,34,255,0.5)]">
+                <div className="mb-6 relative z-10">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-laser-blue to-laser-blue/50 flex items-center justify-center shadow-[0_0_20px_rgba(0,34,255,0.4)]">
                         <Icon className="text-white" size={28} />
                     </div>
-                </motion.div>
+                </div>
 
                 {/* Content */}
                 <h3 className="text-2xl font-bebas text-white uppercase tracking-wider mb-3 relative z-10">
@@ -42,13 +30,8 @@ const FeatureCard = ({ icon: Icon, title, description, index }) => {
                     {description}
                 </p>
 
-                {/* Hover line effect */}
-                <motion.div
-                    className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-laser-blue to-transparent"
-                    initial={{ width: 0 }}
-                    whileHover={{ width: '100%' }}
-                    transition={{ duration: 0.3 }}
-                ></motion.div>
+                {/* Static bottom accent line */}
+                <div className="absolute bottom-0 left-0 w-1/3 h-[2px] bg-gradient-to-r from-laser-blue to-transparent" />
             </div>
         </motion.div>
     )
@@ -90,8 +73,8 @@ const Features = () => {
 
     return (
         <section className="py-32 px-6 bg-gradient-to-b from-void-black via-background to-void-black relative overflow-hidden">
-            {/* Animated background grid */}
-            <div className="absolute inset-0 opacity-10">
+            {/* Static grid background — no animation */}
+            <div className="absolute inset-0 opacity-10 pointer-events-none">
                 <div className="absolute inset-0" style={{
                     backgroundImage: `linear-gradient(rgba(0,34,255,0.1) 1px, transparent 1px),
                                      linear-gradient(90deg, rgba(0,34,255,0.1) 1px, transparent 1px)`,
@@ -99,23 +82,9 @@ const Features = () => {
                 }}></div>
             </div>
 
-            {/* Glowing orbs */}
-            <motion.div
-                className="absolute top-20 left-10 w-96 h-96 rounded-full bg-laser-blue/10 blur-[100px]"
-                animate={{
-                    scale: [1, 1.2, 1],
-                    opacity: [0.3, 0.5, 0.3]
-                }}
-                transition={{ duration: 8, repeat: Infinity }}
-            ></motion.div>
-            <motion.div
-                className="absolute bottom-20 right-10 w-96 h-96 rounded-full bg-laser-blue/10 blur-[100px]"
-                animate={{
-                    scale: [1.2, 1, 1.2],
-                    opacity: [0.5, 0.3, 0.5]
-                }}
-                transition={{ duration: 8, repeat: Infinity }}
-            ></motion.div>
+            {/* Static glow orbs — CSS-only, no JS animation */}
+            <div className="absolute top-20 left-10 w-96 h-96 rounded-full bg-laser-blue/8 blur-[100px] pointer-events-none" />
+            <div className="absolute bottom-20 right-10 w-96 h-96 rounded-full bg-laser-blue/8 blur-[100px] pointer-events-none" />
 
             <div className="max-w-7xl mx-auto relative z-10">
                 {/* Section Header */}
@@ -126,13 +95,10 @@ const Features = () => {
                     viewport={{ once: true }}
                     transition={{ duration: 0.8 }}
                 >
-                    <motion.h2
-                        className="text-sm font-rajdhani tracking-[0.5em] text-laser-blue uppercase mb-4"
-                        animate={{ opacity: [0.7, 1, 0.7] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                    >
+                    {/* Static label — removed Infinity opacity pulse */}
+                    <h2 className="text-sm font-rajdhani tracking-[0.5em] text-laser-blue uppercase mb-4">
                         Why Join NCL
-                    </motion.h2>
+                    </h2>
                     <h1 className="text-5xl md:text-8xl font-bebas text-white uppercase tracking-tighter leading-[0.9]">
                         MORE THAN JUST <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-laser-blue via-white to-laser-blue">
@@ -141,10 +107,14 @@ const Features = () => {
                     </h1>
                 </motion.div>
 
-                {/* Features Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* Features Swipe — 1 full page per card on mobile, Grid on desktop */}
+                <div className="flex overflow-x-auto snap-x snap-mandatory snap-always pb-8 -mx-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 gap-0 md:gap-8 hide-scrollbar">
                     {features.map((feature, index) => (
-                        <FeatureCard key={index} {...feature} index={index} />
+                        <div key={index} className="w-screen px-6 shrink-0 snap-center md:w-auto md:px-0 flex flex-col justify-center">
+                            <div className="min-h-[40vh] md:min-h-0 h-full w-full">
+                                <FeatureCard {...feature} index={index} />
+                            </div>
+                        </div>
                     ))}
                 </div>
 
@@ -154,20 +124,13 @@ const Features = () => {
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.8, delay: 0.6 }}
+                    transition={{ duration: 0.8, delay: 0.3 }}
                 >
                     <a
                         href="/register"
-                        className="group inline-flex items-center gap-4 px-10 py-5 bg-gradient-to-r from-laser-blue to-laser-blue/80 text-white font-bebas text-2xl tracking-wider uppercase relative overflow-hidden shadow-[0_0_40px_rgba(0,34,255,0.5)] hover:shadow-[0_0_60px_rgba(0,34,255,0.8)] transition-all duration-300"
+                        className="inline-flex items-center gap-4 px-10 py-5 bg-gradient-to-r from-laser-blue to-laser-blue/80 text-white font-bebas text-2xl tracking-wider uppercase shadow-[0_0_30px_rgba(0,34,255,0.4)] transition-opacity duration-300 hover:opacity-90"
                     >
-                        <span className="relative z-10">Start Your Journey</span>
-                        <motion.div
-                            className="absolute inset-0 bg-white"
-                            initial={{ x: '-100%' }}
-                            whileHover={{ x: '100%' }}
-                            transition={{ duration: 0.6 }}
-                            style={{ opacity: 0.1 }}
-                        ></motion.div>
+                        Start Your Journey
                     </a>
                 </motion.div>
             </div>

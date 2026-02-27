@@ -27,7 +27,7 @@ const Navigation = () => {
     ]
 
     return (
-        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-4 mix-blend-difference' : 'py-8'}`}>
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-4 bg-gradient-to-b from-black/90 via-black/70 to-transparent backdrop-blur-[2px]' : 'py-8'}`}>
             <div className="max-w-[95vw] mx-auto flex justify-between items-center px-4">
 
                 {/* Logo - Top Left Corner */}
