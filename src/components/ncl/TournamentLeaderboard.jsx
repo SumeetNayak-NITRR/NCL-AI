@@ -48,8 +48,18 @@ const TournamentLeaderboard = () => {
 
             <div className="flex-1 p-0">
                 {loading ? (
-                    <div className="h-40 flex items-center justify-center">
-                        <LoadingSpinner size="sm" color={color} />
+                    <div className="p-4 space-y-4">
+                        {[1, 2, 3].map((i) => (
+                            <div key={i} className="flex items-center gap-3 animate-pulse">
+                                <div className="w-4 h-6 bg-white/5 rounded"></div>
+                                <div className="w-10 h-10 bg-white/10 rounded-full"></div>
+                                <div className="flex-1 space-y-2">
+                                    <div className="h-4 bg-white/10 rounded w-3/4"></div>
+                                    <div className="h-3 bg-white/5 rounded w-1/2"></div>
+                                </div>
+                                <div className="w-8 h-8 bg-white/10 rounded"></div>
+                            </div>
+                        ))}
                     </div>
                 ) : data.length === 0 ? (
                     <div className="h-40 flex items-center justify-center text-white/20 font-rajdhani uppercase tracking-widest text-sm">

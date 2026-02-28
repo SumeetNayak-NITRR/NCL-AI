@@ -8,14 +8,14 @@
     "description": "Official management app for NCL (NITRR Champions League). Track stats, matches, and players.",
     "icons": [
         {
-            "src": "/logo.png",
+            "src": "/logo.webp",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/webp"
         },
         {
-            "src": "/logo.png",
+            "src": "/logo.webp",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/webp"
         }
     ]
 }

@@ -1,18 +1,11 @@
 import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import { supabase } from '../../lib/supabase'
 
 /* ---------------------------------------------------------------
    HypeTicker — a marquee-style hype bar with NCL stats.
-   Pure CSS animation via @keyframes (no JS scroll events).
+   Now fetches live player count and is clickable.
 --------------------------------------------------------------- */
-
-const stats = [
-    { value: '6', label: 'Teams' },
-    { value: '6', label: 'Captains' },
-    { value: '60+', label: 'Players' },
-    { value: '1', label: 'Trophy' },
-    { value: '∞', label: 'Rivalry' },
-    { value: 'NCL', label: 'Season 2K26' },
-]
 
 // Separator between items
 const Dot = () => (
@@ -52,18 +45,51 @@ const TickerItem = ({ stat }) => (
 )
 
 const HypeTicker = () => {
+    const [playerCount, setPlayerCount] = useState('60+')
+
+    useEffect(() => {
+        const fetchCount = async () => {
+            const { count, error } = await supabase
+                .from('players')
+                .select('*', { count: 'exact', head: true })
+
+            if (!error && count !== null) {
+                setPlayerCount(count.toString())
+            }
+        }
+        fetchCount()
+    }, [])
+
+    const stats = [
+        { value: '6', label: 'Teams' },
+        { value: '6', label: 'Captains' },
+        { value: playerCount, label: 'Players' },
+        { value: '1', label: 'Trophy' },
+        { value: '∞', label: 'Rivalry' },
+        { value: 'NCL', label: 'Season 2K26' },
+    ]
+
     // Double the array so the seamless loop works
     const doubled = [...stats, ...stats, ...stats]
 
     return (
-        <div style={{
-            backgroundColor: '#000',
-            borderTop: '1px solid rgba(255,255,255,0.06)',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
-            overflow: 'hidden',
-            padding: '14px 0',
-            position: 'relative',
-        }}>
+        <a
+            href="#leaderboard"
+            className="block group active:scale-[0.98] transition-transform duration-300"
+            style={{
+                backgroundColor: '#000',
+                borderTop: '1px solid rgba(255,255,255,0.06)',
+                borderBottom: '1px solid rgba(255,255,255,0.06)',
+                overflow: 'hidden',
+                padding: '14px 0',
+                position: 'relative',
+                textDecoration: 'none',
+                cursor: 'pointer'
+            }}>
+
+            {/* Hover subtle glow */}
+            <div className="absolute inset-0 bg-laser-blue/0 group-hover:bg-laser-blue/5 transition-colors duration-500 z-0 pointer-events-none" />
+
             {/* Left + right edge fades */}
             <div style={{
                 position: 'absolute', inset: '0 auto 0 0',
@@ -84,6 +110,8 @@ const HypeTicker = () => {
                     display: 'inline-flex',
                     alignItems: 'center',
                     width: 'max-content',
+                    position: 'relative',
+                    zIndex: 1
                 }}
                 animate={{ x: ['0%', '-33.33%'] }}
                 transition={{
@@ -100,7 +128,7 @@ const HypeTicker = () => {
                     </span>
                 ))}
             </motion.div>
-        </div>
+        </a>
     )
 }
 

@@ -49,10 +49,10 @@ const Footer = () => {
                             <a href="https://www.instagram.com/nitraipur_fc?igsh=MTluZTJiaGg1cXNlNQ==" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Instagram">
                                 <Instagram size={20} />
                             </a>
-                            <a href="javascript:void(0)" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Twitter">
+                            <a href="#" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Twitter">
                                 <Twitter size={20} />
                             </a>
-                            <a href="javascript:void(0)" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Facebook">
+                            <a href="#" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Facebook">
                                 <Facebook size={20} />
                             </a>
                             <a href="https://mail.google.com/mail/?view=cm&to=sumeet1928@gmail.com" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Email">

@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabase'
 import SEO from '../components/common/SEO'
 import TournamentModal from '../components/events/TournamentModal'
 import { tournaments } from '../data/tournamentData'
+import UpcomingMatches from '../components/ncl/UpcomingMatches'
 
 const Events = () => {
     const [completedMatches, setCompletedMatches] = useState([])
@@ -136,6 +137,9 @@ const Events = () => {
                     </div>
                 </div>
             </section>
+
+            {/* Upcoming Matches — Full Fixtures Row */}
+            <UpcomingMatches />
 
             <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
 

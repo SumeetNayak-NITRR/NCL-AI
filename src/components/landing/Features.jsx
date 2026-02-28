@@ -108,7 +108,7 @@ const Features = () => {
                 </motion.div>
 
                 {/* Features Swipe — 1 full page per card on mobile, Grid on desktop */}
-                <div className="flex overflow-x-auto snap-x snap-mandatory snap-always pb-8 -mx-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 gap-0 md:gap-8 hide-scrollbar">
+                <div className="flex overflow-x-auto md:overflow-visible snap-x snap-mandatory snap-always pb-8 -mx-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 gap-0 md:gap-8 hide-scrollbar">
                     {features.map((feature, index) => (
                         <div key={index} className="w-screen px-6 shrink-0 snap-center md:w-auto md:px-0 flex flex-col justify-center">
                             <div className="min-h-[40vh] md:min-h-0 h-full w-full">

@@ -16,27 +16,27 @@ const statsLabels = ['Pace', 'Shooting', 'Passing', 'Dribbling', 'Defending', 'P
 
 // SVG Pitch lines pattern for the hero
 const PitchPattern = () => (
-    <svg className="absolute inset-0 w-full h-full opacity-[0.06]" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+    <svg className="absolute inset-0 w-full h-full opacity-[0.06]" viewBox="0 0 100 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
         {/* Centre circle */}
-        <circle cx="50%" cy="50%" r="80" fill="none" stroke="white" strokeWidth="2" />
-        <circle cx="50%" cy="50%" r="4" fill="white" />
+        <circle cx="50" cy="50" r="10" fill="none" stroke="white" strokeWidth="0.5" />
+        <circle cx="50" cy="50" r="0.5" fill="white" />
         {/* Centre line */}
-        <line x1="0" y1="50%" x2="100%" y2="50%" stroke="white" strokeWidth="2" />
+        <line x1="0" y1="50" x2="100" y2="50" stroke="white" strokeWidth="0.5" />
         {/* Outer boundary */}
-        <rect x="5%" y="5%" width="90%" height="90%" fill="none" stroke="white" strokeWidth="2" />
+        <rect x="5" y="5" width="90" height="90" fill="none" stroke="white" strokeWidth="0.5" />
         {/* Left penalty box */}
-        <rect x="5%" y="30%" width="12%" height="40%" fill="none" stroke="white" strokeWidth="1.5" />
+        <rect x="5" y="30" width="12" height="40" fill="none" stroke="white" strokeWidth="0.4" />
         {/* Right penalty box */}
-        <rect x="83%" y="30%" width="12%" height="40%" fill="none" stroke="white" strokeWidth="1.5" />
+        <rect x="83" y="30" width="12" height="40" fill="none" stroke="white" strokeWidth="0.4" />
         {/* Left goal box */}
-        <rect x="5%" y="42%" width="4%" height="16%" fill="none" stroke="white" strokeWidth="1.5" />
+        <rect x="5" y="42" width="4" height="16" fill="none" stroke="white" strokeWidth="0.4" />
         {/* Right goal box */}
-        <rect x="91%" y="42%" width="4%" height="16%" fill="none" stroke="white" strokeWidth="1.5" />
+        <rect x="91" y="42" width="4" height="16" fill="none" stroke="white" strokeWidth="0.4" />
         {/* Corner arcs */}
-        <path d="M 5% 5% A 20 20 0 0 1 6% 8%" fill="none" stroke="white" strokeWidth="1.5" />
-        <path d="M 95% 5% A 20 20 0 0 0 94% 8%" fill="none" stroke="white" strokeWidth="1.5" />
-        <path d="M 5% 95% A 20 20 0 0 0 6% 92%" fill="none" stroke="white" strokeWidth="1.5" />
-        <path d="M 95% 95% A 20 20 0 0 1 94% 92%" fill="none" stroke="white" strokeWidth="1.5" />
+        <path d="M 5 10 A 5 5 0 0 1 10 5" fill="none" stroke="white" strokeWidth="0.4" />
+        <path d="M 90 5 A 5 5 0 0 1 95 10" fill="none" stroke="white" strokeWidth="0.4" />
+        <path d="M 5 90 A 5 5 0 0 0 10 95" fill="none" stroke="white" strokeWidth="0.4" />
+        <path d="M 95 90 A 5 5 0 0 0 90 95" fill="none" stroke="white" strokeWidth="0.4" />
     </svg>
 )
 

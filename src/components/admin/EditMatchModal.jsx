@@ -76,7 +76,7 @@ const EditMatchModal = ({ match, onClose, onUpdate }) => {
         }
     }
 
-    const categories = ['League', 'Friendly', 'Tournament', 'Social']
+    const categories = ['League', 'Group A', 'Group B', 'Semi-Final', 'Final', 'Friendly', 'Tournament']
     const statuses = ['Scheduled', 'Live', 'Completed']
 
     return (

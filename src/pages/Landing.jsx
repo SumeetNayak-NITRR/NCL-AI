@@ -22,7 +22,7 @@ const Landing = () => {
 
     return (
         <ReactLenis root options={{ lerp: 0.1, duration: 1.5, smoothTouch: true }}>
-            <div className="min-h-screen">
+            <div className="min-h-screen relative">
                 <SEO
                     title="Home"
                     description="Welcome to NCL Tournament Manager. The league platform for NIT Raipur."
@@ -77,11 +77,11 @@ const Landing = () => {
                                 </h1>
 
                                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mt-12 pr-6 sm:pr-0">
-                                    <Link to="/register" className="group relative px-6 sm:px-8 py-4 bg-off-white text-black font-bold uppercase tracking-widest overflow-hidden text-center w-full sm:w-auto">
+                                    <Link to="/register" className="group relative px-6 sm:px-8 py-4 bg-off-white text-black font-bold uppercase tracking-widest overflow-hidden text-center w-full sm:w-auto active:scale-95 transform transition-all duration-300">
                                         <span className="relative z-10 group-hover:text-off-white transition-colors duration-300">Join the NCL_2026</span>
                                         <div className="absolute inset-0 bg-laser-blue transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
                                     </Link>
-                                    <Link to="/about" className="px-6 sm:px-8 py-4 border border-white/20 text-white font-rajdhani uppercase tracking-widest hover:bg-white/5 transition-all text-center w-full sm:w-auto">
+                                    <Link to="/about" className="px-6 sm:px-8 py-4 border border-white/20 text-white font-rajdhani uppercase tracking-widest hover:bg-white/5 active:scale-95 transform transition-all text-center w-full sm:w-auto">
                                         Discover More
                                     </Link>
                                 </div>

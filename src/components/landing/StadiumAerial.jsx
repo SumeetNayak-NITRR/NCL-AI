@@ -110,7 +110,7 @@ const ShowcaseCard = ({ img, index }) => {
                 src={img.src}
                 alt={img.label}
                 loading="lazy"
-                className="absolute inset-0 w-full h-full object-cover brightness-75 group-hover:brightness-90 group-hover:scale-105 transition-all duration-700 ease-out"
+                className="absolute inset-0 w-full h-full object-cover brightness-100 group-hover:brightness-[1.15] group-hover:scale-105 transition-all duration-700 ease-out"
             />
 
             {/* Bottom gradient for readability */}
