@@ -6,8 +6,9 @@ import { useState, useRef, useEffect } from 'react'
    Desktop (≥768px): horizontal panels, hover to expand.
    Mobile (<768px):  vertical stack, tap to expand.
 
-   All transitions: pure CSS — zero framer-motion, fully composited.
+   All transitions: Framer Motion.
 --------------------------------------------------------------- */
+import { motion, AnimatePresence } from 'framer-motion'
 
 const teams = [
     {
@@ -73,7 +74,7 @@ const DesktopCard = ({ t, i, isActive, enter, leave, setActive }) => (
         ))}
 
         {/* Photo */}
-        <img src={t.image} alt={t.captain} loading="eager" decoding="async"
+        <img src={t.image} alt={t.captain} decoding="async"
             style={{
                 position: 'absolute', inset: 0, width: '100%', height: '100%',
                 objectFit: 'cover', objectPosition: `${t.photoX} ${t.photoY}`,
@@ -174,117 +175,115 @@ const MobileCarousel = ({ activeIdx, setActiveIdx }) => {
                 WebkitUserSelect: 'none',
             }}
         >
-            {/* Sliding strip — all 6 images side-by-side, only translateX changes */}
-            <div
-                style={{
-                    display: 'flex',
-                    width: `${total * 100}%`,
-                    height: '100%',
-                    transform: `translateX(-${(activeIdx * 100) / total}%)`,
-                    transition: 'transform 0.42s cubic-bezier(0.4,0,0.2,1)',
-                    willChange: 'transform',  // single composited layer
-                }}
-            >
-                {teams.map((card) => (
-                    <div
-                        key={card.id}
-                        style={{
-                            width: `${100 / total}%`,
-                            height: '100%',
-                            position: 'relative',
-                            flexShrink: 0,
-                            backgroundColor: card.color,
-                        }}
-                    >
-                        {/* Photo */}
-                        <img
-                            src={card.image}
-                            alt={card.captain}
-                            loading="eager"
-                            decoding="async"
-                            style={{
-                                position: 'absolute', inset: 0,
-                                width: '100%', height: '100%',
-                                objectFit: 'cover',
-                                objectPosition: `${card.photoX} ${card.photoY}`,
-                                opacity: 0.85,
-                            }}
-                        />
-
-                        {/* Bottom gradient */}
-                        <div style={{
-                            position: 'absolute', inset: 0,
-                            background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.1) 50%, transparent 75%)',
-                            pointerEvents: 'none',
-                        }} />
-
-                        {/* Top gradient (subtle) */}
-                        <div style={{
-                            position: 'absolute', inset: 0,
-                            background: 'linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, transparent 30%)',
-                            pointerEvents: 'none',
-                        }} />
-
-                        {/* Accent bar — bottom left */}
-                        <div style={{
-                            position: 'absolute', bottom: 0, left: 0,
-                            width: '4px', height: '55%',
-                            background: `linear-gradient(to top, ${card.accentColor}, transparent)`,
-                        }} />
-
-                        {/* Ghost number — top right */}
-                        <div style={{
-                            position: 'absolute', top: '22px', right: '20px',
-                            fontFamily: 'Bebas Neue, sans-serif',
-                            fontSize: '4rem',
-                            color: 'white',
-                            opacity: 0.12,
-                            lineHeight: 1,
-                            pointerEvents: 'none',
-                        }}>
-                            #{String(card.id).padStart(2, '0')}
-                        </div>
-
-                        {/* Caption */}
-                        <div style={{
-                            position: 'absolute', bottom: 0, left: 0, right: 0,
-                            padding: '0 24px 88px',
-                        }}>
-                            <p style={{
-                                fontFamily: 'Rajdhani, sans-serif',
-                                fontSize: '0.65rem',
-                                letterSpacing: '0.4em',
-                                textTransform: 'uppercase',
-                                color: 'rgba(255,255,255,0.55)',
-                                marginBottom: '6px',
-                            }}>
-                                {card.role}
-                            </p>
-                            <h2 style={{
-                                fontFamily: 'Bebas Neue, sans-serif',
-                                fontSize: 'clamp(3rem, 12vw, 5rem)',
-                                textTransform: 'uppercase',
-                                color: '#fff',
-                                lineHeight: 0.9,
-                                marginBottom: '10px',
-                            }}>
-                                {card.captain}
-                            </h2>
-                            <p style={{
-                                fontFamily: 'Rajdhani, sans-serif',
-                                fontWeight: 700,
-                                fontSize: '0.9rem',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.25em',
-                                color: card.accentColor,
-                                textShadow: `0 0 16px ${card.accentColor}80`,
-                            }}>
-                                {card.name}
-                            </p>
-                        </div>
-                    </div>
+            {/* 🔴 PRELOAD ALL IMAGES: This guarantees instant slide transitions */}
+            <div style={{ display: 'none' }}>
+                {teams.map(team => (
+                    <img key={team.id} src={team.image} alt="preload logger" loading="eager" decoding="sync" />
                 ))}
             </div>
+
+            {/* Single card view with crossfade transition */}
+            <AnimatePresence mode="wait">
+                <motion.div
+                    key={activeIdx}
+                    initial={{ opacity: 0, scale: 1.05 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                    style={{
+                        position: 'absolute',
+                        inset: 0,
+                        backgroundColor: t.color,
+                    }}
+                >
+                    {/* Photo */}
+                    <img
+                        src={t.image}
+                        alt={t.captain}
+                        loading="eager"
+                        decoding="sync"
+                        style={{
+                            position: 'absolute', inset: 0,
+                            width: '100%', height: '100%',
+                            objectFit: 'cover',
+                            objectPosition: `${t.photoX} ${t.photoY}`,
+                            opacity: 0.85,
+                        }}
+                    />
+
+                    {/* Bottom gradient */}
+                    <div style={{
+                        position: 'absolute', inset: 0,
+                        background: 'linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.1) 50%, transparent 75%)',
+                        pointerEvents: 'none',
+                    }} />
+
+                    {/* Top gradient (subtle) */}
+                    <div style={{
+                        position: 'absolute', inset: 0,
+                        background: 'linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, transparent 30%)',
+                        pointerEvents: 'none',
+                    }} />
+
+                    {/* Accent bar — bottom left */}
+                    <div style={{
+                        position: 'absolute', bottom: 0, left: 0,
+                        width: '4px', height: '55%',
+                        background: `linear-gradient(to top, ${t.accentColor}, transparent)`,
+                    }} />
+
+                    {/* Ghost number — top right */}
+                    <div style={{
+                        position: 'absolute', top: '22px', right: '20px',
+                        fontFamily: 'Bebas Neue, sans-serif',
+                        fontSize: '4rem',
+                        color: 'white',
+                        opacity: 0.12,
+                        lineHeight: 1,
+                        pointerEvents: 'none',
+                    }}>
+                        #{String(t.id).padStart(2, '0')}
+                    </div>
+
+                    {/* Caption */}
+                    <div style={{
+                        position: 'absolute', bottom: 0, left: 0, right: 0,
+                        padding: '0 24px 88px',
+                    }}>
+                        <p style={{
+                            fontFamily: 'Rajdhani, sans-serif',
+                            fontSize: '0.65rem',
+                            letterSpacing: '0.4em',
+                            textTransform: 'uppercase',
+                            color: 'rgba(255,255,255,0.55)',
+                            marginBottom: '6px',
+                        }}>
+                            {t.role}
+                        </p>
+                        <h2 style={{
+                            fontFamily: 'Bebas Neue, sans-serif',
+                            fontSize: 'clamp(3rem, 12vw, 5rem)',
+                            textTransform: 'uppercase',
+                            color: '#fff',
+                            lineHeight: 0.9,
+                            marginBottom: '10px',
+                        }}>
+                            {t.captain}
+                        </h2>
+                        <p style={{
+                            fontFamily: 'Rajdhani, sans-serif',
+                            fontWeight: 700,
+                            fontSize: '0.9rem',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.25em',
+                            color: t.accentColor,
+                            textShadow: `0 0 16px ${t.accentColor}80`,
+                        }}>
+                            {t.name}
+                        </p>
+                    </div>
+                </motion.div>
+            </AnimatePresence>
 
             {/* ── Dot indicators + arrow nav ── */}
             <div style={{

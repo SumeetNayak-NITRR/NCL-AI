@@ -16,6 +16,18 @@ const Navigation = () => {
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
 
+    // Prevent body scroll when the mobile menu is open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden'
+        } else {
+            document.body.style.overflow = 'unset'
+        }
+        return () => {
+            document.body.style.overflow = 'unset'
+        }
+    }, [isOpen])
+
     const links = [
         { path: '/', label: 'Home' },
         { path: '/ncl', label: 'NCL' },
@@ -27,11 +39,11 @@ const Navigation = () => {
     ]
 
     return (
-        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-4 bg-gradient-to-b from-black/90 via-black/70 to-transparent backdrop-blur-[2px]' : 'py-8'}`}>
+        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrolled ? 'py-4' : 'py-8'} ${scrolled && !isOpen ? 'bg-gradient-to-b from-black/90 via-black/70 to-transparent backdrop-blur-[2px]' : ''}`}>
             <div className="max-w-[95vw] mx-auto flex justify-between items-center px-4">
 
                 {/* Logo - Top Left Corner */}
-                <Link to="/" className="group relative z-50 flex items-center gap-3">
+                <Link to="/" onClick={() => setIsOpen(false)} className="group relative z-50 flex items-center gap-3">
                     {/* Placeholder for actual logo - User to replace with <img src="/logo.webp" /> */}
                     {/* Circular Logo Frame */}
                     <div className="w-14 h-14 relative flex items-center justify-center rounded-full border border-white/20 bg-black/40 backdrop-blur-sm overflow-hidden shadow-[0_0_15px_rgba(0,34,255,0.3)] group-hover:border-laser-blue/50 transition-all duration-300">
@@ -98,26 +110,6 @@ const Navigation = () => {
                         >
                             <div className="bg-noise absolute inset-0 opacity-[0.05]"></div>
 
-                            {/* Logo pinned top-left inside overlay */}
-                            <Link
-                                to="/"
-                                onClick={() => setIsOpen(false)}
-                                className="absolute top-0 left-0 z-10 flex items-center gap-3 px-4 py-6"
-                            >
-                                <div className="w-14 h-14 relative flex items-center justify-center rounded-full border border-white/20 bg-black/40 backdrop-blur-sm overflow-hidden shadow-[0_0_15px_rgba(0,34,255,0.3)]">
-                                    <div className="absolute inset-0 bg-laser-blue opacity-10"></div>
-                                    <img
-                                        src="/logo.webp"
-                                        alt="NITRR FC"
-                                        className="w-full h-full object-contain p-1"
-                                    />
-                                </div>
-                                <div className="flex flex-col leading-none">
-                                    <span className="font-bebas text-2xl text-white tracking-tighter">
-                                        NITRR FC
-                                    </span>
-                                </div>
-                            </Link>
 
                             <div className="flex flex-col gap-8 text-center relative z-10">
                                 {links.map((link) => (
