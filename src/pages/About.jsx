@@ -1,7 +1,9 @@
+import React from 'react'
 import { motion } from 'framer-motion'
 import Navigation from '../components/common/Navigation'
 import Footer from '../components/common/Footer'
 import { Award, Users, Target, Shield, Zap } from 'lucide-react'
+import SEO from '../components/common/SEO'
 
 const About = () => {
     const stats = [
@@ -30,9 +32,13 @@ const About = () => {
     ]
 
     return (
-        <div className="min-h-screen pt-20 px-6">
+        <div className="min-h-screen bg-background text-white pt-20">
+            <SEO
+                title="About"
+                description="Learn about the history, philosophy, and legacy of NITRR FC."
+            />
             <Navigation />
-            <div className="max-w-7xl mx-auto">
+            <div className="max-w-7xl mx-auto px-6">
                 {/* Hero Headline */}
                 <motion.div
                     initial={{ opacity: 0, y: 50 }}

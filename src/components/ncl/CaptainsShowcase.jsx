@@ -27,9 +27,9 @@ const teams = [
         image: '/assests/captain/piyush.webp', photoX: '50%', photoY: '10%',
     },
     {
-        id: 4, name: 'TEAM NAME', captain: 'ABHYUDAYA', role: 'Captain',
+        id: 4, name: 'TEAM NAME', captain: 'ABHYUDAYA Choudhary', role: 'Captain',
         color: '#14532d', accentColor: '#86efac',
-        image: '/assests/captain/abhyudaya.webp', photoX: '50%', photoY: '10%',
+        image: '/assests/captain/abhyudaya2.jpeg', photoX: '50%', photoY: '10%',
     },
     {
         id: 5, name: 'TEAM NAME', captain: 'Siddharth JHA', role: 'Captain',

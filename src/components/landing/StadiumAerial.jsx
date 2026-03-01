@@ -59,7 +59,7 @@ const StadiumAerial = () => {
         >
             {/* ── Section heading ── */}
             <motion.div
-                className="text-center mb-14 px-6"
+                className="text-center mb-14 px-6 flex flex-col items-center"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-60px' }}
@@ -87,6 +87,39 @@ const StadiumAerial = () => {
                     ))}
                 </motion.div>
             </div>
+
+            {/* ── Scroll Indicator Attached at Bottom ── */}
+            <motion.div
+                className="mt-12 flex flex-col items-center gap-2 opacity-60 relative z-30"
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 0.6 }}
+                viewport={{ once: true, margin: '0px' }}
+            >
+                <motion.div
+                    animate={{ y: [0, 8, 0] }}
+                    transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }}
+                    className="flex flex-col items-center gap-2"
+                >
+                    <div className="w-5 h-8 border-2 border-white rounded-full flex justify-center p-1">
+                        <motion.div
+                            className="w-1 h-2 bg-white rounded-full"
+                            animate={{ y: [0, 12, 0] }}
+                            transition={{
+                                duration: 1.5,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                        />
+                    </div>
+                    <span className="text-[10px] md:text-xs font-rajdhani tracking-widest text-white/80 uppercase">
+                        Scroll to explore
+                    </span>
+                </motion.div>
+            </motion.div>
 
             {/* Subtle edge fades */}
             <div className="pointer-events-none absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-void-black to-transparent z-10" />

@@ -93,7 +93,7 @@ const StatCard = ({ value, suffix, label, index }) => {
     )
 }
 
-const LiveStats = () => {
+const TournamentMetrics = () => {
     const stats = [
         { value: 30, suffix: "+", label: "Active Players" },
         { value: 6, suffix: "+", label: "Teams Formed" },
@@ -189,4 +189,4 @@ const LiveStats = () => {
     )
 }
 
-export default LiveStats
+export default TournamentMetrics

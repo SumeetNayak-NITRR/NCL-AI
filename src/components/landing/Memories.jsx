@@ -20,11 +20,11 @@ const collegeMoments = [
     { src: '/memories/samar-2026.webp', label: 'SAMAR 2026', sublabel: 'Sports Fest', size: 'large' },
 
     { src: '/memories/friendly.jpeg', label: 'Friendly Match', sublabel: 'At Bhilai', size: 'small' },
-    { src: '/memories/awardin.webp', label: 'AWArd ceremony', sublabel: 'NIT Jamshedpur', size: 'small' },
+    { src: '/memories/awardin.webp', label: 'Award Ceremony', sublabel: 'NIT Jamshedpur', size: 'small' },
     // Bottom Row: 1 large (2x2), 1 medium (1x2), 2 smalls (1x1 each piled vertically)
     { src: '/memories/runner-up-2022.webp', label: 'All India Inter NIT Runner Up', sublabel: '2025', size: 'large' },
-    { src: '/memories/commondo.jpeg', label: 'THE commandos', sublabel: 'Engine', size: 'medium' },
-    { src: '/memories/og.jpeg', label: 'The OGs', sublabel: 'experienced ones', size: 'medium' },
+    { src: '/memories/commondo.jpeg', label: 'The Commandos', sublabel: 'Engine', size: 'medium' },
+    { src: '/memories/og.jpeg', label: 'The OGs', sublabel: 'Experienced Ones', size: 'medium' },
 ]
 
 
@@ -106,7 +106,7 @@ const CollegeLife = () => (
                     </span>
                 </h2>
                 <p className="text-white/40 font-rajdhani text-sm md:text-base mt-3 max-w-lg leading-relaxed">
-                    Inter-branch battles, Sports fests,Early morning practise sessions —
+                    Inter-branch battles, Sports fests, Early morning practice sessions —
                     the unfiltered moments that define our college football culture.
                 </p>
             </motion.div>

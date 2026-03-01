@@ -3,7 +3,7 @@ import Navigation from '../components/common/Navigation'
 import Footer from '../components/common/Footer'
 import ParticleBackground from '../components/landing/ParticleBackground'
 import GlowCard from '../components/common/GlowCard'
-import LiveStats from '../components/landing/LiveStats'
+import TournamentMetrics from '../components/landing/TournamentMetrics'
 import { Trophy, Star, Medal, Crown, Timer, Activity } from 'lucide-react'
 import SEO from '../components/common/SEO'
 import { tournaments } from '../data/tournamentData'
@@ -113,7 +113,7 @@ const Achievements = () => {
 
             {/* Live Stats Section */}
             <div className="relative z-10 -mt-20 mb-20">
-                <LiveStats />
+                <TournamentMetrics />
             </div>
 
             {/* Timeline Section */}
