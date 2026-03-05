@@ -168,15 +168,6 @@ const Team = () => {
                                 className="relative"
                                 onClick={(e) => e.stopPropagation()}
                             >
-                                {/* Glow Effect */}
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1.2 }}
-                                    exit={{ opacity: 0, scale: 0.8 }}
-                                    transition={{ duration: 0.5 }}
-                                    className="absolute inset-0 blur-[60px] opacity-70 w-full h-full rounded-full"
-                                    style={{ background: getGlowColor(selectedPlayer) }}
-                                ></motion.div>
 
                                 {/* Close Button */}
                                 <button

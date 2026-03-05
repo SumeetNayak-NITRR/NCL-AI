@@ -1,5 +1,6 @@
 export const legends = [
-    {
+
+    /*{
         id: 'legend1',
         name: 'Cristiano Ronaldo',
         year: '2017',
@@ -24,7 +25,7 @@ export const legends = [
         current_work: 'Product Manager at Microsoft',
         contribution: 'Master tactician who revolutionized the midfield game. Known for his calm demeanor under pressure.',
         bio: 'The backbone of NITRR football for 4 years. His vision on the field was unmatched, orchestrating plays that are still studied by current teams.'
-    },
+    },*/
     // Add more legends here...
     // {
     //     id: 'legend3',

@@ -8,13 +8,13 @@ const Highlights = () => {
     const highlights = [
         {
             quote: "NCL transformed how we approach football. The competitive environment and professional organization pushed us to our limits.",
-            author: "CRISTIANO RONDO",
+            author: "CRISTIANO RONALDO",
             role: "Team Captain, CHAKKU GANG",
             year: "2024 Champions"
         },
         {
-            quote: "The auction system is brilliant. Building a team from scratch and watching them gel together is an unforgettable experience.",
-            author: "LIONEL MAUSI",
+            quote: "The auction system is brilliant. Building a team from scratch and watching them play together is an unforgettable experience.",
+            author: "LIONEL MESSI",
             role: "Team Captain, BiharCelona",
             year: "2025 Finalists"
         },
@@ -24,12 +24,12 @@ const Highlights = () => {
             role: "Midfielder, BiharCelona",
             year: "Top Scorer 2024"
         },
-        {
+        /*{
             quote: "Show your ground marking skills and take the NCL treat and become part of Khau Gang🤤",
             author: "Sumeet",
             role: "Fullback, Super_Subs",
             year: "Eternity"
-        }
+        }*/
     ]
 
     const nextSlide = () => {
