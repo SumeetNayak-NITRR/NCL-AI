@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Trophy, Users, Zap, Target, Award, TrendingUp } from 'lucide-react'
 
@@ -47,12 +48,12 @@ const Features = () => {
         {
             icon: Users,
             title: "Team Building",
-            description: "Draft,manage,and develop your squad.Build chemistry and tactics that lead to championship glory."
+            description: "Draft, manage, and develop your squad. Build chemistry and tactics that lead to championship glory."
         },
         {
             icon: Zap,
             title: "Live Auctions",
-            description: "Experience the thrill of real-time player auctions.Strategic bidding meets competitive team building."
+            description: "Experience the thrill of real-time player auctions. Strategic bidding meets competitive team building."
         },
         {
             icon: Target,
@@ -62,7 +63,7 @@ const Features = () => {
         {
             icon: Award,
             title: "Recognition",
-            description: "Showcase your skills,earn recognition and build your legacy in the NCL."
+            description: "Showcase your skills, earn recognition and build your legacy in the NCL."
         },
         {
             icon: TrendingUp,
@@ -126,12 +127,12 @@ const Features = () => {
                     viewport={{ once: true }}
                     transition={{ duration: 0.8, delay: 0.3 }}
                 >
-                    <a
-                        href="/register"
-                        className="inline-flex items-center gap-4 px-10 py-5 bg-gradient-to-r from-laser-blue to-laser-blue/80 text-white font-bebas text-2xl tracking-wider uppercase shadow-[0_0_30px_rgba(0,34,255,0.4)] transition-opacity duration-300 hover:opacity-90"
+                    <Link
+                        to="/register"
+                        className="inline-flex items-center gap-4 px-10 py-5 bg-gradient-to-r from-laser-blue to-laser-blue/80 text-white font-bebas text-2xl tracking-wider uppercase shadow-[0_0_30px_rgba(0,34,255,0.4)] transition-opacity duration-300 hover:opacity-90 touch-manipulation"
                     >
                         Start Your Journey
-                    </a>
+                    </Link>
                 </motion.div>
             </div>
         </section>

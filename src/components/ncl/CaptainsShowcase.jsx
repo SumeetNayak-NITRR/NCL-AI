@@ -303,6 +303,7 @@ const MobileCarousel = ({ activeIdx, setActiveIdx }) => {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         cursor: 'pointer', color: '#fff', fontSize: '1rem',
                         flexShrink: 0,
+                        touchAction: 'manipulation',
                     }}
                     aria-label="Previous captain"
                 >
@@ -324,6 +325,7 @@ const MobileCarousel = ({ activeIdx, setActiveIdx }) => {
                             padding: 0,
                             transition: 'width 0.3s ease, background-color 0.3s ease',
                             boxShadow: di === activeIdx ? `0 0 8px ${t.accentColor}80` : 'none',
+                            touchAction: 'manipulation',
                         }}
                         aria-label={`Go to captain ${di + 1}`}
                     />
@@ -340,6 +342,7 @@ const MobileCarousel = ({ activeIdx, setActiveIdx }) => {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         cursor: 'pointer', color: '#fff', fontSize: '1rem',
                         flexShrink: 0,
+                        touchAction: 'manipulation',
                     }}
                     aria-label="Next captain"
                 >

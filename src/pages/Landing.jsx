@@ -81,9 +81,18 @@ const Landing = () => {
                                         <span className="relative z-10 group-hover:text-off-white transition-colors duration-300">Join the NCL_2026</span>
                                         <div className="absolute inset-0 bg-laser-blue transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
                                     </Link>
-                                    <Link to="/about" className="px-6 sm:px-8 py-4 border border-white/20 text-white font-rajdhani uppercase tracking-widest hover:bg-white/5 active:scale-95 transform transition-all text-center w-full sm:w-auto">
+                                    <button
+                                        onClick={() => document.getElementById('explore-section')?.scrollIntoView({ behavior: 'smooth' })}
+                                        className="group flex items-center justify-center gap-2 px-6 sm:px-8 py-4 border border-white/20 text-white font-rajdhani uppercase tracking-widest hover:bg-white/5 active:scale-95 transform transition-all text-center w-full sm:w-auto touch-manipulation"
+                                    >
                                         Discover More
-                                    </Link>
+                                        <motion.span
+                                            animate={{ y: [0, 4, 0] }}
+                                            transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+                                        >
+                                            <ChevronDown size={16} className="text-laser-blue" />
+                                        </motion.span>
+                                    </button>
                                 </div>
                             </motion.div>
                         </div>
@@ -91,35 +100,16 @@ const Landing = () => {
                     </motion.div>
                 </section>
 
-                {/* Mouse Scroll Indicator */}
-                <motion.div
-                    className="absolute bottom-10 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 z-20"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1, duration: 1 }}
-                >
-                    <div className="w-[30px] h-[50px] rounded-full border-2 border-white/30 flex justify-center p-2 box-border">
-                        <motion.div
-                            className="w-1 h-2 bg-white rounded-full mb-1"
-                            animate={{
-                                y: [0, 15, 0],
-                                opacity: [1, 0, 0]
-                            }}
-                            transition={{
-                                duration: 1.5,
-                                repeat: Infinity,
-                                ease: "easeInOut"
-                            }}
-                        />
-                    </div>
-                    <span className="text-[10px] font-rajdhani uppercase tracking-[0.2em] text-white/50">Scroll</span>
-                </motion.div>
+
+
 
 
 
 
                 {/* Stadium aerial scroll-zoom — cinematic reveal */}
-                <StadiumZoom />
+                <div id="explore-section">
+                    <StadiumZoom />
+                </div>
 
                 {/* THE JOURNEY photo strip */}
                 <StadiumAerial />

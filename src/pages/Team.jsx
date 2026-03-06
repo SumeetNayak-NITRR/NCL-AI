@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import Navigation from '../components/common/Navigation'
@@ -14,6 +14,15 @@ const Team = () => {
     const [loading, setLoading] = useState(true)
     const [filter, setFilter] = useState('Main Squad')
     const [selectedPlayer, setSelectedPlayer] = useState(null)
+
+    // Dynamically scale the 400px card to always fit the screen with 16px padding on each side
+    const getCardScale = useCallback(() => Math.min(1, (window.innerWidth - 32) / 400), [])
+    const [cardScale, setCardScale] = useState(getCardScale)
+    useEffect(() => {
+        const onResize = () => setCardScale(getCardScale())
+        window.addEventListener('resize', onResize)
+        return () => window.removeEventListener('resize', onResize)
+    }, [getCardScale])
 
     const positions = ['Alumni', 'Main Squad', 'All', 'ST', 'CF', 'LW', 'RW', 'LM', 'RM', 'CAM', 'CM', 'CDM', 'LB', 'RB', 'CB', 'GK']
 
@@ -142,7 +151,6 @@ const Team = () => {
                                     transition={{ delay: index * 0.1, duration: 0.8 }}
                                     onClick={() => setSelectedPlayer(player)}
                                     className="cursor-pointer hover:scale-105 transition-transform duration-300"
-                                    layoutId={`card-${player.id}`}
                                 >
                                     <AbstractPlayerCard player={player} showStats={false} showRating={true} />
                                 </motion.div>
@@ -163,25 +171,34 @@ const Team = () => {
                             onClick={() => setSelectedPlayer(null)}
                             className="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] flex items-center justify-center p-4"
                         >
-                            <motion.div
-                                layoutId={`card-${selectedPlayer.id}`}
-                                className="relative"
+                            {/* Outer wrapper sized to the visually-scaled card so flex centering works */}
+                            <div
+                                style={{
+                                    width: `${400 * cardScale}px`,
+                                    height: `${600 * cardScale}px`,
+                                    position: 'relative',
+                                }}
                                 onClick={(e) => e.stopPropagation()}
                             >
-
                                 {/* Close Button */}
                                 <button
                                     onClick={() => setSelectedPlayer(null)}
-                                    className="absolute -top-12 right-0 md:-right-12 text-white/50 hover:text-white transition-colors p-2 z-[70]"
+                                    className="absolute -top-12 right-0 text-white/50 hover:text-white transition-colors p-2 z-[70] touch-manipulation"
                                 >
                                     <X size={32} />
                                 </button>
 
-                                {/* High-Fidelity Card */}
-                                <div className="relative z-[65] scale-90 md:scale-100 origin-center">
+                                {/* Card scaled from top-left to match wrapper dimensions */}
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: cardScale }}
+                                    exit={{ opacity: 0, scale: 0.8 }}
+                                    transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+                                    style={{ transformOrigin: 'top left', position: 'absolute', top: 0, left: 0 }}
+                                >
                                     <PlayerCardBase player={selectedPlayer} animated={true} />
-                                </div>
-                            </motion.div>
+                                </motion.div>
+                            </div>
                         </motion.div>
                     </>
                 )}
