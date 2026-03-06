@@ -67,7 +67,7 @@ const Features = () => {
         {
             icon: TrendingUp,
             title: "Growth Platform",
-            description: "Connect with seniors and batchmates and opportunities to take your football career to the next level."
+            description: "Connect with seniors and batchmates which gives opportunities to take your football career to the next level."
         }
     ]
 
