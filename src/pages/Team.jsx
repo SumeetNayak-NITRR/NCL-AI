@@ -15,12 +15,18 @@ const Team = () => {
     const [filter, setFilter] = useState('Main Squad')
     const [selectedPlayer, setSelectedPlayer] = useState(null)
 
-    // Dynamically scale the 400px card to always fit the screen with 16px padding on each side
-    const getCardScale = useCallback(() => Math.min(1, (window.innerWidth - 32) / 400), [])
+    // Dynamically scale the 400x600 card to always fit the screen with padding on each side
+    const getCardScale = useCallback(() => {
+        const widthScale = (window.innerWidth - 32) / 400
+        const heightScale = (window.innerHeight - 80) / 600 // Leave room for close button
+        return Math.min(1, widthScale, heightScale)
+    }, [])
     const [cardScale, setCardScale] = useState(getCardScale)
     useEffect(() => {
         const onResize = () => setCardScale(getCardScale())
         window.addEventListener('resize', onResize)
+        // Initial setup
+        setCardScale(getCardScale())
         return () => window.removeEventListener('resize', onResize)
     }, [getCardScale])
 
@@ -171,16 +177,20 @@ const Team = () => {
                             onClick={() => setSelectedPlayer(null)}
                             className="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] flex items-center justify-center p-4"
                         >
-                            {/* Outer wrapper sized to the visually-scaled card so flex centering works */}
-                            <div
+                            {/* Container sized EXACTLY to the scaled card so flexbox centers it vertically and horizontally */}
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+                                className="relative flex items-center justify-center"
                                 style={{
                                     width: `${400 * cardScale}px`,
-                                    height: `${600 * cardScale}px`,
-                                    position: 'relative',
+                                    height: `${600 * cardScale}px`
                                 }}
                                 onClick={(e) => e.stopPropagation()}
                             >
-                                {/* Close Button */}
+                                {/* Close Button - positioned relative to the container */}
                                 <button
                                     onClick={() => setSelectedPlayer(null)}
                                     className="absolute -top-12 right-0 text-white/50 hover:text-white transition-colors p-2 z-[70] touch-manipulation"
@@ -188,17 +198,17 @@ const Team = () => {
                                     <X size={32} />
                                 </button>
 
-                                {/* Card scaled from top-left to match wrapper dimensions */}
-                                <motion.div
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: cardScale }}
-                                    exit={{ opacity: 0, scale: 0.8 }}
-                                    transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-                                    style={{ transformOrigin: 'top left', position: 'absolute', top: 0, left: 0 }}
+                                {/* The card itself, scaled purely via CSS from the center */}
+                                <div
+                                    className="absolute inset-0 flex items-center justify-center"
+                                    style={{
+                                        transform: `scale(${cardScale})`,
+                                        transformOrigin: 'center center'
+                                    }}
                                 >
                                     <PlayerCardBase player={selectedPlayer} animated={true} />
-                                </motion.div>
-                            </div>
+                                </div>
+                            </motion.div>
                         </motion.div>
                     </>
                 )}
