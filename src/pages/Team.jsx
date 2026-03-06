@@ -89,7 +89,7 @@ const Team = () => {
     }
 
     return (
-        <div className="min-h-screen relative">
+        <div className="min-h-screen relative overflow-x-hidden">
             <SEO
                 title="Roster"
                 description="Meet the elite players of NITRR FC. View the main squad, alumni, and player stats."
