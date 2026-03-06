@@ -86,7 +86,7 @@ const AbstractPlayerCard = ({ player, showStats = true, showRating = true }) => 
                     <img
                         src={player.photo_url}
                         alt={player.name}
-                        className="h-[95%] w-auto object-contain drop-shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all duration-700 filter grayscale contrast-125 brightness-90 group-hover:grayscale-0 group-hover:contrast-100 group-hover:brightness-100 group-hover:scale-110"
+                        className="w-[95%] h-[95%] object-contain object-bottom drop-shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all duration-700 filter grayscale contrast-125 brightness-90 group-hover:grayscale-0 group-hover:contrast-100 group-hover:brightness-100 group-hover:scale-110"
                         style={{
                             transform: `scale(${player.image_scale || 1}) translate(${player.image_x || 0}px, ${player.image_y || 0}px)`,
                             transformOrigin: 'bottom center'
