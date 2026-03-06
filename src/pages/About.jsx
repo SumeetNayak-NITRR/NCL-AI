@@ -47,7 +47,7 @@ const About = () => {
                     className="mb-24 pt-12 md:pt-24 border-b border-white/5 pb-12 relative"
                 >
                     <h1 className="text-[12vw] leading-none font-bebas text-white opacity-5 select-none absolute top-0 left-0 -z-10 pointer-events-none">
-                        AGENCY
+                        NITRR
                     </h1>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
                         <div>

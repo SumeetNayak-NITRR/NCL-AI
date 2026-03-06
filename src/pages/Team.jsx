@@ -73,6 +73,9 @@ const Team = () => {
         }
     }
 
+    // Detect if we are on a mobile device to disable heavy animations
+    const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
+
     return (
         <div className="min-h-screen relative">
             <SEO
@@ -85,7 +88,7 @@ const Team = () => {
             <section className="pt-32 pb-20 px-6">
                 <div className="max-w-7xl mx-auto">
                     <motion.div
-                        initial={{ opacity: 0, y: 50 }}
+                        initial={{ opacity: 0, y: isMobile ? 0 : 50 }}
                         animate={{ opacity: 1, y: 0 }}
                         className="relative border-l border-white/10 pl-8 md:pl-16 py-8"
                     >
@@ -136,10 +139,10 @@ const Team = () => {
                             {filteredPlayers.map((player, index) => (
                                 <motion.div
                                     key={player.id}
-                                    initial={{ opacity: 0, y: 50 }}
+                                    initial={{ opacity: 0, y: isMobile ? 0 : 50 }}
                                     whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ delay: index * 0.1, duration: 0.8 }}
+                                    viewport={{ once: true, margin: isMobile ? "200px" : "0px" }}
+                                    transition={{ delay: isMobile ? 0 : index * 0.1, duration: isMobile ? 0.3 : 0.8 }}
                                     onClick={() => setSelectedPlayer(player)}
                                     className="cursor-pointer hover:scale-105 transition-transform duration-300 w-full max-w-[320px] sm:max-w-none flex justify-center"
                                     layoutId={`card-${player.id}`}
