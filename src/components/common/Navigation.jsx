@@ -92,7 +92,7 @@ const Navigation = () => {
 
                 {/* Mobile Toggle */}
                 <button
-                    className="md:hidden z-50 text-white mix-blend-difference p-2 touch-manipulation"
+                    className="md:hidden z-50 text-white mix-blend-difference p-2"
                     onClick={() => setIsOpen(!isOpen)}
                 >
                     {isOpen ? <X size={24} /> : <Menu size={24} />}

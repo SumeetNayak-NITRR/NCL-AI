@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import Navigation from '../components/common/Navigation'
@@ -14,21 +14,6 @@ const Team = () => {
     const [loading, setLoading] = useState(true)
     const [filter, setFilter] = useState('Main Squad')
     const [selectedPlayer, setSelectedPlayer] = useState(null)
-
-    // Dynamically scale the 400x600 card to always fit the screen with padding on each side
-    const getCardScale = useCallback(() => {
-        const widthScale = (window.innerWidth - 32) / 400
-        const heightScale = (window.innerHeight - 80) / 600 // Leave room for close button
-        return Math.min(1, widthScale, heightScale)
-    }, [])
-    const [cardScale, setCardScale] = useState(getCardScale)
-    useEffect(() => {
-        const onResize = () => setCardScale(getCardScale())
-        window.addEventListener('resize', onResize)
-        // Initial setup
-        setCardScale(getCardScale())
-        return () => window.removeEventListener('resize', onResize)
-    }, [getCardScale])
 
     const positions = ['Alumni', 'Main Squad', 'All', 'ST', 'CF', 'LW', 'RW', 'LM', 'RM', 'CAM', 'CM', 'CDM', 'LB', 'RB', 'CB', 'GK']
 
@@ -89,7 +74,7 @@ const Team = () => {
     }
 
     return (
-        <div className="min-h-screen relative overflow-x-hidden">
+        <div className="min-h-screen relative">
             <SEO
                 title="Roster"
                 description="Meet the elite players of NITRR FC. View the main squad, alumni, and player stats."
@@ -147,7 +132,7 @@ const Team = () => {
                             <p className="text-4xl font-bebas text-white/50 uppercase">No Players Found</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16">
+                        <div className="flex flex-wrap justify-center sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-x-8 sm:gap-y-16 px-2 sm:px-0">
                             {filteredPlayers.map((player, index) => (
                                 <motion.div
                                     key={player.id}
@@ -156,7 +141,8 @@ const Team = () => {
                                     viewport={{ once: true }}
                                     transition={{ delay: index * 0.1, duration: 0.8 }}
                                     onClick={() => setSelectedPlayer(player)}
-                                    className="cursor-pointer hover:scale-105 transition-transform duration-300"
+                                    className="cursor-pointer hover:scale-105 transition-transform duration-300 w-full max-w-[320px] sm:max-w-none flex justify-center"
+                                    layoutId={`card-${player.id}`}
                                 >
                                     <AbstractPlayerCard player={player} showStats={false} showRating={true} />
                                 </motion.div>
@@ -177,35 +163,22 @@ const Team = () => {
                             onClick={() => setSelectedPlayer(null)}
                             className="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] flex items-center justify-center p-4"
                         >
-                            {/* Container sized EXACTLY to the scaled card so flexbox centers it vertically and horizontally */}
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.9 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.9 }}
-                                transition={{ type: 'spring', stiffness: 320, damping: 30 }}
-                                className="relative flex items-center justify-center"
-                                style={{
-                                    width: `${400 * cardScale}px`,
-                                    height: `${600 * cardScale}px`
-                                }}
+                                layoutId={`card-${selectedPlayer.id}`}
+                                className="relative"
                                 onClick={(e) => e.stopPropagation()}
                             >
-                                {/* Close Button - positioned relative to the container */}
+
+                                {/* Close Button */}
                                 <button
                                     onClick={() => setSelectedPlayer(null)}
-                                    className="absolute -top-12 right-0 text-white/50 hover:text-white transition-colors p-2 z-[70] touch-manipulation"
+                                    className="absolute -top-12 right-0 md:-right-12 text-white/50 hover:text-white transition-colors p-2 z-[70]"
                                 >
                                     <X size={32} />
                                 </button>
 
-                                {/* The card itself, scaled purely via CSS from the center */}
-                                <div
-                                    className="absolute inset-0 flex items-center justify-center"
-                                    style={{
-                                        transform: `scale(${cardScale})`,
-                                        transformOrigin: 'center center'
-                                    }}
-                                >
+                                {/* High-Fidelity Card */}
+                                <div className="relative z-[65] scale-90 md:scale-100 origin-center">
                                     <PlayerCardBase player={selectedPlayer} animated={true} />
                                 </div>
                             </motion.div>

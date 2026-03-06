@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Instagram, Mail, MessageCircle, Youtube } from 'lucide-react'
+import { Instagram, Twitter, Facebook, Mail } from 'lucide-react'
 
 const Footer = () => {
     const currentYear = new Date().getFullYear()
@@ -49,6 +49,12 @@ const Footer = () => {
                             <a href="https://www.instagram.com/nitraipur_fc?igsh=MTluZTJiaGg1cXNlNQ==" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Instagram">
                                 <Instagram size={20} />
                             </a>
+                            <a href="#" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Twitter">
+                                <Twitter size={20} />
+                            </a>
+                            <a href="#" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Facebook">
+                                <Facebook size={20} />
+                            </a>
                             <a href="https://mail.google.com/mail/?view=cm&to=sumeet1928@gmail.com" target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-electric-blue transition-colors" aria-label="Email">
                                 <Mail size={20} />
                             </a>
@@ -66,7 +72,7 @@ const Footer = () => {
 
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left relative z-10">
                         <p className="text-white/40 text-xs font-rajdhani">
-                            © {currentYear}. All rights reserved.
+                            © {currentYear} . All rights reserved.
                         </p>
 
                         <div className="flex items-center gap-2 text-white/80 text-xs font-rajdhani bg-black/30 px-4 py-2 rounded-full border border-white/5 backdrop-blur-sm hover:border-white/20 transition-all hover:bg-black/50 hover:shadow-[0_0_15px_rgba(0,212,255,0.1)] group cursor-default">
