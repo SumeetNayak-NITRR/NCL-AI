@@ -174,23 +174,33 @@ const Register = () => {
             setProcessingStatus('Compressing image...')
             let compressedFile;
             try {
-                const options = { maxSizeMB: 2, maxWidthOrHeight: 1920, useWebWorker: true, fileType: 'image/png' }
+                // Disabled webworker as it may get killed by browser watchdogs or adblockers causing abort signals
+                const options = { maxSizeMB: 2, maxWidthOrHeight: 1920, useWebWorker: false, fileType: 'image/png' }
                 compressedFile = await imageCompression(imageFile, options)
             } catch (compressionErr) {
-                console.warn('Image compression with web worker failed:', compressionErr);
-                setProcessingStatus('Compressing image (fallback)...');
-                const fallbackOptions = { maxSizeMB: 2, maxWidthOrHeight: 1920, useWebWorker: false, fileType: 'image/png' }
-                try {
-                    compressedFile = await imageCompression(imageFile, fallbackOptions);
-                } catch (fallbackErr) {
-                    throw new Error("Unable to compress image. Please try a different photo or lower resolution.");
-                }
+                console.error('Image compression failed:', compressionErr);
+                throw new Error("Unable to compress image. Please try a different photo or lower resolution.");
             }
 
             setProcessingStatus('Uploading image...')
             const fileName = `${formData.roll_number}_${Date.now()}.png`
-            const { error: uploadError } = await supabase.storage.from('player-photos').upload(fileName, compressedFile)
-            if (uploadError) throw uploadError
+
+            let uploadError = null;
+            try {
+                const { error } = await supabase.storage.from('player-photos').upload(fileName, compressedFile)
+                uploadError = error;
+            } catch (fetchErr) {
+                uploadError = fetchErr;
+            }
+
+            if (uploadError) {
+                console.error("Upload error:", uploadError);
+                let errMsg = uploadError.message || "Network error or timeout.";
+                if (errMsg.includes('signal is aborted') || uploadError.name === 'AbortError') {
+                    errMsg = "Network timeout while uploading. Your connection might be unstable or the file is too large.";
+                }
+                throw new Error(errMsg);
+            }
 
             setProcessingStatus('Saving player data...')
             const { data: { publicUrl } } = supabase.storage.from('player-photos').getPublicUrl(fileName)
@@ -217,10 +227,8 @@ const Register = () => {
             toast.success(successMsg, { duration: 5000 })
 
         } catch (err) {
-            let msg = err.message || "An error occurred during registration."
-            if (msg.includes('signal is aborted') || err.name === 'AbortError') {
-                msg = "Network or processing timeout. Please try again on a more stable connection, or use a smaller image."
-            }
+            console.error("Registration error:", err);
+            const msg = err.message || "An error occurred during registration."
             setError(msg); toast.error(msg)
             window.scrollTo({ top: 0, behavior: 'smooth' })
         } finally {
