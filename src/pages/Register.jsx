@@ -84,8 +84,8 @@ const Register = () => {
         !!imageFile,
         // 03 Stats: all non-default (any stat adjusted away from 50)
         Object.values(formData.stats).some(v => v !== 50),
-        // 04 Auction: at least achievements or traits filled
-        !!(formData.key_achievements || formData.player_traits || formData.preferred_foot),
+        // 04 Auction: achievements, traits, and preferred foot all filled
+        !!(formData.key_achievements && formData.player_traits && formData.preferred_foot),
     ]
     const totalDone = sectionDone.filter(Boolean).length
 
@@ -146,6 +146,18 @@ const Register = () => {
             const msg = "Please upload a photo."
             setError(msg); toast.error(msg)
             window.scrollTo({ top: 0, behavior: 'smooth' })
+            setLoading(false); return
+        }
+        if (!formData.key_achievements.trim()) {
+            const msg = "Please fill in your Key Achievements."
+            setError(msg); toast.error(msg)
+            scrollToSection(3)
+            setLoading(false); return
+        }
+        if (!formData.player_traits.trim()) {
+            const msg = "Please fill in your Player Traits."
+            setError(msg); toast.error(msg)
+            scrollToSection(3)
             setLoading(false); return
         }
         if (imageFile.size > 10 * 1024 * 1024) {
@@ -470,13 +482,13 @@ const Register = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
                             <div>
                                 <label className={labelClass}>Key Achievements</label>
-                                <textarea name="key_achievements" value={formData.key_achievements} onChange={handleChange}
+                                <textarea name="key_achievements" required value={formData.key_achievements} onChange={handleChange}
                                     className={`${inputClass} resize-none border-b min-h-[90px]`}
                                     placeholder="e.g. Golden Boot 2023, Captained CSE" />
                             </div>
                             <div>
                                 <label className={labelClass}>Player Traits</label>
-                                <textarea name="player_traits" value={formData.player_traits} onChange={handleChange}
+                                <textarea name="player_traits" required value={formData.player_traits} onChange={handleChange}
                                     className={`${inputClass} resize-none border-b min-h-[90px]`}
                                     placeholder="e.g. Clinical Finisher, Set-Piece Specialist" />
                             </div>
