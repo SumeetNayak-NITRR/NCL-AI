@@ -172,8 +172,20 @@ const Register = () => {
 
         try {
             setProcessingStatus('Compressing image...')
-            const options = { maxSizeMB: 2, maxWidthOrHeight: 1920, useWebWorker: true, fileType: 'image/png' }
-            const compressedFile = await imageCompression(imageFile, options)
+            let compressedFile;
+            try {
+                const options = { maxSizeMB: 2, maxWidthOrHeight: 1920, useWebWorker: true, fileType: 'image/png' }
+                compressedFile = await imageCompression(imageFile, options)
+            } catch (compressionErr) {
+                console.warn('Image compression with web worker failed:', compressionErr);
+                setProcessingStatus('Compressing image (fallback)...');
+                const fallbackOptions = { maxSizeMB: 2, maxWidthOrHeight: 1920, useWebWorker: false, fileType: 'image/png' }
+                try {
+                    compressedFile = await imageCompression(imageFile, fallbackOptions);
+                } catch (fallbackErr) {
+                    throw new Error("Unable to compress image. Please try a different photo or lower resolution.");
+                }
+            }
 
             setProcessingStatus('Uploading image...')
             const fileName = `${formData.roll_number}_${Date.now()}.png`
@@ -205,7 +217,10 @@ const Register = () => {
             toast.success(successMsg, { duration: 5000 })
 
         } catch (err) {
-            const msg = err.message || "An error occurred during registration."
+            let msg = err.message || "An error occurred during registration."
+            if (msg.includes('signal is aborted') || err.name === 'AbortError') {
+                msg = "Network or processing timeout. Please try again on a more stable connection, or use a smaller image."
+            }
             setError(msg); toast.error(msg)
             window.scrollTo({ top: 0, behavior: 'smooth' })
         } finally {

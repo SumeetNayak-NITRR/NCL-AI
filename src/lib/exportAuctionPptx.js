@@ -58,26 +58,50 @@ export const exportAuctionPptx = async (players) => {
 
     if (!approved.length) { alert('No approved players found to export.'); return }
 
-    // Helper to build a slide (either Real or Mystery Teaser)
-    const buildSlide = async (player, isTeaser) => {
+    // Helper to build an Intro slide (Card only, centered)
+    const buildIntroSlide = (isTeaser, cardData) => {
         const slide = pptx.addSlide()
 
-        // ── Solid dark background ──
-        slide.background = { color: '060810' }
+        // Background image (User will place stadium_bg.jpg in public/assests)
+        slide.background = { path: '/assests/stadium_bg1.png' }
 
-        // Left panel — clean white
+        // ── CENTER: large card ──
+        const cardW = 4.26
+        const cardH = 6.4
+        const cardX = (13.33 - cardW) / 2
+        const cardY = (7.5 - cardH) / 2
+
+        if (isTeaser) {
+            slide.addShape(pptx.ShapeType.rect, {
+                x: cardX, y: cardY, w: cardW, h: cardH,
+                fill: { color: '000000' }, line: { color: 'FF2200', width: 4 }
+            })
+            slide.addText('?', {
+                x: cardX, y: cardY, w: cardW, h: cardH,
+                fontSize: 180, color: 'FF2200', bold: true, align: 'center', valign: 'middle', fontFace: 'Arial Black'
+            })
+        } else if (cardData) {
+            slide.addImage({
+                data: cardData,
+                x: cardX, y: cardY, w: cardW, h: cardH,
+                sizing: { type: 'contain', w: cardW, h: cardH }
+            })
+        }
+    }
+
+    // Helper to build a detailed slide (either Real or Mystery Teaser)
+    const buildSlide = async (player, isTeaser, cardData) => {
+        const slide = pptx.addSlide()
+
+        // Background image (User will place stadium_bg_detailed.jpg in public/assests)
+        slide.background = { path: '/assests/stadium_bg_detailed.jpg' }
+
+        // Left panel — translucent white overlay to ensure the card and text are readable
+        // but still allow the beautiful background to show through slightly.
         slide.addShape(pptx.ShapeType.rect, {
             x: 0, y: 0, w: 5.85, h: '100%',
-            fill: { color: 'FFFFFF' }, line: 'none'
+            fill: { color: 'FFFFFF', transparency: 10 }, line: 'none'
         })
-
-        // Top / bottom blue bars
-        slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: '100%', h: 0.05, fill: { color: BLUE }, line: 'none' })
-        slide.addShape(pptx.ShapeType.rect, { x: 0, y: 7.45, w: '100%', h: 0.05, fill: { color: BLUE }, line: 'none' })
-        // Left accent bar
-        slide.addShape(pptx.ShapeType.rect, { x: 0, y: 0, w: 0.05, h: '100%', fill: { color: BLUE }, line: 'none' })
-        // Vertical divider
-        slide.addShape(pptx.ShapeType.line, { x: 5.85, y: 0.08, w: 0, h: 7.34, line: { color: BORDER, width: 1.5 } })
 
         // ── LEFT: medium card ──
         const cardW = 3.5
@@ -95,16 +119,13 @@ export const exportAuctionPptx = async (players) => {
                 x: cardX, y: cardY, w: cardW, h: cardH,
                 fontSize: 150, color: 'FF2200', bold: true, align: 'center', valign: 'middle', fontFace: 'Arial Black'
             })
-        } else {
+        } else if (cardData) {
             // Real Card
-            try {
-                const cardData = await renderFullCardHighRes(player)
-                slide.addImage({
-                    data: cardData,
-                    x: cardX, y: cardY, w: cardW, h: cardH,
-                    sizing: { type: 'contain', w: cardW, h: cardH }
-                })
-            } catch (e) { console.error('Card render failed:', player.name, e) }
+            slide.addImage({
+                data: cardData,
+                x: cardX, y: cardY, w: cardW, h: cardH,
+                sizing: { type: 'contain', w: cardW, h: cardH }
+            })
         }
 
         // ── BASE PRICE BOX ──
@@ -221,12 +242,24 @@ export const exportAuctionPptx = async (players) => {
     }
 
     for (const player of approved) {
-        if (player.is_mystery) {
-            // 1. Generate Teaser Slide
-            await buildSlide(player, true)
+        let cardData = null;
+        try {
+            cardData = await renderFullCardHighRes(player)
+        } catch (e) {
+            console.error(`Card render failed for ${player.name}:`, e)
         }
-        // 2. Generate Real Slide
-        await buildSlide(player, false)
+
+        if (player.is_mystery) {
+            // 1. Generate Teaser Intro (Silhouette only)
+            buildIntroSlide(true, null)
+            // 2. Generate Teaser Details
+            await buildSlide(player, true, null)
+        }
+
+        // 3. Generate Real Intro (Card only)
+        buildIntroSlide(false, cardData)
+        // 4. Generate Real Details
+        await buildSlide(player, false, cardData)
     }
 
     await pptx.writeFile({ fileName: 'NCL_Auction_2025.pptx' })

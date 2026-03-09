@@ -22,19 +22,19 @@ const teams = [
         image: '/assests/captain/ayush.webp', photoX: '50%', photoY: '10%',
     },
     {
-        id: 3, name: 'TEAM NAME', captain: 'PIYUSH GUPTA', role: 'Captain',
+        id: 3, name: 'HARAMBALL FC', captain: 'PIYUSH GUPTA', role: 'Captain',
         color: '#713f12', accentColor: '#fde047',
         image: '/assests/captain/piyush.webp', photoX: '50%', photoY: '10%',
     },
     {
-        id: 4, name: 'TEAM NAME', captain: 'ABHYUDAYA Choudhary', role: 'Captain',
+        id: 4, name: 'VATERAN STRIKERS', captain: 'ABHYUDAYA Choudhary', role: 'Captain',
         color: '#14532d', accentColor: '#86efac',
         image: '/assests/captain/abhyudaya2.jpeg', photoX: '50%', photoY: '10%',
     },
     {
-        id: 5, name: 'TEAM NAME', captain: 'Siddharth JHA', role: 'Captain',
+        id: 5, name: 'FC BIHARCELONA', captain: 'Siddharth JHA', role: 'Captain',
         color: '#3b0764', accentColor: '#d8b4fe',
-        image: '/assests/captain/jha.webp', photoX: '50%', photoY: '10%',
+        image: '/assests/captain/sid.jpeg', photoX: '50%', photoY: '10%',
     },
     {
         id: 6, name: 'TEAM NAME', captain: 'JUGAL MEHTA', role: 'Captain',

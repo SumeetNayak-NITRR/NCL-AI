@@ -158,7 +158,7 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
         }
     }
 
-    const handleSave = async () => {
+    const savePlayerData = async (statusOverride = null) => {
         setLoading(true)
         try {
             // Construct URL with params for persistence without schema changes
@@ -189,7 +189,7 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
                 branch: formData.branch,
                 year: formData.year,
                 is_main_team: formData.is_main_team,
-                status: formData.status,
+                status: statusOverride || formData.status,
                 photo_url: saveUrl,
                 // Auction Info
                 key_achievements: formData.key_achievements,
@@ -223,34 +223,20 @@ const EditPlayerModal = ({ player, onClose, onUpdate }) => {
 
             onUpdate()
             onClose()
-            toast.success("Player saved successfully")
+            toast.success(statusOverride ? "Player approved successfully" : "Player saved successfully")
         } catch (err) {
             console.error("Error saving:", err)
-            toast.error("Failed to save player. Check console for details.")
+            toast.error(statusOverride ? "Failed to approve player. Check console for details." : "Failed to save player. Check console for details.")
         } finally {
             setLoading(false)
         }
     }
 
-    const handleApprove = async () => {
-        if (!window.confirm("Approve this player for the auction?")) return
-        setLoading(true)
-        try {
-            const { error } = await supabase
-                .from('players')
-                .update({ status: 'Ready' })
-                .eq('id', player.id)
+    const handleSave = () => savePlayerData()
 
-            if (error) throw error
-            onUpdate()
-            onClose()
-            toast.success("Player approved successfully")
-        } catch (err) {
-            console.error("Error approving:", err)
-            toast.error("Failed to approve player")
-        } finally {
-            setLoading(false)
-        }
+    const handleApprove = async () => {
+        if (!window.confirm("Approve this player for the auction and save changes?")) return
+        savePlayerData('Ready')
     }
 
     const handleDelete = async () => {
