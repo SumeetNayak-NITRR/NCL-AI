@@ -67,7 +67,7 @@ export const renderPlayerCardToCanvas = async (player) => {
     const getCardStyle = (year) => {
         const y = String(year)
         if (y.includes('1')) return { bg: '/cards/year1.png', isCustom: true }
-        if (y.includes('2')) return { bg: '/cards/year2.png', isCustom: true }
+        if (y.includes('2')) return { bg: '/cards/year21.png', isCustom: true }
         if (y.includes('3')) return { bg: '/cards/year3.png', isCustom: true }
         if (y.includes('4')) return { bg: '/cards/year4.png', isCustom: true }
         if (y.includes('5')) return { bg: '/cards/year5.png', isCustom: true }
