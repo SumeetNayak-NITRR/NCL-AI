@@ -8,8 +8,7 @@ import { CARD_LAYOUT_DEFAULTS } from '../../config/cardLayout'
  * Uses absolute pixel positioning for everything.
  * NO external scaling or percentage-based positioning allowed internally.
  */
-const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => {
-    if (!player) return null
+const PlayerCardBaseInner = ({ player, showSoldBadge = false, animated = false }) => {
 
     // Fixed Dimensions
     const CARD_WIDTH = 400
@@ -31,7 +30,7 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
             try {
                 const params = new URLSearchParams(player.photo_url.split('?')[1])
                 return params.get('variant') || 'standard'
-            } catch (e) { }
+            } catch { /* ignore */ }
         }
         return 'standard'
     }, [player.card_variant, player.status, player.year, player.photo_url])
@@ -118,7 +117,7 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                 if (params.get('font_color')) {
                     return getHexFromColorName(params.get('font_color'))
                 }
-            } catch (e) { }
+            } catch { /* ignore */ }
         }
 
         // Fallback to variant default
@@ -156,7 +155,7 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                     if (scale === undefined) scale = parseFloat(params.get('scale'));
                     if (x === undefined) x = parseInt(params.get('x'));
                     if (y === undefined) y = parseInt(params.get('y'));
-                } catch (e) { }
+                } catch { /* ignore */ }
             }
         }
 
@@ -201,7 +200,7 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
                 if (p.get('branch_x')) currentLayout.branch_x = parseInt(p.get('branch_x'));
                 if (p.get('branch_y')) currentLayout.branch_y = parseInt(p.get('branch_y'));
                 if (p.get('branch_size')) currentLayout.branch_size = parseInt(p.get('branch_size'));
-            } catch (e) { }
+            } catch { /* ignore */ }
         }
 
         // 2. Override with direct props (Edit Mode source)
@@ -482,6 +481,11 @@ const PlayerCardBase = ({ player, showSoldBadge = false, animated = false }) => 
 
         </div >
     )
+}
+
+const PlayerCardBase = (props) => {
+    if (!props.player) return null
+    return <PlayerCardBaseInner {...props} />
 }
 
 export default PlayerCardBase

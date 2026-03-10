@@ -16,6 +16,7 @@ const MatchResultModal = ({ match, players, onClose, onUpdate }) => {
 
     useEffect(() => {
         fetchEvents()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [match.id])
 
     const fetchEvents = async () => {

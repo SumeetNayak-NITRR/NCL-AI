@@ -12,7 +12,7 @@ const AbstractPlayerCard = ({ player, showStats = true, showRating = true }) => 
             try {
                 const params = new URLSearchParams(player.photo_url.split('?')[1])
                 return params.get('variant') || 'standard'
-            } catch (e) { }
+            } catch { /* ignore */ }
         }
         return 'standard'
     }

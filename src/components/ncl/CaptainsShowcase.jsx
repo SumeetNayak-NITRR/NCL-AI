@@ -17,9 +17,9 @@ const teams = [
         image: '/assests/captain/sanjiv.webp', photoX: '50%', photoY: '10%',
     },
     {
-        id: 2, name: 'TEAM NAME', captain: 'AYUSH SINGH', role: 'Captain',
+        id: 2, name: 'LOS CARNICEROS', captain: 'AYUSH SINGH', role: 'Captain',
         color: '#0c4a6e', accentColor: '#7dd3fc',
-        image: '/assests/captain/ayush.webp', photoX: '50%', photoY: '10%',
+        image: '/assests/captain/ayush.jpeg', photoX: '50%', photoY: '10%',
     },
     {
         id: 3, name: 'HARAMBALL FC', captain: 'PIYUSH GUPTA', role: 'Captain',

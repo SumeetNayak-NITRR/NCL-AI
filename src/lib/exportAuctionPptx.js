@@ -2,36 +2,26 @@ import PptxGenJS from 'pptxgenjs'
 import { renderPlayerCardToCanvas } from '../utils/playerCardRenderer'
 
 /** Upscale card to 2× for quality/size balance */
-const renderFullCardHighRes = (player) =>
-    new Promise(async (resolve, reject) => {
-        try {
-            const SCALE = 2
-            const base64_1x = await renderPlayerCardToCanvas(player)
-            const img = new Image()
-            img.onload = () => {
-                const hiRes = document.createElement('canvas')
-                hiRes.width = 400 * SCALE
-                hiRes.height = 600 * SCALE
-                const ctx = hiRes.getContext('2d')
-                ctx.imageSmoothingEnabled = true
-                ctx.imageSmoothingQuality = 'high'
-                ctx.drawImage(img, 0, 0, hiRes.width, hiRes.height)
-                resolve(hiRes.toDataURL('image/png'))
-            }
-            img.onerror = reject
-            img.src = base64_1x
-        } catch (err) { reject(err) }
+const renderFullCardHighRes = async (player) => {
+    const SCALE = 2
+    const base64_1x = await renderPlayerCardToCanvas(player)
+    return new Promise((resolve, reject) => {
+        const img = new Image()
+        img.onload = () => {
+            const hiRes = document.createElement('canvas')
+            hiRes.width = 400 * SCALE
+            hiRes.height = 600 * SCALE
+            const ctx = hiRes.getContext('2d')
+            ctx.imageSmoothingEnabled = true
+            ctx.imageSmoothingQuality = 'high'
+            ctx.drawImage(img, 0, 0, hiRes.width, hiRes.height)
+            resolve(hiRes.toDataURL('image/png'))
+        }
+        img.onerror = reject
+        img.src = base64_1x
     })
-
-const getOverall = (player) => {
-    if (player.stats && typeof player.stats === 'object') {
-        const vals = Object.values(player.stats).map(Number).filter(v => !isNaN(v))
-        if (vals.length) return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length)
-    }
-    const flat = [player.pace, player.shooting, player.passing, player.dribbling, player.defending, player.physical]
-        .map(Number).filter(v => !isNaN(v))
-    return flat.length ? Math.round(flat.reduce((a, b) => a + b, 0) / flat.length) : 0
 }
+
 
 export const exportAuctionPptx = async (players) => {
     const pptx = new PptxGenJS()

@@ -1,0 +1,56 @@
+
+C:\Users\LEGION\Desktop\EDu\NCL AI\src\components\admin\MatchResultModal.jsx
+  17:5  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+  20:8  warning  React Hook useEffect has a missing dependency: 'fetchEvents'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\LEGION\Desktop\EDu\NCL AI\src\components\landing\Highlights.jsx
+  44:5  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+  48:8  warning  React Hook useEffect has a missing dependency: 'nextSlide'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\LEGION\Desktop\EDu\NCL AI\src\components\landing\ParticleBackground.jsx
+  37:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  35 |         // Increase particles only on larger screens
+  36 |         if (typeof window !== 'undefined' && window.innerWidth > 768) {
+> 37 |             setParticleCount(30)
+     |             ^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  38 |         }
+  39 |     }, [])
+  40 |             react-hooks/set-state-in-effect
+  41:33  error  'useScroll' is not defined                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         no-undef
+  46:16  error  'useTransform' is not defined                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      no-undef
+  47:16  error  'useTransform' is not defined                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      no-undef
+  48:21  error  'useTransform' is not defined                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      no-undef
+  53:9   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+  51 |
+  52 |     useEffect(() => {
+> 53 |         setParticles(Array.from({ length: particleCount }, (_, i) => ({
+     |         ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  54 |             id: i,
+  55 |             delay: Math.random() * 5,
+  56 |             duration: 15 + Math.random() * 10,  react-hooks/set-state-in-effect
+
+C:\Users\LEGION\Desktop\EDu\NCL AI\src\components\ncl\TournamentLeaderboard.jsx
+   87:5   warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+   89:9   warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/set-state-in-effect')
+  130:31  error    'getTopAssists' is not defined                                                                      no-undef
+
+C:\Users\LEGION\Desktop\EDu\NCL AI\src\utils\playerCardRenderer.js
+  9:5  error  Unnecessary try/catch wrapper  no-useless-catch
+
+✖ 14 problems (8 errors, 6 warnings)
+  0 errors and 4 warnings potentially fixable with the `--fix` option.
+

@@ -35,6 +35,7 @@ const ParticleBackground = () => {
     useEffect(() => {
         // Increase particles only on larger screens
         if (typeof window !== 'undefined' && window.innerWidth > 768) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setParticleCount(30)
         }
     }, [])
@@ -48,15 +49,19 @@ const ParticleBackground = () => {
     const y2 = useTransform(scrollYProgress, [0, 1], [0, 500])
     const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 0.5, 0])
 
-    // Generate random particles
-    const particles = Array.from({ length: particleCount }, (_, i) => ({
-        id: i,
-        delay: Math.random() * 5,
-        duration: 15 + Math.random() * 10,
-        x: Math.random() * 100,
-        y: Math.random() * 100,
-        size: 2 + Math.random() * 6,
-    }))
+    const [particles, setParticles] = useState([])
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setParticles(Array.from({ length: particleCount }, (_, i) => ({
+            id: i,
+            delay: Math.random() * 5,
+            duration: 15 + Math.random() * 10,
+            x: Math.random() * 100,
+            y: Math.random() * 100,
+            size: 2 + Math.random() * 6,
+        })))
+    }, [particleCount])
 
     return (
         <div ref={containerRef} className="absolute inset-0 overflow-hidden pointer-events-none">

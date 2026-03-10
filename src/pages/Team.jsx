@@ -52,26 +52,7 @@ const Team = () => {
         return p.position === filter
     })
 
-    // Helper to get glow color based on variant
-    const getGlowColor = (player) => {
-        let variant = 'standard'
-        if (player.card_variant) variant = player.card_variant
-        else if (player.status === 'Alumni' || player.year === 'Alumni') variant = 'standard'
-        else if (player.photo_url && player.photo_url.includes('?')) {
-            try {
-                const params = new URLSearchParams(player.photo_url.split('?')[1])
-                variant = params.get('variant') || 'standard'
-            } catch (e) { }
-        }
 
-        switch (variant) {
-            case 'gold': return 'rgba(255, 215, 0, 0.6)'
-            case 'silver': return 'rgba(192, 192, 192, 0.6)'
-            case 'neon': return 'rgba(57, 255, 20, 0.6)'
-            case 'brown': return 'rgba(84, 70, 43, 0.6)'
-            default: return 'rgba(0, 212, 255, 0.6)'
-        }
-    }
 
     // Detect if we are on a mobile device to disable heavy animations
     const isMobile = typeof window !== 'undefined' ? window.innerWidth < 768 : false;
