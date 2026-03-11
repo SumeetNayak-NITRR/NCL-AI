@@ -57,7 +57,7 @@ const AbstractPlayerCard = ({ player, showStats = true, showRating = true }) => 
             className={`group relative w-full aspect-[3/4] overflow-hidden bg-background transition-all duration-500 ${currentStyle.border} ${currentStyle.glow}`}
         >
             {/* Background Texture */}
-            <div className={`absolute inset-0 bg-noise opacity-[0.05] group-hover:opacity-[0.1] transition-opacity ${currentStyle.bg}`}></div>
+            <div className={`absolute inset-0 opacity-[0.4] group-hover:opacity-[0.6] transition-opacity ${currentStyle.bg}`}></div>
 
             {/* Giant Number Background - Controlled by showRating */}
             {showRating && (
@@ -86,7 +86,7 @@ const AbstractPlayerCard = ({ player, showStats = true, showRating = true }) => 
                     <img
                         src={player.photo_url}
                         alt={player.name}
-                        className="h-[95%] w-auto object-contain drop-shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-all duration-700 filter grayscale contrast-125 brightness-90 group-hover:grayscale-0 group-hover:contrast-100 group-hover:brightness-100 group-hover:scale-110"
+                        className="h-[95%] w-auto object-contain drop-shadow-xl transition-all duration-700 filter grayscale brightness-90 group-hover:grayscale-0 group-hover:brightness-100 group-hover:scale-110"
                         style={{
                             transform: `scale(${player.image_scale || 1}) translate(${player.image_x || 0}px, ${player.image_y || 0}px)`,
                             transformOrigin: 'bottom center'
@@ -101,7 +101,7 @@ const AbstractPlayerCard = ({ player, showStats = true, showRating = true }) => 
             {/* Content Overlay */}
             <div className="absolute inset-0 flex flex-col justify-end p-6">
                 <div className="relative z-10 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                    <h3 className="font-bebas text-3xl text-white uppercase tracking-tighter leading-none mb-1 mix-blend-difference">
+                    <h3 className="font-bebas text-3xl text-white uppercase tracking-tighter leading-none mb-1 drop-shadow-md">
                         {player.name}
                     </h3>
                     <p className="font-rajdhani text-xs tracking-[0.2em] text-laser-blue uppercase mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">

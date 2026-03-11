@@ -175,7 +175,7 @@ const Team = () => {
                                     initial={{ opacity: 0, y: isMobile ? 0 : 50 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true, margin: isMobile ? "200px" : "0px" }}
-                                    transition={{ delay: isMobile ? 0 : index * 0.1, duration: isMobile ? 0.3 : 0.8 }}
+                                    transition={{ delay: isMobile ? 0 : (index % 4) * 0.1, duration: isMobile ? 0.3 : 0.8 }}
                                     onClick={() => setSelectedPlayer(player)}
                                     className="cursor-pointer hover:scale-[1.02] sm:hover:scale-105 transition-transform duration-300 w-full sm:max-w-none flex justify-center"
                                     layoutId={`card-${player.id}`}
