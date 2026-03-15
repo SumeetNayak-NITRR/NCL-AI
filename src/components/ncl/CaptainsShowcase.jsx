@@ -37,7 +37,7 @@ const teams = [
         image: '/assests/captain/sid.jpeg', photoX: '50%', photoY: '10%',
     },
     {
-        id: 6, name: 'TEAM NAME', captain: 'JUGAL MEHTA', role: 'Captain',
+        id: 6, name: 'ZERO LUCK', captain: 'JUGAL MEHTA', role: 'Captain',
         color: '#164e63', accentColor: '#67e8f9',
         image: '/assests/captain/jugal.webp', photoX: '50%', photoY: '10%',
     },
