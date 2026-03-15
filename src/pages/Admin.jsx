@@ -7,7 +7,7 @@ import EditMatchModal from '../components/admin/EditMatchModal'
 import MatchResultModal from '../components/admin/MatchResultModal'
 import PlayerCardPreview from '../components/admin/PlayerCardPreview'
 import LoadingSpinner from '../components/common/LoadingSpinner'
-import { Lock, Search, Filter, RefreshCw, Eye, LogOut, ArrowLeft, Info, Download } from 'lucide-react'
+import { Lock, Search, Filter, RefreshCw, Eye, LogOut, ArrowLeft, Info, Download, FileSpreadsheet } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SEO from '../components/common/SEO'
 import { ALLOWED_ADMIN_EMAILS } from '../config/admin'
@@ -152,6 +152,30 @@ const Admin = () => {
         } finally {
             setExporting(false)
         }
+    }
+
+    const handleExportCSV = () => {
+        if (!players.length) {
+            toast.error('No players to export.')
+            return
+        }
+        const headers = ['Name', 'Year', 'Position', 'Branch', 'Status']
+        const rows = players.map(p => [
+            '"' + (p.name || '').replace(/"/g, '""') + '"',
+            '"' + (p.year || '') + '"',
+            '"' + (p.position || '') + '"',
+            '"' + (p.branch || '') + '"',
+            '"' + (p.status || '') + '"',
+        ].join(','))
+        const csv = [headers.join(','), ...rows].join('\n')
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'NCL_Players.csv'
+        a.click()
+        URL.revokeObjectURL(url)
+        toast.success(`NCL_Players.csv downloaded (${players.length} players)`)
     }
 
     const handleManualRefresh = () => {
@@ -313,6 +337,14 @@ const Admin = () => {
                                 {exporting ? 'Exporting...' : 'Export Slides'}
                             </button>
                         )}
+                        <button
+                            onClick={handleExportCSV}
+                            className="px-5 py-3 bg-black/40 backdrop-blur-sm border border-white/10 hover:border-neon/50 text-white hover:text-neon rounded-xl font-oswald uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg"
+                            title="Export Players as CSV / Google Sheet"
+                        >
+                            <FileSpreadsheet size={16} />
+                            Export Sheet
+                        </button>
                         <button
                             onClick={handleLogout}
                             className="px-5 py-3 border border-red-500/30 text-red-400 hover:text-red-300 hover:bg-red-500/10 hover:border-red-500/50 rounded-xl font-oswald uppercase transition-all flex items-center gap-2 shadow-lg"

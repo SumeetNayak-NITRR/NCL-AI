@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, User } from 'lucide-react'
 import Navigation from '../components/common/Navigation'
@@ -98,6 +98,23 @@ const Team = () => {
         return p.position === filter
     })
 
+    // Year-wise grouping (only for All / Main Squad)
+    const YEAR_ORDER = ['1st', '2nd', '3rd', '4th', '5th']
+    const useGrouping = filter === 'All' || filter === 'Main Squad'
+
+    const groupedByYear = useMemo(() => {
+        if (!useGrouping) return null
+        const groups = {}
+        for (const year of YEAR_ORDER) groups[year] = []
+        for (const p of filteredPlayers) {
+            const y = p.year && YEAR_ORDER.includes(p.year) ? p.year : null
+            if (y) groups[y].push(p)
+        }
+        // Only keep non-empty groups, in order
+        return YEAR_ORDER.filter(y => groups[y].length > 0).map(y => ({ year: y, players: groups[y] }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filteredPlayers, filter])
+
 
 
     // Detect if we are on a mobile device
@@ -167,7 +184,48 @@ const Team = () => {
                         <div className="h-64 flex flex-col items-center justify-center border border-white/5 bg-white/5">
                             <p className="text-4xl font-bebas text-white/50 uppercase">No Players Found</p>
                         </div>
+                    ) : useGrouping && groupedByYear ? (
+                        // Year-grouped layout
+                        <div className="flex flex-col gap-12">
+                            {groupedByYear.map(({ year, players: yearPlayers }) => (
+                                <div key={year}>
+                                    {/* Year header */}
+                                    <div className="flex items-center gap-4 mb-8">
+                                        <span className="font-bebas text-3xl text-white/80 tracking-wider leading-none">
+                                            {year} Year
+                                        </span>
+                                        <span className="font-rajdhani text-sm text-laser-blue border border-laser-blue/30 px-2 py-0.5 rounded-sm tracking-widest">
+                                            {yearPlayers.length}
+                                        </span>
+                                        <div className="flex-1 h-px bg-white/10" />
+                                    </div>
+
+                                    {/* Player cards for this year */}
+                                    <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-x-8 sm:gap-y-16 px-2 sm:px-0">
+                                        {yearPlayers.map((player, index) => (
+                                            <motion.div
+                                                key={player.id}
+                                                initial={{ opacity: 0, y: isMobile ? 0 : 50 }}
+                                                whileInView={{ opacity: 1, y: 0 }}
+                                                viewport={{ once: true, margin: isMobile ? "200px" : "0px" }}
+                                                transition={{ delay: isMobile ? 0 : (index % 4) * 0.1, duration: isMobile ? 0.3 : 0.8 }}
+                                                onClick={() => setSelectedPlayer(player)}
+                                                className="cursor-pointer hover:scale-[1.02] sm:hover:scale-105 transition-transform duration-300 w-full sm:max-w-none flex justify-center"
+                                                layoutId={`card-${player.id}`}
+                                            >
+                                                {isMobile ? (
+                                                    <InstaPlayerRow player={player} />
+                                                ) : (
+                                                    <AbstractPlayerCard player={player} showStats={false} showRating={true} />
+                                                )}
+                                            </motion.div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     ) : (
+                        // Flat layout (position filters, Alumni)
                         <div className="flex flex-col sm:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-x-8 sm:gap-y-16 px-2 sm:px-0">
                             {filteredPlayers.map((player, index) => (
                                 <motion.div
