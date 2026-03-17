@@ -3,12 +3,13 @@ import { motion } from 'framer-motion'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import ImageUpload from '../components/register/ImageUpload'
-import { Info, ArrowLeft } from 'lucide-react'
+import { Info, ArrowLeft, Calendar } from 'lucide-react'
 import SEO from '../components/common/SEO'
 import Navigation from '../components/common/Navigation'
 import Footer from '../components/common/Footer'
 import { toast } from 'sonner'
 import imageCompression from 'browser-image-compression'
+import { REGISTRATION_CONFIG } from '../config/registration'
 
 const positions = ['ST', 'CF', 'LW', 'RW', 'LM', 'RM', 'CAM', 'CM', 'CDM', 'LB', 'RB', 'CB', 'GK']
 const years = ['1st', '2nd', '3rd', '4th', '5th']
@@ -299,8 +300,10 @@ const Register = () => {
             </section>
 
             {/* ── FLOATING SECTION NAVIGATOR (right side vertical) ── */}
-            <motion.div
-                initial={{ opacity: 0, x: 20 }}
+            {REGISTRATION_CONFIG.isOpen && (
+                <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.6, duration: 0.5 }}
                 className="fixed right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center gap-1.5 bg-background/90 backdrop-blur-xl border border-white/10 px-2.5 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.7)]"
@@ -330,7 +333,8 @@ const Register = () => {
                         </span>
                     </button>
                 ))}
-            </motion.div>
+                </motion.div>
+            )}
 
             {/* ── FORM ── */}
             <section className="max-w-5xl mx-auto px-6 md:px-8 pb-40">
@@ -345,9 +349,10 @@ const Register = () => {
                     </motion.div>
                 )}
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                {REGISTRATION_CONFIG.isOpen ? (
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
 
-                    {/* ── Section 01: Personal ── */}
+                        {/* ── Section 01: Personal ── */}
                     <motion.div ref={sectionRefs[0]} variants={sectionVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="border border-white/10 bg-white/[0.02] p-8 md:p-10">
                         <div className="flex items-start gap-6 mb-10 pb-8 border-b border-white/10">
                             <span className="font-bebas text-5xl text-laser-blue/30 leading-none select-none">01</span>
@@ -535,6 +540,47 @@ const Register = () => {
                     </motion.div>
 
                 </form>
+                ) : (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="flex flex-col items-center justify-center py-20 text-center border border-white/10 bg-white/[0.02] p-8 md:p-16 rounded-2xl relative overflow-hidden"
+                    >
+                        {/* Background glow */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg h-full max-h-lg bg-laser-blue/5 rounded-full blur-[100px] pointer-events-none" />
+                        
+                        <div className="w-20 h-20 bg-laser-blue/10 rounded-full flex items-center justify-center mb-10 border border-laser-blue/30 shadow-[0_0_30px_rgba(0,255,255,0.2)] relative z-10">
+                            <Info className="w-10 h-10 text-laser-blue" />
+                        </div>
+                        
+                        <h2 className="font-bebas text-5xl md:text-6xl tracking-wider text-white mb-6 relative z-10 drop-shadow-lg">
+                            REGISTRATION <span className="text-signal-red">CLOSED</span>
+                        </h2>
+                        
+                        <p className="text-white/70 font-rajdhani text-lg md:text-xl tracking-wide max-w-2xl mx-auto mb-14 leading-relaxed relative z-10">
+                            {REGISTRATION_CONFIG.message}
+                        </p>
+                        
+                        <div className="bg-black/60 backdrop-blur-md border border-white/10 p-8 rounded-2xl max-w-md w-full relative overflow-hidden group shadow-2xl z-10">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-laser-blue/50 to-transparent opacity-50 transition-opacity duration-700" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-laser-blue/0 via-laser-blue/5 to-laser-blue/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                            
+                            <div className="flex items-center justify-center gap-3 mb-4 text-laser-blue">
+                                <Calendar size={20} />
+                                <h3 className="font-rajdhani text-sm tracking-[0.3em] uppercase font-bold text-white/90">Upcoming Auction</h3>
+                            </div>
+                            
+                            <p className="font-bebas text-4xl text-white drop-shadow-md">{REGISTRATION_CONFIG.auctionDate}</p>
+                        </div>
+                        
+                        <Link to="/" className="mt-16 group relative px-8 py-4 bg-white/5 border border-white/20 hover:border-laser-blue/50 rounded-xl text-white font-rajdhani font-bold text-sm tracking-[0.2em] uppercase transition-all overflow-hidden flex items-center gap-3 z-10 shadow-lg hover:shadow-[0_0_20px_rgba(0,255,255,0.2)]">
+                            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+                            <span className="relative z-10 transition-colors duration-300">Return to Field</span>
+                            <div className="absolute inset-0 bg-laser-blue/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                        </Link>
+                    </motion.div>
+                )}
             </section>
 
             <Footer />

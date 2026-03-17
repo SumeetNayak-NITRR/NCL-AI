@@ -37,13 +37,13 @@ export const exportAuctionPptx = async (players) => {
         p.status === 'Ready' || p.status === 'approved' || p.status === 'Approved'
     )
 
-    // Sort by auction_order. Nulls/0s go to the end.
+    // Sort by base_price. Nulls/0s go to the end. Highest price first.
     approved.sort((a, b) => {
-        const orderA = a.auction_order;
-        const orderB = b.auction_order;
-        if (!orderA) return 1;
-        if (!orderB) return -1;
-        return orderA - orderB;
+        const priceA = a.base_price;
+        const priceB = b.base_price;
+        if (!priceA) return 1;
+        if (!priceB) return -1;
+        return priceB - priceA;
     });
 
     if (!approved.length) { alert('No approved players found to export.'); return }

@@ -558,26 +558,57 @@ const Admin = () => {
                             <div className="flex justify-between items-end mb-4 gap-4 flex-wrap">
                                 <div>
                                     <h2 className="font-bebas text-3xl text-white mb-2">Auction Queue Setup</h2>
-                                    <p className="font-rajdhani text-sm text-white/50">Assign order and mystery flags. Unordered players will appear at the end.</p>
+                                    <p className="font-rajdhani text-sm text-white/50">Assign base prices and mystery flags. Players with 0 or empty base price will appear at the end.</p>
                                 </div>
-                                <button
-                                    onClick={async () => {
-                                        try {
-                                            toast.info("Generating Presentation...");
-                                            const { exportAuctionPptx } = await import('../lib/exportAuctionPptx');
-                                            await exportAuctionPptx(players);
-                                            toast.success("Presentation ready!");
-                                        } catch (e) {
-                                            console.error(e);
-                                            toast.error("Export failed.");
-                                        }
-                                    }}
-                                    className="px-6 py-3 bg-gradient-to-r from-laser-blue/80 to-purple-500/80 hover:from-laser-blue hover:to-purple-500 text-white font-oswald uppercase tracking-widest text-sm rounded transition-all shadow-lg flex items-center gap-2"
-                                >
-                                    <Download size={18} />
-                                    Generate PPTX Deck
-                                </button>
-                            </div>
+                                    <button
+                                        onClick={async () => {
+                                            if (!window.confirm("This will overwrite existing base prices with auction_order values. Proceed?")) return;
+                                            try {
+                                                toast.info("Migrating Data...");
+                                                // Fetch all eligible players
+                                                const { data: eligiblePlayers } = await supabase.from('players').select('id, auction_order').not('auction_order', 'is', null);
+                                                if (eligiblePlayers && eligiblePlayers.length > 0) {
+                                                    const updates = eligiblePlayers.map(p => ({
+                                                        id: p.id,
+                                                        base_price: p.auction_order,
+                                                        auction_order: null // clear it out after migrating to prevent re-migration
+                                                    }));
+                                                    
+                                                    const { error } = await supabase.from('players').upsert(updates);
+                                                    if (error) throw error;
+                                                    
+                                                    toast.success(`Migrated ${eligiblePlayers.length} players successfully!`);
+                                                    fetchPlayers(true);
+                                                } else {
+                                                    toast.info("No players with auction orders to migrate.");
+                                                }
+                                            } catch (e) {
+                                                console.error(e);
+                                                toast.error("Migration failed.");
+                                            }
+                                        }}
+                                        className="px-6 py-3 bg-gradient-to-r from-yellow-500/80 to-gold/80 hover:from-yellow-500 hover:to-gold text-black font-oswald uppercase tracking-widest text-sm rounded transition-all shadow-lg flex items-center gap-2"
+                                    >
+                                        Migrate Data
+                                    </button>
+                                    <button
+                                        onClick={async () => {
+                                            try {
+                                                toast.info("Generating Presentation...");
+                                                const { exportAuctionPptx } = await import('../lib/exportAuctionPptx');
+                                                await exportAuctionPptx(players);
+                                                toast.success("Presentation ready!");
+                                            } catch (e) {
+                                                console.error(e);
+                                                toast.error("Export failed.");
+                                            }
+                                        }}
+                                        className="px-6 py-3 bg-gradient-to-r from-laser-blue/80 to-purple-500/80 hover:from-laser-blue hover:to-purple-500 text-white font-oswald uppercase tracking-widest text-sm rounded transition-all shadow-lg flex items-center gap-2"
+                                    >
+                                        <Download size={18} />
+                                        Generate PPTX Deck
+                                    </button>
+                                </div>
 
                             <input
                                 type="text"
@@ -589,12 +620,12 @@ const Admin = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 overflow-y-auto pr-2 custom-scrollbar">
                                 {players.filter(p => ['Ready', 'approved', 'Approved'].includes(p.status) && p.name.toLowerCase().includes(auctionSearch.toLowerCase()))
-                                    .sort((a, b) => {
-                                        const orderA = a.auction_order;
-                                        const orderB = b.auction_order;
-                                        if (orderA === null || orderA === undefined || orderA === 0) return 1; // Send zeroes/nulls to back
-                                        if (orderB === null || orderB === undefined || orderB === 0) return -1;
-                                        return orderA - orderB;
+                                .sort((a, b) => {
+                                        const priceA = a.base_price;
+                                        const priceB = b.base_price;
+                                        if (priceA === null || priceA === undefined || priceA === 0) return 1; // Send zeroes/nulls to back
+                                        if (priceB === null || priceB === undefined || priceB === 0) return -1;
+                                        return priceB - priceA; // Highest price first
                                     })
                                     .map(p => (
                                         <div key={p.id} className={`p-4 rounded-xl border flex gap-4 items-center transition-all ${p.is_mystery ? 'border-[#ff2200]/50 bg-gradient-to-r from-[#ff2200]/10 to-transparent' : 'border-white/10 bg-white/5 hover:border-white/30'}`}>
@@ -607,13 +638,13 @@ const Admin = () => {
                                             </div>
                                             <div className="flex flex-col gap-2 items-end">
                                                 <div className="bg-black/40 px-2 py-1 rounded border border-white/10 flex items-center gap-2">
-                                                    <span className="text-[10px] text-white/40 tracking-widest font-rajdhani uppercase">Order</span>
+                                                    <span className="text-[10px] text-white/40 tracking-widest font-rajdhani uppercase">Base Price</span>
                                                     <input
                                                         type="number"
-                                                        defaultValue={p.auction_order || ''}
+                                                        defaultValue={p.base_price || ''}
                                                         placeholder="—"
-                                                        onBlur={(e) => updateAuctionStatus(p.id, { auction_order: parseInt(e.target.value) || null })}
-                                                        className="w-10 bg-transparent border-b border-white/30 text-center text-sm font-mono text-neon outline-none focus:border-neon"
+                                                        onBlur={(e) => updateAuctionStatus(p.id, { base_price: parseInt(e.target.value) || 0 })}
+                                                        className="w-16 bg-transparent border-b border-white/30 text-center text-sm font-mono text-neon outline-none focus:border-neon"
                                                     />
                                                 </div>
                                                 <button

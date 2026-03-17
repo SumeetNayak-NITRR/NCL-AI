@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 const teams = [
     {
-        id: 1, name: 'TEAM NAME', captain: 'SANJIV BHOI', role: 'Captain',
+        id: 1, name: 'NOWHERE FC', captain: 'SANJIV BHOI', role: 'Captain',
         color: '#7f1d1d', accentColor: '#fca5a5',
         image: '/assests/captain/sanjiv.webp', photoX: '50%', photoY: '10%',
     },
