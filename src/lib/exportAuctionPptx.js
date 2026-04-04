@@ -23,7 +23,8 @@ const renderFullCardHighRes = async (player) => {
 }
 
 
-export const exportAuctionPptx = async (players) => {
+export const exportAuctionPptx = async (players, options = {}) => {
+    const fileName = options.fileName || 'NCL_Auction_2025.pptx';
     const pptx = new PptxGenJS()
     pptx.layout = 'LAYOUT_WIDE' // 13.33 × 7.5 in
 
@@ -37,14 +38,80 @@ export const exportAuctionPptx = async (players) => {
         p.status === 'Ready' || p.status === 'approved' || p.status === 'Approved'
     )
 
-    // Sort by base_price. Nulls/0s go to the end. Highest price first.
-    approved.sort((a, b) => {
-        const priceA = a.base_price;
-        const priceB = b.base_price;
-        if (!priceA) return 1;
-        if (!priceB) return -1;
-        return priceB - priceA;
+    // --- CUSTOM ROUND-WISE SORTING ---
+    const shuffle = (array) => {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex !== 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    };
+
+    let pool1500 = [], pool1000 = [], pool500 = [], pool300 = [], pool100 = [], poolMystery = [], others = [];
+    approved.forEach(p => {
+        if (p.is_mystery) poolMystery.push(p);
+        else if (p.base_price === 1500) pool1500.push(p);
+        else if (p.base_price === 1000) pool1000.push(p);
+        else if (p.base_price === 500) pool500.push(p);
+        else if (p.base_price === 300) pool300.push(p);
+        else if (p.base_price === 100) pool100.push(p);
+        else others.push(p);
     });
+
+    shuffle(pool1500);
+    shuffle(pool1000);
+    shuffle(pool500);
+    shuffle(pool300);
+    shuffle(pool100);
+    shuffle(poolMystery);
+    shuffle(others);
+
+    const pullPlayers = (arr, count) => arr.splice(0, count);
+
+    let finalOrder = [];
+
+    // Round 1: 4 1500, 4 1000, 1 mystery, 6 500
+    finalOrder.push(...pullPlayers(pool1500, 4));
+    finalOrder.push(...pullPlayers(pool1000, 4));
+    finalOrder.push(...pullPlayers(poolMystery, 1));
+    finalOrder.push(...pullPlayers(pool500, 6));
+
+    // Round 2: 3 1500, 5 1000, 2 mystery, 10 500, 10 300 (fallback to 100 if user meant bronze)
+    finalOrder.push(...pullPlayers(pool1500, 3));
+    finalOrder.push(...pullPlayers(pool1000, 5));
+    finalOrder.push(...pullPlayers(poolMystery, 2));
+    finalOrder.push(...pullPlayers(pool500, 10));
+    let r2_300 = pullPlayers(pool300, 10);
+    finalOrder.push(...r2_300);
+    if (r2_300.length < 10) {
+        finalOrder.push(...pullPlayers(pool100, 10 - r2_300.length));
+    }
+
+    // Round 3: 4 1000, 3 mystery, 10 500, 10 300 (fallback to 100 if user meant bronze)
+    finalOrder.push(...pullPlayers(pool1000, 4));
+    finalOrder.push(...pullPlayers(poolMystery, 3));
+    finalOrder.push(...pullPlayers(pool500, 10));
+    let r3_300 = pullPlayers(pool300, 10);
+    finalOrder.push(...r3_300);
+    if (r3_300.length < 10) {
+        finalOrder.push(...pullPlayers(pool100, 10 - r3_300.length));
+    }
+
+    // Round 4 (rest of the players)
+    let remaining = [...pool1500, ...pool1000, ...pool500, ...pool300, ...pool100, ...poolMystery, ...others];
+    // Sort remaining by base price descending so top players don't get lost
+    remaining.sort((a, b) => {
+        const pA = a.base_price || 0;
+        const pB = b.base_price || 0;
+        return pB - pA;
+    });
+    
+    finalOrder.push(...remaining);
+
+    // Apply the sorted and structured array
+    approved = finalOrder;
 
     if (!approved.length) { alert('No approved players found to export.'); return }
 
@@ -271,5 +338,5 @@ export const exportAuctionPptx = async (players) => {
         await buildSlide(player, false, cardData)
     }
 
-    await pptx.writeFile({ fileName: 'NCL_Auction_2025.pptx' })
+    await pptx.writeFile({ fileName })
 }

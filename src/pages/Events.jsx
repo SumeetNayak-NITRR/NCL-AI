@@ -101,7 +101,7 @@ const Events = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-end">
                         <div>
                             <h2 className="text-sm font-rajdhani tracking-[0.5em] text-laser-blue uppercase mb-4">
-                                Season 2025-26
+                                Season 2026
                             </h2>
                             <h1 className="text-6xl md:text-8xl font-bebas text-white uppercase tracking-tighter leading-[0.9]">
                                 MATCH <br />

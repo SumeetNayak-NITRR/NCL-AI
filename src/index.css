@@ -39,6 +39,31 @@
     mix-blend-mode: difference;
   }
 
+  .ucl-poster-bg {
+    background-color: #020024;
+    background-image: 
+      radial-gradient(ellipse at -20% 120%, #4facfe 0%, transparent 40%),
+      radial-gradient(ellipse at -10% 110%, #00f2fe 10%, transparent 50%),
+      radial-gradient(ellipse at 120% 120%, #ff0844 0%, transparent 40%),
+      radial-gradient(ellipse at 110% 110%, #ffb199 10%, transparent 50%),
+      radial-gradient(circle at center top, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,0.05) 100%);
+  }
+
+  .ucl-poster-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.02) 2px,
+      rgba(255, 255, 255, 0.02) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
   .text-outline {
     -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
     color: transparent;

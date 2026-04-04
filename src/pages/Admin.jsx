@@ -30,6 +30,7 @@ const Admin = () => {
     const [selectedMatch, setSelectedMatch] = useState(null)
     const [activeTab, setActiveTab] = useState('players') // 'players', 'matches', or 'auction'
     const [exporting, setExporting] = useState(false)
+    const [separateMystery, setSeparateMystery] = useState(false)
 
     useEffect(() => {
         // Check active session
@@ -145,8 +146,16 @@ const Admin = () => {
         setExporting(true)
         toast.info(`Generating slides for ${approvedPlayers.length} players...`)
         try {
-            await exportAuctionPptx(approvedPlayers)
-            toast.success('NCL_Auction_2025.pptx downloaded!')
+            if (separateMystery) {
+                const regularPlayers = approvedPlayers.filter(p => !p.is_mystery)
+                const mysteryPlayers = approvedPlayers.filter(p => p.is_mystery)
+                if (regularPlayers.length > 0) await exportAuctionPptx(regularPlayers, { fileName: 'NCL_Auction_2025_Main.pptx' })
+                if (mysteryPlayers.length > 0) await exportAuctionPptx(mysteryPlayers, { fileName: 'NCL_Mystery_Players_2025.pptx' })
+                toast.success('Presentations downloaded!')
+            } else {
+                await exportAuctionPptx(approvedPlayers)
+                toast.success('NCL_Auction_2025.pptx downloaded!')
+            }
         } catch (err) {
             toast.error('Export failed: ' + err.message)
         } finally {
@@ -327,15 +336,27 @@ const Admin = () => {
                             <RefreshCw size={20} className={loading ? 'animate-spin' : ''} />
                         </button>
                         {activeTab === 'players' && (
-                            <button
-                                onClick={handleExportPptx}
-                                disabled={exporting}
-                                className="px-5 py-3 bg-black/40 backdrop-blur-sm border border-white/10 hover:border-gold/50 text-white hover:text-gold rounded-xl font-oswald uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg disabled:opacity-40 disabled:cursor-not-allowed"
-                                title="Export Auction PPTX"
-                            >
-                                <Download size={16} className={exporting ? 'animate-bounce' : ''} />
-                                {exporting ? 'Exporting...' : 'Export Slides'}
-                            </button>
+                            <div className="flex items-center gap-4 bg-black/40 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-2 shadow-lg hover:border-white/30 transition-all">
+                                <label className="flex items-center gap-2 text-white/70 text-sm font-rajdhani cursor-pointer hover:text-white transition-colors">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={separateMystery}
+                                        onChange={(e) => setSeparateMystery(e.target.checked)}
+                                        className="rounded border-white/20 text-gold focus:ring-gold/50 w-4 h-4 cursor-pointer accent-gold"
+                                    />
+                                    Separate Mystery
+                                </label>
+                                <div className="w-px h-6 bg-white/10"></div>
+                                <button
+                                    onClick={handleExportPptx}
+                                    disabled={exporting}
+                                    className="text-white hover:text-gold font-oswald uppercase tracking-wider transition-all flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                                    title="Export Auction PPTX"
+                                >
+                                    <Download size={16} className={exporting ? 'animate-bounce' : ''} />
+                                    {exporting ? 'Exporting...' : 'Export Slides'}
+                                </button>
+                            </div>
                         )}
                         <button
                             onClick={handleExportCSV}
@@ -591,23 +612,42 @@ const Admin = () => {
                                     >
                                         Migrate Data
                                     </button>
-                                    <button
-                                        onClick={async () => {
-                                            try {
-                                                toast.info("Generating Presentation...");
-                                                const { exportAuctionPptx } = await import('../lib/exportAuctionPptx');
-                                                await exportAuctionPptx(players);
-                                                toast.success("Presentation ready!");
-                                            } catch (e) {
-                                                console.error(e);
-                                                toast.error("Export failed.");
-                                            }
-                                        }}
-                                        className="px-6 py-3 bg-gradient-to-r from-laser-blue/80 to-purple-500/80 hover:from-laser-blue hover:to-purple-500 text-white font-oswald uppercase tracking-widest text-sm rounded transition-all shadow-lg flex items-center gap-2"
-                                    >
-                                        <Download size={18} />
-                                        Generate PPTX Deck
-                                    </button>
+                                    <div className="flex flex-col gap-2 items-end mt-2 md:mt-0">
+                                        <button
+                                            onClick={async () => {
+                                                try {
+                                                    toast.info("Generating Presentation...");
+                                                    const { exportAuctionPptx } = await import('../lib/exportAuctionPptx');
+                                                    if (separateMystery) {
+                                                        const regularPlayers = players.filter(p => !p.is_mystery);
+                                                        const mysteryPlayers = players.filter(p => p.is_mystery);
+                                                        if (regularPlayers.length > 0) await exportAuctionPptx(regularPlayers, { fileName: 'NCL_Auction_2025_Main.pptx' });
+                                                        if (mysteryPlayers.length > 0) await exportAuctionPptx(mysteryPlayers, { fileName: 'NCL_Mystery_Players_2025.pptx' });
+                                                        toast.success("Presentations ready!");
+                                                    } else {
+                                                        await exportAuctionPptx(players);
+                                                        toast.success("Presentation ready!");
+                                                    }
+                                                } catch (e) {
+                                                    console.error(e);
+                                                    toast.error("Export failed.");
+                                                }
+                                            }}
+                                            className="px-6 py-3 bg-gradient-to-r from-laser-blue/80 to-purple-500/80 hover:from-laser-blue hover:to-purple-500 text-white font-oswald uppercase tracking-widest text-sm rounded transition-all shadow-lg flex items-center gap-2"
+                                        >
+                                            <Download size={18} />
+                                            Generate PPTX Deck
+                                        </button>
+                                        <label className="flex items-center gap-2 text-white/70 text-sm font-rajdhani cursor-pointer hover:text-white transition-colors mr-1">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={separateMystery}
+                                                onChange={(e) => setSeparateMystery(e.target.checked)}
+                                                className="rounded border-white/20 text-laser-blue focus:ring-laser-blue/50 w-4 h-4 cursor-pointer accent-laser-blue"
+                                            />
+                                            Separate Mystery
+                                        </label>
+                                    </div>
                                 </div>
 
                             <input
